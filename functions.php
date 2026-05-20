@@ -284,20 +284,29 @@ function the_alpha_seo() {
 		return;
 	}
 
-	$site_name = get_bloginfo( 'name' );
-	$site_url  = home_url( '/' );
-	$locale    = str_replace( '-', '_', get_bloginfo( 'language' ) );
+	$site_name    = get_bloginfo( 'name' );
+	$site_tagline = get_bloginfo( 'description' );
+	$site_url     = home_url( '/' );
+	$locale       = str_replace( '-', '_', get_bloginfo( 'language' ) );
 
-	// Context-aware title, URL, type, description, image.
-	$title = $site_name;
+	// Context-aware title, URL, type, description, image. Homepage gets
+	// "{name} — {tagline}" as og:title so social previews aren't just the
+	// bare site name.
+	$title = ( ( is_front_page() || is_home() ) && $site_tagline )
+		? $site_name . ' — ' . $site_tagline
+		: $site_name;
 	$url   = $site_url;
 	$type  = 'website';
-	$desc  = get_bloginfo( 'description' );
+	$desc  = $site_tagline;
 	$img   = '';
 	$img_w = 0;
 	$img_h = 0;
 
-	if ( is_singular() ) {
+	// Front-page check wins even when the front page is a static Page —
+	// otherwise is_singular() would grab the bare page title.
+	if ( is_front_page() ) {
+		// Keep the homepage defaults set above. Nothing more to derive.
+	} elseif ( is_singular() ) {
 		$title = wp_strip_all_tags( get_the_title() );
 		$url   = get_permalink();
 		$type  = is_singular( 'post' ) ? 'article' : 'website';
@@ -327,6 +336,28 @@ function the_alpha_seo() {
 		/* translators: %s: search query. */
 		$title = sprintf( esc_html__( 'Search results for "%s"', 'the-alpha' ), get_search_query() );
 		$url   = home_url( '/?s=' . rawurlencode( get_search_query() ) );
+	}
+
+	// Fall back to a brand image when context-resolution didn't yield one
+	// (homepage, category/tag, search, etc.) — try custom logo → site icon
+	// → theme avatar so social previews always have *something* on-brand.
+	if ( ! $img ) {
+		$logo_id = (int) get_theme_mod( 'custom_logo' );
+		if ( $logo_id ) {
+			$src = wp_get_attachment_image_src( $logo_id, 'full' );
+			if ( $src ) {
+				list( $img, $img_w, $img_h ) = $src;
+			}
+		}
+	}
+	if ( ! $img && function_exists( 'get_site_icon_url' ) ) {
+		$icon = get_site_icon_url( 512 );
+		if ( $icon ) {
+			$img = $icon;
+		}
+	}
+	if ( ! $img ) {
+		$img = THE_ALPHA_URI . '/assets/img/avatar.webp';
 	}
 
 	$desc  = the_alpha_seo_truncate( $desc ?: get_bloginfo( 'description' ) );
