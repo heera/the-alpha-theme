@@ -161,6 +161,14 @@
               l.getAttribute("data-section") === id
             );
           });
+          // Mirror the active section into the URL hash without
+          // polluting browser history (replaceState, not pushState).
+          if (
+            history.replaceState &&
+            location.hash !== "#" + id
+          ) {
+            history.replaceState(null, "", "#" + id);
+          }
         });
       },
       { rootMargin: "-45% 0px -45% 0px", threshold: 0 }
