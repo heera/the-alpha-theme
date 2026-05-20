@@ -1,0 +1,20 @@
+/*
+Theme Name: The Alpha
+Theme URI: http://heera.it/
+Author: Sheikh Heera
+Author URI: http://heera.it/
+Description: A fast, dependency-free single-page blog theme for a software developer & fragrance enthusiast. Dark-first "Tech Noir" design with a flicker-free dark/light toggle, scroll-spy navigation, and zero bloat (no Bootstrap, no Elementor, no jQuery).
+Version: 1.0.0
+Requires at least: 6.0
+Requires PHP: 7.4
+License: GNU General Public License v2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: the-alpha
+Tags: blog, one-column, two-columns, dark-mode, custom-menu, featured-images, threaded-comments, translation-ready
+*/
+
+/*
+ * The full design system lives in assets/css/main.css (enqueued in functions.php).
+ * This file only carries the required theme header so the stylesheet stays
+ * cacheable and the critical CSS path remains minimal.
+ */

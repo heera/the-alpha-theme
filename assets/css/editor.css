@@ -1,0 +1,102 @@
+/* The Alpha — block editor stylesheet.
+   Mirrors the frontend prose & block treatment so what authors see in the
+   editor closely matches what visitors will see. Token values are inlined
+   (no CSS-var dependency on root) so the editor iframe renders correctly. */
+
+.editor-styles-wrapper {
+  --accent: #5ee6d0;
+  --accent-2: #8b7cff;
+  --ink: #e8eaed;
+  --ink-soft: #aab2bd;
+  --ink-dim: #6c7682;
+  --border: #232a33;
+  --border-soft: #1b2128;
+  --bg: #0b0d10;
+  --bg-2: #101317;
+  --surface: #14181d;
+  --radius: 14px;
+  --radius-sm: 9px;
+  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+  font-size: 1rem;
+  line-height: 1.8;
+  color: var(--ink-soft);
+  background: var(--bg);
+}
+
+.editor-styles-wrapper h1,
+.editor-styles-wrapper h2,
+.editor-styles-wrapper h3,
+.editor-styles-wrapper h4 {
+  font-family: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+  line-height: 1.18;
+}
+.editor-styles-wrapper h1 { font-size: 2rem; }
+.editor-styles-wrapper h2 { font-size: 1.7rem; }
+.editor-styles-wrapper h3 { font-size: 1.32rem; }
+.editor-styles-wrapper h4 { font-size: 1.12rem; }
+
+.editor-styles-wrapper a {
+  color: var(--accent);
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  text-decoration: none;
+}
+.editor-styles-wrapper strong { color: var(--ink); }
+
+.editor-styles-wrapper blockquote,
+.editor-styles-wrapper .wp-block-quote {
+  border-left: 2px solid var(--accent);
+  padding: 0.4rem 0 0.4rem 1rem;
+  color: var(--ink);
+  font-style: italic;
+}
+
+.editor-styles-wrapper code,
+.editor-styles-wrapper .wp-block-code {
+  font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.92em;
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  padding: 0.12em 0.4em;
+  color: var(--ink);
+}
+.editor-styles-wrapper pre,
+.editor-styles-wrapper .wp-block-code pre,
+.editor-styles-wrapper .wp-block-preformatted {
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  padding: 1.1rem;
+  overflow: auto;
+  color: var(--ink);
+}
+.editor-styles-wrapper pre code { background: none; border: 0; padding: 0; }
+
+.editor-styles-wrapper img,
+.editor-styles-wrapper .wp-block-image img {
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.editor-styles-wrapper hr,
+.editor-styles-wrapper .wp-block-separator {
+  border: 0;
+  border-top: 1px solid var(--border);
+}
+
+/* Palette mapping inside the editor too — so colored text/bg blocks in
+   the editor reflect the same swatches the frontend will render. */
+.editor-styles-wrapper .has-ink-color      { color: var(--ink); }
+.editor-styles-wrapper .has-soft-color     { color: var(--ink-soft); }
+.editor-styles-wrapper .has-accent-color   { color: var(--accent); }
+.editor-styles-wrapper .has-accent-2-color { color: var(--accent-2); }
+.editor-styles-wrapper .has-surface-color  { color: var(--surface); }
+.editor-styles-wrapper .has-bg-color       { color: var(--bg); }
+.editor-styles-wrapper .has-ink-background-color      { background-color: var(--ink); }
+.editor-styles-wrapper .has-soft-background-color     { background-color: var(--ink-soft); }
+.editor-styles-wrapper .has-accent-background-color   { background-color: var(--accent); }
+.editor-styles-wrapper .has-accent-2-background-color { background-color: var(--accent-2); }
+.editor-styles-wrapper .has-surface-background-color  { background-color: var(--surface); }
+.editor-styles-wrapper .has-bg-background-color       { background-color: var(--bg); }
