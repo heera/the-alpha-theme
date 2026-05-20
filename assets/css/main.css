@@ -1404,6 +1404,17 @@ body.page .lede { max-width: none; }
 .prose ul, .prose ol { padding-left: 1.3rem; }
 .prose li + li { margin-top: 0.5rem; }
 .prose img { border-radius: var(--radius-sm); border: 1px solid var(--border); }
+/* Dark mode: tone down bright/white in-post images (screenshots, charts,
+   light UI captures) by inverting brightness and rotating hue back so
+   colours stay correct. Add class "no-invert" to any image that should
+   stay original (e.g. dark screenshots, photographs of people, branding). */
+[data-theme="dark"] .prose img {
+  filter: invert(0.92) hue-rotate(180deg);
+}
+[data-theme="dark"] .prose img.no-invert,
+[data-theme="dark"] .prose img[data-no-invert] {
+  filter: none;
+}
 .prose blockquote {
   border-left: 3px solid var(--accent);
   padding: 0.4rem 0 0.4rem 1.4rem;
