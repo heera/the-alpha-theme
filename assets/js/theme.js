@@ -272,4 +272,61 @@
   document.querySelectorAll(".rotator-quote").forEach(function (el) {
     cycle(el, 4200);
   });
+
+  /* ---- Copy button on code blocks --------------------------------------- */
+  /* Adds a "Copy" button to every <pre> inside post content. Uses the
+     Clipboard API with a textarea fallback for legacy/insecure contexts. */
+  var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>';
+  var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12.5l4 4L19 7"/></svg>';
+
+  function fallbackCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.cssText = "position:fixed;top:-1000px;left:0;opacity:0;";
+    document.body.appendChild(ta);
+    ta.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) {}
+    document.body.removeChild(ta);
+    return ok;
+  }
+
+  document.querySelectorAll(".prose pre").forEach(function (pre) {
+    if (pre.querySelector(".copy-btn")) return;
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "copy-btn";
+    btn.setAttribute("aria-label", "Copy code to clipboard");
+    btn.innerHTML = copyIcon + "<span>Copy</span>";
+    pre.appendChild(btn);
+
+    btn.addEventListener("click", function (e) {
+      e.preventDefault();
+      // Get pre's text excluding the button itself.
+      var clone = pre.cloneNode(true);
+      var inner = clone.querySelector(".copy-btn");
+      if (inner) inner.remove();
+      var text = clone.textContent.replace(/\s+$/, "");
+
+      var done = function (ok) {
+        btn.innerHTML = (ok ? checkIcon : copyIcon) +
+          "<span>" + (ok ? "Copied" : "Failed") + "</span>";
+        btn.classList.toggle("is-copied", ok);
+        setTimeout(function () {
+          btn.innerHTML = copyIcon + "<span>Copy</span>";
+          btn.classList.remove("is-copied");
+        }, 1800);
+      };
+
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(
+          function () { done(true); },
+          function () { done(fallbackCopy(text)); }
+        );
+      } else {
+        done(fallbackCopy(text));
+      }
+    });
+  });
 })();
