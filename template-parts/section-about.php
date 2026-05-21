@@ -22,14 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<div class="wrap">
 		<header class="about__head reveal">
 			<p class="eyebrow"><?php esc_html_e( 'Software Developer, Dreamer & Fragrance Enthusiast', 'the-alpha' ); ?></p>
-			<h2 class="section-heading heading-rotate">
-				<?php esc_html_e( 'Building tech and chasing scents', 'the-alpha' ); ?> &mdash;
-				<span class="rotate-words" aria-label="<?php esc_attr_e( 'Software Architect, Creative Coder, Fragrance Lover', 'the-alpha' ); ?>">
-					<b class="on"><?php esc_html_e( 'Software Architect', 'the-alpha' ); ?></b>
-					<b><?php esc_html_e( 'Creative Coder', 'the-alpha' ); ?></b>
-					<b><?php esc_html_e( 'Fragrance Lover', 'the-alpha' ); ?></b>
-				</span>
-			</h2>
+			<h2 class="section-heading about__heading"><?php esc_html_e( 'Building tech and chasing scents', 'the-alpha' ); ?></h2>
 		</header>
 
 		<div class="about__grid reveal">

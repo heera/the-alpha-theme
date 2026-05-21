@@ -274,9 +274,6 @@
       items[idx].classList.add("on");
     }, interval);
   }
-  document.querySelectorAll(".rotate-words").forEach(function (el) {
-    cycle(el, 2600);
-  });
   document.querySelectorAll(".rotator-quote").forEach(function (el) {
     cycle(el, 4200);
   });

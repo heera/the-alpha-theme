@@ -96,9 +96,9 @@
   --img-filter: grayscale(1) contrast(1.18) brightness(0.78);
   /* Editorial warm-paper version — bright cream wash that brightens
      the paper bg without tinting it heavily. */
-  --frag-ember: rgba(255, 245, 222, 0.62);
+  --frag-ember: rgba(255, 245, 222, 0.4);
   --frag-rim: rgba(120, 100, 80, 0.06);
-  --frag-haze: rgba(245, 232, 212, 0.36);
+  --frag-haze: rgba(245, 232, 212, 0.22);
   --rule-ink: rgba(17, 20, 28, 0.18);
   --rule-lip: rgba(255, 255, 255, 0.95);
   color-scheme: light;
@@ -768,49 +768,12 @@ h1, h2, h3, h4 {
 /* Font tracks the actual available width (container units) so the line
    fits on one line proportionally, matching the original, without ever
    overflowing horizontally. Wraps gracefully only on very small phones. */
-.heading-rotate {
-  display: block;
-  font-size: clamp(1.05rem, 2.7cqi, 1.85rem);
-  letter-spacing: -0.01em;
-  line-height: 1.2;
+/* About heading + role tags — replaces the old typewriter word rotator with
+   all three roles shown at once as gradient-text pills. */
+.about__heading {
   text-transform: uppercase;
-  white-space: nowrap;
-}
-.heading-rotate .rotate-words b { text-transform: none; }
-@media (max-width: 600px) {
-  .heading-rotate { white-space: normal; }
-}
-.rotate-words {
-  display: inline-grid;
-  vertical-align: bottom;
-  position: relative;
-}
-.rotate-words b {
-  grid-area: 1 / 1;
-  justify-self: start;
-  white-space: nowrap;
-  font-weight: 700;
-  background: var(--accent-grad);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  opacity: 0;
-  clip-path: inset(0 100% 0 0);
-  transform: translateY(0.12em);
-  transition: opacity 0.45s var(--ease), transform 0.55s var(--ease),
-    clip-path 0.6s var(--ease);
-}
-.rotate-words b.on {
-  opacity: 1;
-  clip-path: inset(0 0 0 0);
-  transform: none;
-}
-@media (prefers-reduced-motion: reduce) {
-  .rotate-words b {
-    transition: opacity 0.2s linear;
-    clip-path: none;
-    transform: none;
-  }
+  font-size: clamp(1.35rem, 0.9rem + 1.4vw, 1.95rem);
+  margin-bottom: 1.1rem;
 }
 
 .about__links {
@@ -1083,6 +1046,16 @@ h1, h2, h3, h4 {
   font-size: clamp(1.35rem, 0.9rem + 1.4vw, 1.95rem);
 }
 #blog .lede { max-width: none; }
+/* Same ambient corner glow as #about, mirrored to the TOP-left of the blog
+   section — originates just off-canvas top-left and bleeds down/right,
+   fading to transparent. Uses the shared --frag-* tints (light/dark aware). */
+#blog {
+  background:
+    radial-gradient(ellipse 110% 105% at 0%  -8%, var(--frag-ember) 0%, transparent 70%),
+    radial-gradient(ellipse  90%  85% at 5%   12%, var(--frag-rim)   0%, transparent 80%),
+    radial-gradient(ellipse 130% 110% at 18%  38%, var(--frag-haze)  0%, transparent 88%),
+    var(--bg-2);   /* same base as #about so the section boundary is seamless */
+}
 /* Anchor sections fill the viewport so nav jumps land cleanly and the
    page reads as a sequence of full screens on desktop. Flex column +
    center keeps shorter content visually balanced; min-height (not
@@ -1123,23 +1096,23 @@ h1, h2, h3, h4 {
   z-index: 0;
   /* Long, soft fade so the photo dissolves into the section bg with
      no clear silhouette — reads as atmosphere, not a photograph. */
-  -webkit-mask-image: radial-gradient(ellipse 65% 80% at 50% 70%, black 0%, rgba(0,0,0,0.55) 18%, transparent 82%);
-  mask-image: radial-gradient(ellipse 65% 80% at 50% 70%, black 0%, rgba(0,0,0,0.55) 18%, transparent 82%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 70% at 78% 75%, black 0%, rgba(0,0,0,0.5) 38%, transparent 72%);
+  mask-image: radial-gradient(ellipse 70% 70% at 78% 75%, black 0%, rgba(0,0,0,0.5) 38%, transparent 72%);
 }
 #about .wrap { position: relative; z-index: 1; }
 /* Dark mode: lower opacity + light blur push the photo behind the
    atmospheric layer — the warm glow registers without the burner ever
    reading as a discrete object. */
 [data-theme="dark"] #about .section-smoke {
-  opacity: 0.42;
-  filter: blur(2px);
+  opacity: 0.72;
+  filter: brightness(1.05) saturate(1.05);
   mix-blend-mode: screen;
 }
 /* Light mode: same dissolved treatment with brightness lift so the
    warm tones bleed into the paper as a soft glow, not a photo. */
 [data-theme="light"] #about .section-smoke {
-  opacity: 0.32;
-  filter: brightness(1.2) saturate(0.8) blur(2px);
+  opacity: 0.62;
+  filter: brightness(1.05) saturate(0.95);
   mix-blend-mode: multiply;
 }
 /* Contact subtracts the footer's approximate height so contact + footer
@@ -1149,6 +1122,9 @@ h1, h2, h3, h4 {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  /* Step to the --bg base so contact reads as distinct from the blog above
+     (which shares --bg-2 with about). A real shade step in both themes. */
+  background: var(--bg);
 }
 .contact__grid {
   display: grid;
@@ -2017,6 +1993,9 @@ body.page .lede { max-width: none; }
     background: color-mix(in srgb, var(--bg-2) 88%, transparent);
     backdrop-filter: saturate(140%) blur(10px);
     border-bottom: 1px solid var(--border);
+    /* Sit below the iOS status bar / Dynamic Island (viewport-fit=cover),
+       otherwise the brand row renders behind it on notched iPhones. */
+    padding-top: env(safe-area-inset-top, 0px);
   }
   .topbar__row {
     display: flex;
@@ -2083,9 +2062,9 @@ body.page .lede { max-width: none; }
     transform: translateX(-104%);
     transition: transform var(--t);
     box-shadow: 0 0 80px rgba(0, 0, 0, 0.5);
-    /* Sticky topbar (~68px) overlays the drawer's top edge; push the
-       sidebar's content below it so the brand block stays visible. */
-    padding-top: calc(68px + 1.4rem);
+    /* Sticky topbar (~68px + safe-area inset) overlays the drawer's top edge;
+       push the sidebar's content below it so the brand block stays visible. */
+    padding-top: calc(68px + env(safe-area-inset-top, 0px) + 1.4rem);
   }
   body.nav-open .sidebar { transform: none; }
 
@@ -2107,7 +2086,10 @@ body.page .lede { max-width: none; }
   /* Topbar provides an always-reachable search on mobile; the aside's
      search widget would be redundant below content. */
   .blog-aside .widget_search { display: none; }
-  .section { scroll-margin-top: 68px; }
+  /* Offset = topbar height (~68px) + the iOS safe-area inset, so a tapped nav
+     link lands a section's heading just below the sticky topbar rather than
+     behind it (or the Dynamic Island). */
+  .section { scroll-margin-top: calc(68px + env(safe-area-inset-top, 0px)); }
 
   /* Tablets and below: topbar takes vertical space and stacked content
      is naturally tall — let content drive section height instead of
@@ -2126,7 +2108,8 @@ body.page .lede { max-width: none; }
   .post-nav { grid-template-columns: minmax(0, 1fr); }
   .about__links { grid-template-columns: minmax(0, 1fr); }
   .hero { min-height: 92vh; }
-  .hero__scroll { display: none; }
+  /* Keep the scroll hint on mobile; lift it clear of the iOS home indicator. */
+  .hero__scroll { bottom: calc(1.4rem + env(safe-area-inset-bottom, 0px)); }
 
   .site-footer {
     grid-template-columns: 1fr;

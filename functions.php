@@ -219,6 +219,42 @@ function the_alpha_customize_register( $wp_customize ) {
 		'section'     => 'the_alpha_options',
 		'type'        => 'checkbox',
 	) );
+
+	$wp_customize->add_setting( 'the_alpha_fb_admins', array(
+		'default'           => '',
+		'sanitize_callback' => 'the_alpha_sanitize_fb_ids',
+		'transport'         => 'refresh',
+	) );
+	$wp_customize->add_control( 'the_alpha_fb_admins', array(
+		'label'       => __( 'Facebook profile ID (fb:admins)', 'the-alpha' ),
+		'description' => __( 'Your numeric Facebook profile ID — claims the site for Facebook Domain Insights. Comma-separate multiple IDs.', 'the-alpha' ),
+		'section'     => 'the_alpha_options',
+		'type'        => 'text',
+	) );
+
+	$wp_customize->add_setting( 'the_alpha_fb_app_id', array(
+		'default'           => '',
+		'sanitize_callback' => 'the_alpha_sanitize_fb_ids',
+		'transport'         => 'refresh',
+	) );
+	$wp_customize->add_control( 'the_alpha_fb_app_id', array(
+		'label'       => __( 'Facebook App ID (fb:app_id)', 'the-alpha' ),
+		'description' => __( 'Optional Meta App ID. The only value that clears the Sharing Debugger\'s "fb:app_id" warning.', 'the-alpha' ),
+		'section'     => 'the_alpha_options',
+		'type'        => 'text',
+	) );
+
+	$wp_customize->add_setting( 'the_alpha_home_description', array(
+		'default'           => the_alpha_default_home_description(),
+		'sanitize_callback' => 'sanitize_text_field',
+		'transport'         => 'refresh',
+	) );
+	$wp_customize->add_control( 'the_alpha_home_description', array(
+		'label'       => __( 'Homepage description', 'the-alpha' ),
+		'description' => __( 'Used as the homepage meta description and Open Graph / Twitter description. Keep it under ~160 characters.', 'the-alpha' ),
+		'section'     => 'the_alpha_options',
+		'type'        => 'textarea',
+	) );
 }
 add_action( 'customize_register', 'the_alpha_customize_register' );
 
@@ -229,6 +265,23 @@ function the_alpha_sanitize_scheme( $value ) {
 
 function the_alpha_sanitize_bool( $value ) {
 	return (bool) $value;
+}
+
+/**
+ * Sanitize a Facebook ID field: digits only, with commas allowed so
+ * fb:admins can hold a comma-separated list of profile IDs.
+ */
+function the_alpha_sanitize_fb_ids( $value ) {
+	return preg_replace( '/[^0-9,]/', '', (string) $value );
+}
+
+/**
+ * Default homepage meta/Open Graph description — a brief line drawn from the
+ * About section that conveys both the professional work and the fragrance
+ * passion. Editable in the Customizer.
+ */
+function the_alpha_default_home_description() {
+	return __( 'Programmer, system architect & CTO at authLab who builds scalable systems by day and layers oud, smoke & memory by night — architecture in both.', 'the-alpha' );
 }
 
 /**
@@ -289,12 +342,11 @@ function the_alpha_seo() {
 	$site_url     = home_url( '/' );
 	$locale       = str_replace( '-', '_', get_bloginfo( 'language' ) );
 
-	// Context-aware title, URL, type, description, image. Homepage gets
-	// "{name} — {tagline}" as og:title so social previews aren't just the
-	// bare site name.
-	$title = ( ( is_front_page() || is_home() ) && $site_tagline )
-		? $site_name . ' — ' . $site_tagline
-		: $site_name;
+	// Context-aware title, URL, type, description, image. On the homepage the
+	// tagline is carried by og:description (below), so og:title stays the bare
+	// site name — appending the tagline here too made it appear twice in the
+	// share card (once as the title, once as the description).
+	$title = $site_name;
 	$url   = $site_url;
 	$type  = 'website';
 	$desc  = $site_tagline;
@@ -305,7 +357,16 @@ function the_alpha_seo() {
 	// Front-page check wins even when the front page is a static Page —
 	// otherwise is_singular() would grab the bare page title.
 	if ( is_front_page() ) {
-		// Keep the homepage defaults set above. Nothing more to derive.
+		// Homepage title: "{name} — {tagline}". Not a duplicate of the
+		// description any more, since the description below is the longer
+		// About-derived line.
+		if ( $site_tagline ) {
+			$title = $site_name . ' — ' . $site_tagline;
+		}
+		// Homepage description: use the curated line (Customizer, defaulting to
+		// the theme's About-derived line) instead of the bare tagline, so the
+		// search/share snippet conveys who I am and what I do.
+		$desc = (string) get_theme_mod( 'the_alpha_home_description', the_alpha_default_home_description() );
 	} elseif ( is_singular() ) {
 		$title = wp_strip_all_tags( get_the_title() );
 		$url   = get_permalink();
@@ -339,25 +400,27 @@ function the_alpha_seo() {
 	}
 
 	// Fall back to a brand image when context-resolution didn't yield one
-	// (homepage, category/tag, search, etc.) — try custom logo → site icon
-	// → theme avatar so social previews always have *something* on-brand.
+	// (homepage, category/tag, search, etc.). A custom logo is only used if
+	// it's wide enough to render as a social card — small/square logos and
+	// site icons get upscaled into a blurry mess by Facebook's ~1080px-wide
+	// preview, so for everything else we serve the dedicated 1200×630 card.
 	if ( ! $img ) {
 		$logo_id = (int) get_theme_mod( 'custom_logo' );
 		if ( $logo_id ) {
 			$src = wp_get_attachment_image_src( $logo_id, 'full' );
-			if ( $src ) {
+			if ( $src && (int) $src[1] >= 600 ) {
 				list( $img, $img_w, $img_h ) = $src;
 			}
 		}
 	}
-	if ( ! $img && function_exists( 'get_site_icon_url' ) ) {
-		$icon = get_site_icon_url( 512 );
-		if ( $icon ) {
-			$img = $icon;
-		}
-	}
 	if ( ! $img ) {
-		$img = THE_ALPHA_URI . '/assets/img/avatar.webp';
+		// Append the file's mtime as a version so a new card image busts
+		// any CDN/Facebook cache without needing to rename the file.
+		$og_path = get_template_directory() . '/assets/img/og-default.jpg';
+		$og_ver  = file_exists( $og_path ) ? '?v=' . filemtime( $og_path ) : '';
+		$img     = THE_ALPHA_URI . '/assets/img/og-default.jpg' . $og_ver;
+		$img_w   = 1200;
+		$img_h   = 630;
 	}
 
 	$desc  = the_alpha_seo_truncate( $desc ?: get_bloginfo( 'description' ) );
@@ -382,10 +445,36 @@ function the_alpha_seo() {
 	}
 	if ( $img ) {
 		printf( "<meta property=\"og:image\" content=\"%s\">\n", esc_url( $img ) );
+		printf( "<meta property=\"og:image:alt\" content=\"%s\">\n", esc_attr( $title ) );
 		if ( $img_w && $img_h ) {
 			printf( "<meta property=\"og:image:width\" content=\"%d\">\n", (int) $img_w );
 			printf( "<meta property=\"og:image:height\" content=\"%d\">\n", (int) $img_h );
 		}
+	}
+
+	// Facebook ownership: links the page to a Facebook profile/app so Domain
+	// Insights work and the Sharing Debugger stops warning about a missing
+	// fb:app_id. Resolution order: Customizer field (Appearance → Customize →
+	// "The Alpha — Theme Options") → wp-config.php constant → filter.
+	// fb:admins = your numeric FB profile ID (no app needed); fb:app_id =
+	// a Meta App ID (the only value that silences the debugger's exact
+	// "fb:app_id" warning text).
+	$fb_admins = (string) get_theme_mod( 'the_alpha_fb_admins', '' );
+	if ( '' === $fb_admins && defined( 'THE_ALPHA_FB_ADMINS' ) ) {
+		$fb_admins = THE_ALPHA_FB_ADMINS;
+	}
+	$fb_admins = apply_filters( 'the_alpha_fb_admins', $fb_admins );
+	if ( $fb_admins ) {
+		printf( "<meta property=\"fb:admins\" content=\"%s\">\n", esc_attr( $fb_admins ) );
+	}
+
+	$fb_app_id = (string) get_theme_mod( 'the_alpha_fb_app_id', '' );
+	if ( '' === $fb_app_id && defined( 'THE_ALPHA_FB_APP_ID' ) ) {
+		$fb_app_id = THE_ALPHA_FB_APP_ID;
+	}
+	$fb_app_id = apply_filters( 'the_alpha_fb_app_id', $fb_app_id );
+	if ( $fb_app_id ) {
+		printf( "<meta property=\"fb:app_id\" content=\"%s\">\n", esc_attr( $fb_app_id ) );
 	}
 
 	// Article-specific OG (only for posts).
