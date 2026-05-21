@@ -113,27 +113,34 @@ function the_alpha_widgets_init() {
 add_action( 'widgets_init', 'the_alpha_widgets_init' );
 
 /**
- * Resource hints — preconnect to the font CDNs so the swap is instant.
+ * Preload the two render-critical font faces (latin subset): the Fraunces
+ * brand/heading face and the Inter body face. Fonts now ship from this origin
+ * (see the_alpha_assets), so no font-CDN preconnect is needed any more.
  */
-function the_alpha_resource_hints( $urls, $relation_type ) {
-	if ( 'preconnect' === $relation_type ) {
-		$urls[] = array( 'href' => 'https://fonts.googleapis.com' );
-		$urls[] = array( 'href' => 'https://fonts.gstatic.com', 'crossorigin' => '' );
+function the_alpha_preload_fonts( $resources ) {
+	foreach ( array( 'fraunces-n-400-700-latin.woff2', 'inter-n-400-latin.woff2' ) as $face ) {
+		$resources[] = array(
+			'href'        => THE_ALPHA_URI . '/assets/fonts/' . $face,
+			'as'          => 'font',
+			'type'        => 'font/woff2',
+			'crossorigin' => 'anonymous',
+		);
 	}
-	return $urls;
+	return $resources;
 }
-add_filter( 'wp_resource_hints', 'the_alpha_resource_hints', 10, 2 );
+add_filter( 'wp_preload_resources', 'the_alpha_preload_fonts' );
 
 /**
  * Enqueue styles & scripts.
  */
 function the_alpha_assets() {
-	// One Google Fonts request, font-display: swap, only the weights we use.
+	// Self-hosted fonts (assets/css/fonts.css → assets/fonts/*.woff2): subset to
+	// latin + latin-ext, font-display: swap, no third-party request.
 	wp_enqueue_style(
 		'the-alpha-fonts',
-		'https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..800;1,9..144,400..800&family=Rambla:ital,wght@0,400;0,700;1,400;1,700&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap',
+		THE_ALPHA_URI . '/assets/css/fonts.css',
 		array(),
-		null
+		the_alpha_asset_ver( 'assets/css/fonts.css' )
 	);
 
 	wp_enqueue_style(
@@ -512,7 +519,9 @@ function the_alpha_seo() {
 		'@context'        => 'https://schema.org',
 		'@type'           => 'WebSite',
 		'name'            => $site_name,
+		'alternateName'   => apply_filters( 'the_alpha_site_alt_names', array( 'Heera', 'Hira' ) ),
 		'url'             => $site_url,
+		'publisher'       => array( '@id' => $site_url . '#person' ),
 		'potentialAction' => array(
 			'@type'       => 'SearchAction',
 			'target'      => $site_url . '?s={search_term_string}',
@@ -521,11 +530,53 @@ function the_alpha_seo() {
 	);
 	echo '<script type="application/ld+json">' . wp_json_encode( $website_ld, JSON_UNESCAPED_SLASHES ) . "</script>\n";
 
+	// ---- JSON-LD: Person (entity home — ties name variants together) ---
+	// alternateName declares the spelling/transliteration variants (Heera /
+	// Hira) and short forms as the same person, so Google can associate them
+	// with this identity without any of them appearing in the visible page.
+	// sameAs points at corroborating profiles (the strongest signal here),
+	// reused from the theme's configured social links.
+	$same_as = array();
+	foreach ( the_alpha_socials() as $s ) {
+		if ( ! empty( $s['url'] ) ) {
+			$same_as[] = $s['url'];
+		}
+	}
+	$person_id   = $site_url . '#person';
+	$person_name = apply_filters( 'the_alpha_person_name', 'Sheikh Heera' );
+	$person_ld   = array(
+		'@context'      => 'https://schema.org',
+		'@type'         => 'Person',
+		'@id'           => $person_id,
+		'name'          => $person_name,
+		'alternateName' => apply_filters( 'the_alpha_person_alt_names', array( 'Heera', 'Hira', 'Sheikh Hira', 'Heera Sheikh' ) ),
+		'url'           => $site_url,
+	);
+	if ( $same_as ) {
+		$person_ld['sameAs'] = array_values( array_unique( $same_as ) );
+	}
+	echo '<script type="application/ld+json">' . wp_json_encode( $person_ld, JSON_UNESCAPED_SLASHES ) . "</script>\n";
+
 	// ---- JSON-LD: BlogPosting + BreadcrumbList (single posts) ----------
 	if ( is_singular( 'post' ) ) {
 		$author_id   = (int) get_post_field( 'post_author', get_the_ID() );
 		$author_name = get_the_author_meta( 'display_name', $author_id );
 		$author_url  = get_author_posts_url( $author_id );
+
+		// When the post is by the site's primary Person, reference that single
+		// entity by @id so Google merges the post author with the sitewide
+		// Person node (name, alternateName, sameAs) instead of treating them as
+		// two separate people. Guest/co-authors keep an inline Person so we
+		// never misattribute their work to the owner.
+		if ( 0 === strcasecmp( trim( $author_name ), trim( $person_name ) ) ) {
+			$author_node = array( '@id' => $person_id );
+		} else {
+			$author_node = array(
+				'@type' => 'Person',
+				'name'  => $author_name,
+				'url'   => $author_url,
+			);
+		}
 
 		$article_ld = array(
 			'@context'         => 'https://schema.org',
@@ -535,11 +586,7 @@ function the_alpha_seo() {
 			'description'      => $desc_text,
 			'datePublished'    => get_the_date( DATE_W3C ),
 			'dateModified'     => get_the_modified_date( DATE_W3C ),
-			'author'           => array(
-				'@type' => 'Person',
-				'name'  => $author_name,
-				'url'   => $author_url,
-			),
+			'author'           => $author_node,
 			'publisher'        => array(
 				'@type' => 'Organization',
 				'name'  => $site_name,

@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 <section id="about" class="section section--alt" aria-label="<?php esc_attr_e( 'About', 'the-alpha' ); ?>">
 	<img
 		class="section-smoke"
-		src="<?php echo esc_url( THE_ALPHA_URI . '/assets/img/bakhoor.jpg' ); ?>"
+		src="<?php echo esc_url( THE_ALPHA_URI . '/assets/img/bakhoor.webp' ); ?>"
 		alt=""
 		aria-hidden="true"
 		width="960" height="1200"

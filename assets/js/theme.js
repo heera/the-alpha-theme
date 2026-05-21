@@ -42,15 +42,28 @@
   }
   syncToggle();
 
+  function setTheme(next) {
+    root.setAttribute("data-theme", next);
+    try {
+      localStorage.setItem("the-alpha-theme", next);
+    } catch (e) {}
+    syncToggle();
+  }
+
   if (toggle) {
     toggle.addEventListener("click", function () {
       var next =
         root.getAttribute("data-theme") === "light" ? "dark" : "light";
-      root.setAttribute("data-theme", next);
-      try {
-        localStorage.setItem("the-alpha-theme", next);
-      } catch (e) {}
-      syncToggle();
+      // Crossfade the whole page between light/dark via the View Transitions
+      // API (CSS controls the timing). Falls back to an instant switch where
+      // it's unsupported or when the user prefers reduced motion.
+      if (!reduceMotion && typeof document.startViewTransition === "function") {
+        document.startViewTransition(function () {
+          setTheme(next);
+        });
+      } else {
+        setTheme(next);
+      }
     });
   }
 
@@ -117,13 +130,18 @@
   links.forEach(function (l) {
     l.addEventListener("click", function (e) {
       if (window.innerWidth <= 1024) setNav(false);
-      // Contact is the last section on the front page — scroll to the
-      // very bottom so the footer is fully visible. Only override when
-      // the #contact section actually exists on the current page; on
-      // post archive / single pages let the link navigate normally.
+      // Contact is the last section on the front page. On DESKTOP it's sized to
+      // sit with the footer in one viewport, so scroll to the very bottom to
+      // reveal the footer. On mobile/tablet (<=1024px) sections are stacked at
+      // content height and the footer is a full screen below — scrolling to the
+      // bottom would skip past the contact section, so let the native anchor
+      // jump handle it (CSS .section scroll-margin-top lands it just below the
+      // sticky topbar). Only override when #contact exists (front page); on
+      // archive / single pages let the link navigate normally.
       if (
         l.getAttribute("data-section") === "contact" &&
-        document.getElementById("contact")
+        document.getElementById("contact") &&
+        window.innerWidth > 1024
       ) {
         e.preventDefault();
         if (history.replaceState) history.replaceState(null, "", "#contact");
@@ -139,7 +157,15 @@
      at the document bottom so the footer is in view, not at the section's
      top with the footer cut below the viewport. */
   function alignContactToBottom() {
-    if (location.hash === "#contact" && document.getElementById("contact")) {
+    // Desktop only — mirrors the click handler above. On mobile/tablet the
+    // native hash scroll (offset by .section scroll-margin-top) already lands
+    // at the contact section's start; forcing the document bottom would skip
+    // past it to the footer.
+    if (
+      location.hash === "#contact" &&
+      document.getElementById("contact") &&
+      window.innerWidth > 1024
+    ) {
       requestAnimationFrame(function () {
         window.scrollTo(0, document.documentElement.scrollHeight);
       });

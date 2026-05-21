@@ -15,7 +15,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 			src="<?php echo esc_url( THE_ALPHA_URI . '/assets/img/hero.webp' ); ?>"
 			alt="" width="1800" height="1200" fetchpriority="high" decoding="async">
 	</div>
-	<div class="hero__grid" aria-hidden="true"></div>
 
 	<div class="hero__inner">
 		<p class="hero__hi"><?php esc_html_e( 'Hello, I build & I write', 'the-alpha' ); ?></p>

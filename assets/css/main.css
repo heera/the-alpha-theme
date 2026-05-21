@@ -117,6 +117,23 @@ html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
   }
 }
 
+/* Colour-theme crossfade. The toggle wraps the data-theme flip in a View
+   Transition (theme.js); these tune the old→new root snapshot dissolve so the
+   mode change eases instead of snapping. The global reduced-motion reset above
+   uses `*`, which doesn't match these pseudo-elements, so guard them here too
+   (the JS also skips the transition entirely under reduced motion). */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.42s;
+  animation-timing-function: var(--ease);
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}
+
 body {
   margin: 0;
   font-family: var(--font-body);
@@ -516,9 +533,15 @@ h1, h2, h3, h4 {
 }
 .theme-toggle:hover { border-color: var(--accent); color: var(--ink); }
 .theme-toggle svg { width: 16px; height: 16px; }
-.theme-toggle .icon-sun { display: none; }
-[data-theme="light"] .theme-toggle .icon-sun { display: block; }
-[data-theme="light"] .theme-toggle .icon-moon { display: none; }
+/* Icon + label advertise the mode you'll switch TO, not the current one:
+   dark mode shows a sun + "Light"; light mode shows a moon + "Dark". */
+.theme-toggle .icon-moon { display: none; }
+.theme-toggle .icon-sun { display: block; }
+[data-theme="light"] .theme-toggle .icon-sun { display: none; }
+[data-theme="light"] .theme-toggle .icon-moon { display: block; }
+.theme-toggle__label--to-dark { display: none; }
+[data-theme="light"] .theme-toggle__label--to-light { display: none; }
+[data-theme="light"] .theme-toggle__label--to-dark { display: inline; }
 
 .colophon-mini {
   margin-top: 1.2rem;
@@ -594,16 +617,6 @@ h1, h2, h3, h4 {
   position: absolute;
   inset: 0;
   background: var(--hero-veil);
-}
-.hero__grid {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  opacity: 0.07;
-  background-image: var(--binary);
-  background-size: 360px;
-  mix-blend-mode: screen;
-  mask-image: linear-gradient(90deg, transparent 35%, #000 100%);
 }
 .hero__inner { position: relative; z-index: 2; max-width: 720px; }
 .hero__hi {
@@ -1050,11 +1063,72 @@ h1, h2, h3, h4 {
    section — originates just off-canvas top-left and bleeds down/right,
    fading to transparent. Uses the shared --frag-* tints (light/dark aware). */
 #blog {
+  position: relative;   /* anchors the ::before seam at the about/blog join */
   background:
     radial-gradient(ellipse 110% 105% at 0%  -8%, var(--frag-ember) 0%, transparent 70%),
     radial-gradient(ellipse  90%  85% at 5%   12%, var(--frag-rim)   0%, transparent 80%),
     radial-gradient(ellipse 130% 110% at 18%  38%, var(--frag-haze)  0%, transparent 88%),
-    var(--bg-2);   /* same base as #about so the section boundary is seamless */
+    var(--bg-2);   /* same base as #about; the seam below carries the boundary */
+}
+/* Binary-code texture — relocated here from the hero. The same developer
+   motif (glowing digits on black) now lives in the blog section. screen blend
+   drops the image's black field so only the digits register, masked to fade in
+   toward the right and kept clear of the left-aligned heading. Rides on
+   ::after since ::before is the letterpress seam; .wrap is lifted above both. */
+#blog::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.11;
+  background-image: var(--binary);
+  background-size: 360px;
+  mix-blend-mode: screen;
+  mask-image: linear-gradient(90deg, transparent 35%, #000 100%);
+  pointer-events: none;
+}
+/* Light mode: a screen blend can only lighten, so green-on-black digits vanish
+   on the cream paper (and any darkening blend would paint the image's black
+   field as a box). Switch techniques — use the binary art as a LUMINANCE mask
+   (bright digits punch through, black field dropped) over a solid --accent
+   fill, so digits render as on-brand teal marks. A second mask layer carries
+   the same right-fade; the two are intersected so both constraints apply. */
+[data-theme="light"] #blog::after {
+  background-image: none;
+  background-color: var(--accent);
+  mix-blend-mode: normal;
+  opacity: 0.22;
+  -webkit-mask-image: var(--binary), linear-gradient(90deg, transparent 35%, #000 100%);
+          mask-image: var(--binary), linear-gradient(90deg, transparent 35%, #000 100%);
+  -webkit-mask-size: 360px, 100% 100%;
+          mask-size: 360px, 100% 100%;
+  -webkit-mask-repeat: repeat, no-repeat;
+          mask-repeat: repeat, no-repeat;
+  mask-mode: luminance, alpha;
+  -webkit-mask-composite: source-in;
+          mask-composite: intersect;
+}
+#blog .wrap { position: relative; z-index: 1; }
+/* Letterpress seam — drawn at the TOP of each content section to mark the
+   boundary with the section above. Two stacked 1px gradients (recessed
+   --rule-ink line + light --rule-lip lip beneath) give a pressed-fold edge
+   that reads in both themes and over the ambient glows. Spans the full column
+   width at full strength, with only a hair of softening at each end so it
+   doesn't terminate on a hard pixel at the very edge — letterpress on both
+   sides. Applied to #about / #blog / #contact (hero stays clean at page top). */
+#about::before,
+#blog::before,
+#contact::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  pointer-events: none;
+  background:
+    linear-gradient(to right, transparent 0%, var(--rule-ink) 3%, var(--rule-ink) 97%, transparent 100%) top / 100% 1px no-repeat,
+    linear-gradient(to right, transparent 0%, var(--rule-lip) 3%, var(--rule-lip) 97%, transparent 100%) bottom / 100% 1px no-repeat;
 }
 /* Anchor sections fill the viewport so nav jumps land cleanly and the
    page reads as a sequence of full screens on desktop. Flex column +
@@ -1118,6 +1192,7 @@ h1, h2, h3, h4 {
 /* Contact subtracts the footer's approximate height so contact + footer
    fit together in one viewport. */
 #contact {
+  position: relative;   /* anchors the ::before letterpress seam at its top */
   min-height: calc(100dvh - 9rem);
   display: flex;
   flex-direction: column;
@@ -2107,7 +2182,11 @@ body.page .lede { max-width: none; }
   .frag,
   .post-nav { grid-template-columns: minmax(0, 1fr); }
   .about__links { grid-template-columns: minmax(0, 1fr); }
-  .hero { min-height: 92vh; }
+  /* Use dvh, not vh: on mobile `vh` is the *large* (address-bar-hidden)
+     viewport, which pushed the hero's bottom — and the scroll hint anchored
+     there — below the visible fold behind the browser UI. dvh tracks the
+     actual viewport so the hint stays on-screen. vh kept as a fallback. */
+  .hero { min-height: 92vh; min-height: 92dvh; }
   /* Keep the scroll hint on mobile; lift it clear of the iOS home indicator. */
   .hero__scroll { bottom: calc(1.4rem + env(safe-area-inset-bottom, 0px)); }
 
