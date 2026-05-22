@@ -1478,7 +1478,7 @@ body.page .lede { max-width: none; }
 .entry__title a:hover { color: var(--accent); }
 
 /* Long-form typography */
-.prose { color: var(--ink-soft); font-size: 1.04rem; line-height: 1.8; }
+.prose { color: var(--ink-soft); font-size: 0.92rem; line-height: 1.8; }
 .prose > * + * { margin-top: 1.25rem; }
 .prose h2, .prose h3, .prose h4 { color: var(--ink); margin-top: 2.4rem; }
 .prose h2 { font-size: 1.7rem; }

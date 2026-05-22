@@ -41,7 +41,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<a class="post-row__link" href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
 	</h2>
 
-	<p class="post-row__excerpt"><?php echo esc_html( wp_trim_words( get_the_excerpt(), 44, '&hellip;' ) ); ?></p>
+	<p class="post-row__excerpt"><?php echo esc_html( wp_trim_words( get_the_excerpt(), 45, '&hellip;' ) ); ?></p>
 
 	<a class="post-row__more" href="<?php the_permalink(); ?>"><?php esc_html_e( 'Read more', 'the-alpha' ); ?></a>
 </article>

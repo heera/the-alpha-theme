@@ -630,7 +630,9 @@ add_action( 'init', 'the_alpha_trim_head' );
  * Cleaner excerpts.
  */
 function the_alpha_excerpt_length() {
-	return 28;
+	// Auto-excerpt word count. Listing rows (post-row.php) cap to a matching
+	// length; cards trim shorter (22) on their own.
+	return 45;
 }
 add_filter( 'excerpt_length', 'the_alpha_excerpt_length' );
 
