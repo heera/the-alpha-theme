@@ -1414,7 +1414,9 @@ body.page .lede { max-width: none; }
     grid-template-columns: minmax(0, var(--read-measure)) var(--aside-w);
     column-gap: var(--read-gap);
   }
-  body.single .page-head__rule { max-width: var(--read-measure); }
+  /* Divider spans the full reading width (article + sidebar): it bounds the
+     meta row (so "No Comments" no longer overruns it) and gives the sidebar a
+     top "roof" line, matching the article. */
 }
 
 /* One post per full-width row (blog / archive / search listings) */
