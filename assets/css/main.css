@@ -1518,6 +1518,18 @@ body.page .lede { max-width: none; }
    ~60ch = tighter, ~75ch = wider; remove the line to go back to full width. */
 .prose { color: var(--ink-soft); font-size: 0.92rem; line-height: 1.8; max-width: 68ch; margin-inline: auto; }
 .prose > * + * { margin-top: 1.25rem; }
+/* Justified body paragraphs. text-align: justify alone stretches word spacing
+   into ugly gaps/"rivers"; hyphens: auto lets the browser break long words at
+   line ends so it has far less empty space to redistribute. Needs <html lang>
+   (output by language_attributes() in header.php). hyphenate-limit-chars keeps
+   it tasteful: only hyphenate words >= 6 chars, leaving >= 3 on each line. */
+.prose p {
+  text-align: justify;
+  text-justify: inter-word;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  hyphenate-limit-chars: 6 3 3;
+}
 .prose h2, .prose h3, .prose h4 { color: var(--ink); margin-top: 2.4rem; }
 .prose h2 { font-size: 1.7rem; }
 .prose h3 { font-size: 1.32rem; }

@@ -44,6 +44,16 @@
 }
 .editor-styles-wrapper strong { color: var(--ink); }
 
+/* Justified paragraphs — mirrors .prose p on the frontend. hyphens: auto
+   keeps justify from stretching word spacing into ugly gaps/"rivers". */
+.editor-styles-wrapper p {
+  text-align: justify;
+  text-justify: inter-word;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  hyphenate-limit-chars: 6 3 3;
+}
+
 .editor-styles-wrapper blockquote,
 .editor-styles-wrapper .wp-block-quote {
   border-left: 2px solid var(--accent);
