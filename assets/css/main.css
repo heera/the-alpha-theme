@@ -1398,7 +1398,7 @@ body.page .lede { max-width: none; }
    same cap (same box model) so the title/meta/divider align with the body. */
 @media (min-width: 1025px) {
   body.single {
-    --read-measure: 68ch;
+    --read-measure: 72ch;
     --read-gap: clamp(2.5rem, 1.5rem + 3vw, 4.5rem);   /* gap to the widget sidebar (right of the article) */
     --read-pad: clamp(3rem, 2rem + 3vw, 5.5rem);       /* gap from the left nav sidebar (left of the article) */
   }
@@ -1414,6 +1414,9 @@ body.page .lede { max-width: none; }
     grid-template-columns: minmax(0, var(--read-measure)) var(--aside-w);
     column-gap: var(--read-gap);
   }
+  /* Let the article column (--read-measure) drive the text width on single
+     posts, instead of .prose's own 68ch cap (which still applies on pages). */
+  body.single .prose { max-width: none; }
   /* Divider spans the full reading width (article + sidebar): it bounds the
      meta row (so "No Comments" no longer overruns it) and gives the sidebar a
      top "roof" line, matching the article. */
