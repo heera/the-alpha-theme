@@ -1394,6 +1394,13 @@ body.page .page-title {
   margin: 0.5rem 0 0;
 }
 body.page .lede { max-width: none; }
+/* Single posts: give the title a hero size larger than the in-content .prose h2
+   (1.7rem) so the H1 leads the hierarchy. The compact --title-list size is kept
+   for the blog-index listing rows; this only enlarges the actual post page. */
+body.single .page-title {
+  font-size: clamp(2rem, 1.35rem + 2vw, 2.8rem);
+  margin: 0.4rem 0 0;
+}
 /* Single column but using the full main-area width (no narrow cap, no sidebar) */
 .content-grid--single { grid-template-columns: minmax(0, 1fr); max-width: var(--maxw); }
 /* When the Blog Sidebar widget area is empty, sidebar.php returns early
