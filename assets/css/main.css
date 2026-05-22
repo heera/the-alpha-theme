@@ -1391,6 +1391,32 @@ body.page .lede { max-width: none; }
   max-width: 820px;
 }
 
+/* Single post (desktop): size the reading area to (text measure + sidebar) and
+   center it, so the article column is exactly the .prose measure — the body
+   fills it and lines up with the title, with the sidebar snug to its right
+   instead of a wide column with an internal gutter. The page-head shares the
+   same cap (same box model) so the title/meta/divider align with the body. */
+@media (min-width: 1025px) {
+  body.single {
+    --read-measure: 68ch;
+    --read-gap: clamp(2.5rem, 1.5rem + 3vw, 4.5rem);   /* gap to the widget sidebar (right of the article) */
+    --read-pad: clamp(3rem, 2rem + 3vw, 5.5rem);       /* gap from the left nav sidebar (left of the article) */
+  }
+  body.single .page-head .wrap,
+  body.single .content-grid {
+    max-width: calc(var(--read-measure) + var(--read-gap) + var(--aside-w) + 2 * var(--read-pad));
+    /* Left-align the reading area (vs. the default centered margin-inline:auto)
+       so it sits toward the sidebar and the slack pools on the right. */
+    margin-inline: 0;
+    padding-inline: var(--read-pad);
+  }
+  body.single .content-grid {
+    grid-template-columns: minmax(0, var(--read-measure)) var(--aside-w);
+    column-gap: var(--read-gap);
+  }
+  body.single .page-head__rule { max-width: var(--read-measure); }
+}
+
 /* One post per full-width row (blog / archive / search listings) */
 /* Stacked post: full-width banner image, meta, title, excerpt, right "Read More" */
 .post-list { display: flex; flex-direction: column; }
@@ -1755,6 +1781,7 @@ body.page .lede { max-width: none; }
 /* Sidebar widgets */
 /* Editorial sidebar: no card boxes — tracked headings, airy list dividers. */
 .blog-aside { position: sticky; top: 1.5rem; display: grid; gap: 2.6rem; }
+
 .widget {
   background: none;
   border: 0;
