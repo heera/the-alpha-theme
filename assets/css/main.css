@@ -1551,8 +1551,9 @@ body.single .page-title {
   hyphenate-limit-chars: 6 3 3;
 }
 .prose h2, .prose h3, .prose h4 { color: var(--ink-head); margin-top: 2.4rem; }
-.prose h2 { font-size: 1.7rem; }
-.prose h3 { font-size: 1.32rem; }
+.prose h2 { font-size: 1.5rem; }
+.prose h3 { font-size: 1.25rem; }
+.prose h4 { font-size: 1.1rem; }
 .prose a { color: var(--accent); border-bottom: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); }
 .prose a:hover { color: var(--ink); }
 .prose strong { color: var(--ink); }
