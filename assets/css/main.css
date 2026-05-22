@@ -1398,7 +1398,7 @@ body.page .lede { max-width: none; }
    (1.7rem) so the H1 leads the hierarchy. The compact --title-list size is kept
    for the blog-index listing rows; this only enlarges the actual post page. */
 body.single .page-title {
-  font-size: clamp(1.9rem, 1.3rem + 1.7vw, 2.4rem);
+  font-size: clamp(1.7rem, 1.25rem + 1.3vw, 2.1rem);
   margin: 0.4rem 0 0;
 }
 /* Single column but using the full main-area width (no narrow cap, no sidebar) */
