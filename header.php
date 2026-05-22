@@ -93,7 +93,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			</button>
 
 			<p class="colophon-mini">
-				&copy; <?php echo esc_html( gmdate( 'Y' ) ); ?> <?php bloginfo( 'name' ); ?><br>
+				<?php the_alpha_copyright( true ); ?><br>
 				<?php esc_html_e( 'Sponsored by', 'the-alpha' ); ?> &mdash; <a href="https://authlab.io/" target="_blank" rel="noopener">authLab</a>
 			</p>
 		</div>

@@ -262,7 +262,11 @@
       document.documentElement.clientHeight;
     var p = h > 0 ? st / h : 0;
     if (bar) bar.style.transform = "scaleX(" + p.toFixed(4) + ")";
-    if (toTop) toTop.classList.toggle("is-visible", st > 600);
+    if (toTop) {
+      toTop.classList.toggle("is-visible", st > 600);
+      // Same scroll fraction drives the button's circular progress ring (CSS).
+      toTop.style.setProperty("--p", p.toFixed(4));
+    }
     ticking = false;
   }
   window.addEventListener(

@@ -10,6 +10,37 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * Site copyright line.
+ *
+ * Full (footer):  "Copyright © {start}–{current} {site name}".
+ * Short (sidebar, $short = true): "© {current} {site name}" — a compact
+ * persistent credit that doesn't duplicate the footer's formal line.
+ *
+ * End year is dynamic (wp_date, site timezone); the full form collapses to a
+ * single year until the current year passes the start. Start year filterable.
+ *
+ * @param bool $short Output the compact sidebar variant.
+ */
+function the_alpha_copyright( $short = false ) {
+	$now = (int) wp_date( 'Y' );
+
+	if ( $short ) {
+		/* translators: 1: current year, 2: site name. */
+		printf( '&copy; %1$d %2$s', $now, esc_html( get_bloginfo( 'name' ) ) );
+		return;
+	}
+
+	$start = (int) apply_filters( 'the_alpha_copyright_start_year', 2011 );
+	$years = ( $now > $start ) ? $start . '&ndash;' . $now : (string) $now;
+	printf(
+		/* translators: 1: year or year range, 2: site name. */
+		esc_html__( 'Copyright', 'the-alpha' ) . ' &copy; %1$s %2$s',
+		$years, // safe: ints + literal entity built above.
+		esc_html( get_bloginfo( 'name' ) )
+	);
+}
+
+/**
  * Social profiles (sourced from the previous site). Edit here to update everywhere.
  *
  * @return array<string,array{label:string,url:string,icon:string}>

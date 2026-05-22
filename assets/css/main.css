@@ -272,22 +272,27 @@ h1, h2, h3, h4 {
   pointer-events: none;
 }
 /* Page-content reveal: until JS confirms everything is loaded (and adds
-   body.is-ready), the layout and footer sit slightly down + invisible.
-   When is-ready lands, they cross-fade up into view as the loader fades
-   out — so content slides in instead of popping when the overlay leaves. */
-.js .layout,
+   body.is-ready), the main content and footer sit slightly down + invisible,
+   then cross-fade up as the loader fades out — so content slides in instead
+   of popping when the overlay leaves.
+   We animate .main, NOT .layout: the layout contains the position:fixed
+   sidebar, and a transform on an ancestor re-anchors fixed children to that
+   ancestor (the full-height layout) instead of the viewport — which made the
+   sidebar render short/incomplete during load, then jump when the transform
+   cleared. The sidebar reveals naturally as the loader fades over it. */
+.js .main,
 .js .site-footer {
   opacity: 0;
   transform: translateY(8px);
   transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
 }
-.js body.is-ready .layout,
+.js body.is-ready .main,
 .js body.is-ready .site-footer {
   opacity: 1;
   transform: none;
 }
 @media (prefers-reduced-motion: reduce) {
-  .js .layout,
+  .js .main,
   .js .site-footer { transform: none; transition: opacity 0.3s linear; }
 }
 @keyframes page-loader-spin { to { transform: rotate(360deg); } }
@@ -339,6 +344,25 @@ h1, h2, h3, h4 {
 .to-top.is-visible { opacity: 1; pointer-events: auto; transform: none; }
 .to-top:hover { border-color: var(--accent); color: var(--accent); }
 
+/* Scroll-progress ring — the same effect as the top .scroll-progress bar,
+   wrapped around the button. --p (0..1) is set on scroll in theme.js; a conic
+   gradient (accent → accent-2, starting at 12 o'clock) sweeps to that fraction
+   and is masked to a slim 2px ring. It inherits the button's opacity, so it
+   only shows once the button has faded in. */
+.to-top::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  background: conic-gradient(from -90deg,
+    var(--accent) 0turn,
+    var(--accent-2) calc(var(--p, 0) * 1turn),
+    transparent calc(var(--p, 0) * 1turn));
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
+          mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
+  pointer-events: none;
+}
+
 /* ----- Layout shell ------------------------------------------------------- */
 .layout { min-height: 100vh; }
 
@@ -348,9 +372,11 @@ h1, h2, h3, h4 {
   width: var(--sidebar-w);
   display: flex;
   flex-direction: column;
-  /* Bottom padding pulls sidebar foot up so its last text line aligns with
-     the footer's last text line baseline. */
-  padding: 2.4rem 1.9rem 2.625rem;
+  /* Bottom padding aligns the sidebar foot's last line with the footer's.
+     The footer vertically centers its content in its 11rem row, so its last
+     line lands ~0.03rem below its own padding-bottom; we trim the sidebar's
+     bottom padding by that amount (2.625 → 2.596rem) to sit on the same row. */
+  padding: 2.4rem 1.9rem 2.596rem;
   background: var(--bg-2);
   border-right: 1px solid var(--sidebar-edge, var(--border));
   z-index: 100;
@@ -1204,7 +1230,9 @@ h1, h2, h3, h4 {
 .contact__grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
+  /* Wider COLUMN gap so the two edgeless cards read as distinct columns;
+     row gap stays modest for when they stack into one column on mobile. */
+  gap: 1.5rem clamp(2.5rem, 5vw, 4.5rem);
 }
 .contact__card {
   /* Edgeless — merges into the section bg, structure comes from the list
@@ -1267,7 +1295,9 @@ h1, h2, h3, h4 {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 0.95rem;
+  /* No gap — line-height (1.95, matching the left column) sets the row
+     spacing, so both columns sit on the same baseline grid. */
+  gap: 0;
 }
 
 .site-footer__copy,
@@ -1283,9 +1313,13 @@ h1, h2, h3, h4 {
 .site-footer__rss,
 .site-footer__terms {
   font-family: var(--font-mono);
-  font-size: 0.68rem;
+  /* Match the left column's size + line-height so the two columns share one
+     baseline grid — row 1 (copyright / subscribe) and row 2 (powered-by /
+     terms) line up horizontally. */
+  font-size: 0.72rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
+  line-height: 1.95;
 }
 .site-footer__rss-slug { color: var(--ink-dim); letter-spacing: 0.12em; }
 .socials--footer { justify-content: flex-end; }

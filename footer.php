@@ -14,13 +14,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 <footer class="site-footer">
 	<div class="site-footer__col site-footer__col--left">
-		<p class="site-footer__copy">&copy; <?php echo esc_html( gmdate( 'Y' ) ); ?> <?php bloginfo( 'name' ); ?></p>
+		<p class="site-footer__copy"><?php the_alpha_copyright(); ?></p>
 		<p class="site-footer__sub">
 			<?php
 			echo wp_kses_post(
 				sprintf(
 					/* translators: %s: WP Manage Ninja link. */
-					__( 'Proudly powered by - %s', 'the-alpha' ),
+					__( 'Proudly powered by %s', 'the-alpha' ),
 					'<a href="https://wpmanageninja.com/" target="_blank" rel="noopener">WP Manage Ninja</a>'
 				)
 			);
@@ -30,7 +30,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 	<div class="site-footer__col site-footer__col--right">
 		<a class="site-footer__rss" href="<?php echo esc_url( home_url( '/subscribe/' ) ); ?>">
-			<?php esc_html_e( 'Subscribe', 'the-alpha' ); ?>
+			<?php esc_html_e( 'Subscribe to my', 'the-alpha' ); ?>
 			<span class="site-footer__rss-slug">&nbsp;/rss</span>
 		</a>
 		<a class="site-footer__terms" href="<?php echo esc_url( home_url( '/terms/' ) ); ?>"><?php esc_html_e( 'Terms and Conditions', 'the-alpha' ); ?></a>
