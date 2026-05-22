@@ -34,19 +34,29 @@
 
 /* Dark (default) */
 [data-theme="dark"] {
-  --bg: #0b0d10;
-  --bg-2: #101317;
-  --surface: #14181d;
-  --surface-2: #1a1f26;
+  /* Modest lift off near-black (was #0b0d10): the whole elevation ladder is
+     raised by the same offset so the steps stay even and the cool blue tint is
+     preserved — softens the "void" feel / halation without going flat-grey. */
+  --bg: #101216;
+  --bg-2: #15181d;
+  --surface: #191d23;
+  --surface-2: #1f242c;
   --border: #232a33;
   --border-soft: #1b2128;
-  --ink: #e8eaed;
-  --ink-soft: #aab2bd;
+  /* Softened off-white instead of near-pure white (#e8eaed): pure-white text
+     on the near-black bg glares/halates (~16:1, well past WCAG AAA). #ccd1d8
+     drops it to a comfortable ~12.7:1 while staying crisp for headings/strong. */
+  --ink: #ccd1d8;
+  --ink-soft: #a3abb6;
   --ink-dim: #6c7682;
+  /* Headings/titles use a softer tone than inline --ink: large display text
+     glares more by area, so it's stepped down (~10.9:1) below inline emphasis
+     (--ink ~12.7:1) while staying clearly brighter than body (--ink-soft). */
+  --ink-head: #bcc2cb;
   --eyebrow: var(--accent);
   --shadow: 0 1px 0 rgba(255, 255, 255, 0.03), 0 18px 50px -22px rgba(0, 0, 0, 0.85);
   --glow: 0 0 0 1px rgba(94, 230, 208, 0.18), 0 0 34px -10px rgba(94, 230, 208, 0.45);
-  --hero-veil: linear-gradient(90deg, rgba(11, 13, 16, 0.92) 0%, rgba(11, 13, 16, 0.62) 42%, rgba(11, 13, 16, 0.38) 100%);
+  --hero-veil: linear-gradient(90deg, rgba(16, 18, 22, 0.92) 0%, rgba(16, 18, 22, 0.62) 42%, rgba(16, 18, 22, 0.38) 100%);
   --img-filter: grayscale(1) contrast(1.06) brightness(0.92);
   /* Fragrance ambient atmospherics — luminous warm-white wash, faint
      cool rim, drifting pale haze. Tones pulled close to white so the
@@ -73,6 +83,7 @@
   --ink: #14171c;
   --ink-soft: #41464d;    /* deeper so secondary text is readable, not faded */
   --ink-dim: #7a7f87;
+  --ink-head: var(--ink); /* light mode: dark headings on light bg don't glare */
   /* Deeper teal — reads electric against warm white instead of fading */
   --accent: #066b59;
   --accent-2: #6a52ff;
@@ -194,6 +205,7 @@ h1, h2, h3, h4 {
 
 .section-heading {
   font-size: clamp(1.9rem, 1.2rem + 2.4vw, 3rem);
+  color: var(--ink-head);
   margin-bottom: 1.4rem;
 }
 .lede { color: var(--ink-soft); font-size: 1.075rem; max-width: 60ch; }
@@ -1354,6 +1366,7 @@ h1, h2, h3, h4 {
   /* Same scale as the blog-index post titles so long titles wrap cleanly
      and stay within the content boundary. */
   font-size: var(--title-list);
+  color: var(--ink-head);
   overflow-wrap: anywhere;
   hyphens: auto;
 }
@@ -1459,7 +1472,7 @@ body.page .lede { max-width: none; }
   line-height: 1.22;
   margin: 0 0 0.85rem;
 }
-.post-row__title a { color: var(--ink); transition: color var(--t-fast); }
+.post-row__title a { color: var(--ink-head); transition: color var(--t-fast); }
 .post-row__title a:hover,
 .post-row__title a:focus-visible { color: var(--accent); }
 .post-row__excerpt {
@@ -1530,7 +1543,7 @@ body.page .lede { max-width: none; }
   -webkit-hyphens: auto;
   hyphenate-limit-chars: 6 3 3;
 }
-.prose h2, .prose h3, .prose h4 { color: var(--ink); margin-top: 2.4rem; }
+.prose h2, .prose h3, .prose h4 { color: var(--ink-head); margin-top: 2.4rem; }
 .prose h2 { font-size: 1.7rem; }
 .prose h3 { font-size: 1.32rem; }
 .prose a { color: var(--accent); border-bottom: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); }
@@ -1811,14 +1824,14 @@ body.page .lede { max-width: none; }
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--ink);
+  color: var(--ink-head);
   margin: 0 0 0.4rem;
 }
 .widget ul { list-style: none; padding: 0; margin: 0; }
 .widget li {
   display: flex;
   gap: 0.7rem;
-  padding: 0.95rem 0;
+  padding: 0.65rem 0;
   font-size: 0.95rem;
   border-bottom: 1px solid var(--border);
 }
@@ -1899,7 +1912,7 @@ body.page .lede { max-width: none; }
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--ink);
+  color: var(--ink-head);
   margin: 0 0 0.4rem;
 }
 .wp-block-search .wp-block-search__inside-wrapper {
