@@ -77,6 +77,14 @@ function the_alpha_socials() {
 			'url'   => 'https://www.pinterest.com/sheikhheera/',
 			'icon'  => 'M12 2a10 10 0 0 0-3.65 19.31c-.09-.78-.17-1.98.03-2.83.19-.81 1.2-5.13 1.2-5.13s-.31-.61-.31-1.52c0-1.42.83-2.48 1.86-2.48.88 0 1.3.66 1.3 1.45 0 .88-.56 2.2-.85 3.42-.24 1.02.51 1.85 1.52 1.85 1.82 0 3.22-1.92 3.22-4.7 0-2.46-1.77-4.18-4.29-4.18-2.92 0-4.64 2.19-4.64 4.46 0 .88.34 1.83.76 2.34a.3.3 0 0 1 .07.29c-.08.32-.25 1.02-.29 1.16-.04.19-.15.23-.35.14-1.3-.61-2.11-2.5-2.11-4.02 0-3.28 2.38-6.29 6.86-6.29 3.6 0 6.4 2.57 6.4 6 0 3.58-2.26 6.46-5.39 6.46-1.05 0-2.04-.55-2.38-1.19l-.65 2.47c-.23.91-.86 2.04-1.29 2.74A10 10 0 1 0 12 2z',
 		),
+		'fragrantica'   => array(
+			'label' => 'Fragrantica',
+			'url'   => 'https://www.fragrantica.com/member/1374163',
+			// Official Fragrantica hummingbird mark; carries its own 0 0 100 100
+			// viewBox + fill-rule (bird is negative space), so it ships as full
+			// inline SVG rather than the shared 24x24 single-path template.
+			'svg'   => '<svg viewBox="0 0 100 100" width="18" height="18" aria-hidden="true" focusable="false"><path fill="currentColor" d="M50,0a50,50,0,1,0,50,50A50,50,0,0,0,50,0ZM15.16,36.43a130.39,130.39,0,0,1,13.19-1.34,46.9,46.9,0,0,1,6.14.41c12.83,1.66,28,11.81,32,19.31a13.2,13.2,0,0,0-1.27-1.39c-6.59-5.85-18.37-11.51-29.37-12.24-5.56-.37-11.34.74-18.2,2.5A44.56,44.56,0,0,1,15.16,36.43ZM19,46.29c4.11-1.24,8-2.85,16.62-3.3,9.43-.5,21,4.37,29.39,11a6.34,6.34,0,0,1,1.48,1.59c-19.32-9.85-36-3.83-42-.47A49,49,0,0,1,19,46.29Zm7.53,10.78c6-2.92,12.14-4.93,18.3-5.24a41,41,0,0,1,19.86,3.62c1.22.47,1.46.84,1.46.84-.48-.11-5.63-.44-7.2-.44-.76,0-1.53,0-2.28,0-8.1.42-15.73,2.08-23.23,7.44A50.1,50.1,0,0,1,26.52,57.07Zm8.74,7.58c7-5.23,13.58-7,21.56-7.76,1.53-.14,5.26-.12,6.42-.06,0,0,2.47.1,2.84.16a41.24,41.24,0,0,0-25,11.08A48.63,48.63,0,0,1,35.26,64.65Zm8,4.47C47.17,65.34,49.62,63,56,60.25a33.16,33.16,0,0,1,9.88-2.56,21.58,21.58,0,0,0-3.21,5.65A36.33,36.33,0,0,0,61,70C54.25,71.43,48.67,71.49,43.29,69.12Zm50-25.77a55.65,55.65,0,0,0-10.17,4.11,4.55,4.55,0,0,0-2.71,3c-.9,2.37-1,6.28-.86,9.8a21.39,21.39,0,0,1,.06,4.28c-.67,11.37-9.54,18.11-18,25.63-2.66,2.38-8.55,7.23-8.92,7.38-.86.34-.18-.8-.18-.8l9.43-16.42c0-13.41,3-19.34,6.29-23.5a5,5,0,0,1,1.12-1.07,4,4,0,0,1-.64-.65c-1.16-1.44-1.72-3.82-.9-5.34a8.38,8.38,0,0,1,6.46-4.32,7.8,7.8,0,0,1,1.9.06c1.33.06,2.8.35,4.15.49s4.37-1.5,8-2.49a30.79,30.79,0,0,1,7.66-1.15c.33,0,1.37,0,1.5.2a4.51,4.51,0,0,1-1.23.15A25.74,25.74,0,0,0,93.28,43.35Z"/></svg>',
+		),
 	);
 }
 
@@ -89,11 +97,22 @@ function the_alpha_social_links( $classname = 'socials' ) {
 	$socials = the_alpha_socials();
 	echo '<ul class="' . esc_attr( $classname ) . '">';
 	foreach ( $socials as $key => $s ) {
+		// Most entries carry an 'icon' path drawn into a shared 24x24 svg;
+		// an entry may instead supply ready-made 'svg' markup (e.g. a brand
+		// mark with its own viewBox). Both are theme-authored, not user input.
+		if ( ! empty( $s['svg'] ) ) {
+			$glyph = $s['svg'];
+		} else {
+			$glyph = sprintf(
+				'<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="currentColor" d="%s"/></svg>',
+				esc_attr( $s['icon'] )
+			);
+		}
 		printf(
-			'<li><a href="%1$s" target="_blank" rel="noopener noreferrer" aria-label="%2$s" title="%2$s"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="currentColor" d="%3$s"/></svg></a></li>',
+			'<li><a href="%1$s" target="_blank" rel="noopener noreferrer" aria-label="%2$s" title="%2$s">%3$s</a></li>',
 			esc_url( $s['url'] ),
 			esc_attr( $s['label'] ),
-			esc_attr( $s['icon'] )
+			$glyph
 		);
 	}
 	echo '</ul>';
