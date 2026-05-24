@@ -81,6 +81,11 @@ function the_alpha_setup() {
 
 	add_image_size( 'the_alpha_card', 760, 480, true );
 	add_image_size( 'the_alpha_hero', 1600, 900, true );
+	// Cover banner for the single-post header and listing rows (see
+	// inc/banner-image.php). Uncropped + width-bounded so the post's wide Banner
+	// image shows in full at its natural ratio — no slicing. Displayed via the
+	// `.entry__cover` / `.post-row__media` rules in main.css.
+	add_image_size( 'the_alpha_banner', 1600, 9999, false );
 
 	register_nav_menus( array(
 		'primary' => __( 'Primary (single-page sections)', 'the-alpha' ),
@@ -653,3 +658,4 @@ function the_alpha_body_classes( $classes ) {
 add_filter( 'body_class', 'the_alpha_body_classes' );
 
 require THE_ALPHA_DIR . '/inc/template-tags.php';
+require THE_ALPHA_DIR . '/inc/banner-image.php';

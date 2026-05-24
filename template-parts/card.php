@@ -10,9 +10,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 ?>
 <article <?php post_class( 'card' ); ?>>
-	<a class="card__media<?php echo has_post_thumbnail() ? '' : ' card__media--ph'; ?>" href="<?php the_permalink(); ?>" tabindex="-1" aria-hidden="true">
-		<?php if ( has_post_thumbnail() ) : ?>
-			<?php the_post_thumbnail( 'the_alpha_card', array( 'loading' => 'lazy', 'decoding' => 'async', 'alt' => '' ) ); ?>
+	<?php $ta_thumb = the_alpha_thumb_id(); ?>
+	<a class="card__media<?php echo $ta_thumb ? '' : ' card__media--ph'; ?>" href="<?php the_permalink(); ?>" tabindex="-1" aria-hidden="true">
+		<?php if ( $ta_thumb ) : ?>
+			<?php echo wp_get_attachment_image( $ta_thumb, 'the_alpha_card', false, array( 'loading' => 'lazy', 'decoding' => 'async', 'alt' => '' ) ); ?>
 		<?php else : ?>
 			<?php
 			$ta_cats = get_the_category();

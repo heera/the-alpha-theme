@@ -13,7 +13,8 @@ get_header();
 
 while ( have_posts() ) :
 	the_post();
-	$ta_has_cover = has_post_thumbnail() && get_theme_mod( 'the_alpha_show_featured_single', true );
+	$ta_cover_id  = the_alpha_cover_id();
+	$ta_has_cover = $ta_cover_id && get_theme_mod( 'the_alpha_show_featured_single', true );
 	?>
 <div class="page-head">
 	<div class="wrap">
@@ -31,7 +32,7 @@ while ( have_posts() ) :
 	<article <?php post_class( 'entry' ); ?>>
 		<?php if ( $ta_has_cover ) : ?>
 			<figure class="entry__cover">
-				<?php the_post_thumbnail( 'the_alpha_hero', array( 'loading' => 'eager', 'fetchpriority' => 'high' ) ); ?>
+				<?php echo wp_get_attachment_image( $ta_cover_id, 'the_alpha_banner', false, array( 'loading' => 'eager', 'fetchpriority' => 'high', 'alt' => '' ) ); ?>
 			</figure>
 		<?php endif; ?>
 

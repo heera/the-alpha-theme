@@ -57,7 +57,7 @@
   --shadow: 0 1px 0 rgba(255, 255, 255, 0.03), 0 18px 50px -22px rgba(0, 0, 0, 0.85);
   --glow: 0 0 0 1px rgba(94, 230, 208, 0.18), 0 0 34px -10px rgba(94, 230, 208, 0.45);
   --hero-veil: linear-gradient(90deg, rgba(16, 18, 22, 0.92) 0%, rgba(16, 18, 22, 0.62) 42%, rgba(16, 18, 22, 0.38) 100%);
-  --img-filter: grayscale(1) contrast(1.06) brightness(0.92);
+  --img-filter: none; /* photos render in full colour */
   /* Fragrance ambient atmospherics — luminous warm-white wash, faint
      cool rim, drifting pale haze. Tones pulled close to white so the
      gradient lifts the deep bg as light rather than colour. Alphas
@@ -103,8 +103,7 @@
      Less opaque than the dark veil — the warm sepia filter on the hero
      image keeps text readable without needing a near-solid cover. */
   --hero-veil: linear-gradient(90deg, rgba(236, 233, 225, 0.84) 0%, rgba(236, 233, 225, 0.42) 42%, rgba(236, 233, 225, 0) 100%);
-  /* Pull back the brightness, push the contrast — the photo stays a photo. */
-  --img-filter: grayscale(1) contrast(1.18) brightness(0.78);
+  --img-filter: none; /* photos render in full colour */
   /* Editorial warm-paper version — bright cream wash that brightens
      the paper bg without tinting it heavily. */
   --frag-ember: rgba(255, 245, 222, 0.4);
@@ -644,12 +643,7 @@ h1, h2, h3, h4 {
   object-fit: cover;
   filter: var(--img-filter);
 }
-/* Light-mode hero photo needs warmth, not flat grayscale, so it doesn't
-   dissolve into the cream paper bg. Sepia + mild contrast ties the image
-   to the warm palette while keeping the editorial monochrome feel. */
-[data-theme="light"] .hero__bg img {
-  filter: sepia(0.45) contrast(1.08) brightness(0.92) saturate(0.9);
-}
+/* Hero photo renders in full colour in both schemes. */
 .hero__bg::after {
   content: "";
   position: absolute;
@@ -803,7 +797,7 @@ h1, h2, h3, h4 {
   filter: var(--img-filter);
   transition: filter var(--t);
 }
-.portrait:hover img { filter: grayscale(0.15) contrast(1.05); }
+.portrait:hover img { filter: none; }
 
 .bio p { color: var(--ink-soft); margin-bottom: 1rem; }
 .bio p strong, .bio a { color: var(--ink); }
@@ -1455,11 +1449,13 @@ body.single .page-title {
 .post-list > .post-row:first-child { padding-top: 0; }
 .post-list > .post-row:last-child { border-bottom: 0; }
 .post-row__media {
-  aspect-ratio: 16 / 5;
+  aspect-ratio: auto; /* banner shows at its natural (wide) ratio — no crop, see inc/banner-image.php */
   border-radius: var(--radius);
   border: 1px solid var(--border);
   margin-bottom: 1.5rem;
 }
+.post-row__media img { height: auto; }
+.post-row__media.card__media--ph { aspect-ratio: 16 / 5; } /* keep a slim box when there's no image */
 .post-row__meta {
   font-family: var(--font-mono);
   font-size: 0.76rem;
@@ -1509,13 +1505,14 @@ body.single .page-title {
 
 .entry { background: transparent; }
 .entry__cover {
-  aspect-ratio: 16 / 5;
+  /* No fixed ratio: the banner shows at its natural (wide) ratio — see
+     inc/banner-image.php. */
   border-radius: var(--radius);
   overflow: hidden;
   margin-bottom: 1.6rem;
   border: 1px solid var(--border);
 }
-.entry__cover img { width: 100%; height: 100%; object-fit: cover; filter: var(--img-filter); }
+.entry__cover img { width: 100%; height: auto; display: block; filter: var(--img-filter); }
 /* Separator that sits inside .page-head when no cover image is being
    rendered — tucked close to the meta line so the title block doesn't
    leave a large floating gap before the content. */

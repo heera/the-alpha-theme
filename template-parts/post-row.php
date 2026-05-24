@@ -13,9 +13,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 ?>
 <article <?php post_class( 'post-row' ); ?>>
 	<?php if ( get_theme_mod( 'the_alpha_show_featured_listing', true ) ) : ?>
-		<div class="post-row__media card__media<?php echo has_post_thumbnail() ? '' : ' card__media--ph'; ?>">
-			<?php if ( has_post_thumbnail() ) : ?>
-				<?php the_post_thumbnail( 'the_alpha_hero', array( 'loading' => 'lazy', 'decoding' => 'async', 'alt' => '' ) ); ?>
+		<?php $ta_cover_id = the_alpha_cover_id(); ?>
+		<div class="post-row__media card__media<?php echo $ta_cover_id ? '' : ' card__media--ph'; ?>">
+			<?php if ( $ta_cover_id ) : ?>
+				<?php echo wp_get_attachment_image( $ta_cover_id, 'the_alpha_banner', false, array( 'loading' => 'lazy', 'decoding' => 'async', 'alt' => '' ) ); ?>
 			<?php else : ?>
 				<?php
 				$ta_cats = get_the_category();
