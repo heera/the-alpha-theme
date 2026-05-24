@@ -1449,13 +1449,14 @@ body.single .page-title {
 .post-list > .post-row:first-child { padding-top: 0; }
 .post-list > .post-row:last-child { border-bottom: 0; }
 .post-row__media {
-  aspect-ratio: auto; /* banner shows at its natural (wide) ratio — no crop, see inc/banner-image.php */
+  aspect-ratio: 16 / 5;
   border-radius: var(--radius);
   border: 1px solid var(--border);
   margin-bottom: 1.5rem;
 }
-.post-row__media img { height: auto; }
-.post-row__media.card__media--ph { aspect-ratio: 16 / 5; } /* keep a slim box when there's no image */
+/* Slim 16:5 cover crop, centred (the Featured image; no separate banner). Centred
+   so images whose subject sits below a dark/shadow top aren't cut off. */
+.post-row__media.card__media--ph { aspect-ratio: 16 / 5; } /* placeholder uses the same box */
 .post-row__meta {
   font-family: var(--font-mono);
   font-size: 0.76rem;
@@ -1512,7 +1513,7 @@ body.single .page-title {
   margin-bottom: 1.6rem;
   border: 1px solid var(--border);
 }
-.entry__cover img { width: 100%; height: auto; display: block; filter: var(--img-filter); }
+.entry__cover img { width: 100%; height: auto; max-height: 70vh; object-fit: cover; display: block; filter: var(--img-filter); }
 /* Separator that sits inside .page-head when no cover image is being
    rendered — tucked close to the meta line so the title block doesn't
    leave a large floating gap before the content. */
