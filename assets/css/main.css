@@ -770,20 +770,13 @@ h1, h2, h3, h4 {
 }
 .portrait {
   position: relative;
-  /* No explicit height — grid stretching gives it the row height. The
-     image inside is absolutely positioned so it doesn't push the row
-     taller than the content column. */
-  border-radius: var(--radius);
-  overflow: hidden;
-  border: 1px solid var(--border);
-  background: var(--surface);
-}
-.portrait::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, transparent 55%, rgba(94, 230, 208, 0.14));
-  mix-blend-mode: screen;
+  /* Portrait whose edges are feathered to transparent so it dissolves into
+     the section (reads as part of the About background, not a bordered photo).
+     Transparency is scheme-agnostic — the dark slate or the cream shows
+     through the edges in each mode — so no border, surface, radius or overlay. */
+  align-self: start;
+  aspect-ratio: 560 / 664;
+  overflow: visible;
 }
 .portrait img {
   position: absolute;
@@ -799,7 +792,14 @@ h1, h2, h3, h4 {
 }
 .portrait:hover img { filter: none; }
 
-.bio p { color: var(--ink-soft); margin-bottom: 1rem; }
+.bio p {
+  color: var(--ink-soft);
+  margin-bottom: 1rem;
+  text-align: justify;
+  text-justify: inter-word;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+}
 .bio p strong, .bio a { color: var(--ink); }
 .bio a { border-bottom: 1px solid var(--accent); }
 .bio a:hover { color: var(--accent); }
