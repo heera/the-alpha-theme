@@ -28,9 +28,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<div class="about__grid reveal">
 			<figure class="portrait">
 				<img
-					src="<?php echo esc_url( THE_ALPHA_URI . '/assets/img/portrait-merged.webp' ); ?>"
+					src="<?php echo esc_url( THE_ALPHA_URI . '/assets/img/portrait.webp' ); ?>"
 					alt="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>"
-					width="560" height="664" loading="lazy" decoding="async">
+					width="900" height="782" loading="lazy" decoding="async">
 			</figure>
 
 			<div>

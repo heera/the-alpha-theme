@@ -770,13 +770,20 @@ h1, h2, h3, h4 {
 }
 .portrait {
   position: relative;
-  /* Portrait whose edges are feathered to transparent so it dissolves into
-     the section (reads as part of the About background, not a bordered photo).
-     Transparency is scheme-agnostic — the dark slate or the cream shows
-     through the edges in each mode — so no border, surface, radius or overlay. */
-  align-self: start;
-  aspect-ratio: 560 / 664;
-  overflow: visible;
+  /* No explicit height — grid stretching gives it the row height. The
+     image inside is absolutely positioned so it doesn't push the row
+     taller than the content column. */
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+.portrait::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 55%, rgba(94, 230, 208, 0.14));
+  mix-blend-mode: screen;
 }
 .portrait img {
   position: absolute;
