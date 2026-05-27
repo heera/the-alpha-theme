@@ -308,6 +308,21 @@
     cycle(el, 4200);
   });
 
+  /* ---- Phone-number reveal ----------------------------------------------
+     Numbers live base64-encoded in `data-p` so the raw HTML has no `tel:`
+     prefix and no continuous digit run — cheap regex harvesters bounce.
+     JS decodes on load and writes both the visible text and the tel: href.
+     If JS fails (rare), the email rows below are still usable. */
+  document.querySelectorAll("a.js-tel").forEach(function (a) {
+    var enc = a.getAttribute("data-p");
+    if (!enc) return;
+    var pretty;
+    try { pretty = atob(enc); } catch (e) { return; }
+    a.setAttribute("href", "tel:" + pretty.replace(/\s+/g, ""));
+    a.setAttribute("aria-label", pretty);
+    a.textContent = pretty;
+  });
+
   /* ---- Copy button on code blocks --------------------------------------- */
   /* Adds a "Copy" button to every <pre> inside post content. Uses the
      Clipboard API with a textarea fallback for legacy/insecure contexts. */
