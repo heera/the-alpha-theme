@@ -40,7 +40,7 @@
   --bg: #101216;
   --bg-2: #15181d;
   --surface: #191d23;
-  --surface-2: #1f242c;
+  --surface-2: #262a32;
   --border: #232a33;
   --border-soft: #1b2128;
   /* Softened off-white instead of near-pure white (#e8eaed): pure-white text
@@ -58,6 +58,11 @@
   --glow: 0 0 0 1px rgba(94, 230, 208, 0.18), 0 0 34px -10px rgba(94, 230, 208, 0.45);
   --hero-veil: linear-gradient(90deg, rgba(16, 18, 22, 0.92) 0%, rgba(16, 18, 22, 0.62) 42%, rgba(16, 18, 22, 0.38) 100%);
   --img-filter: none; /* photos render in full colour */
+  /* About portrait: slightly richer + a touch cooler so the studio photo
+     sits into the cool slate without going flat. */
+  --portrait-filter: saturate(1.06) contrast(1.04) brightness(0.985);
+  /* Tight teal glow around the portrait — bright mint reads on the slate. */
+  --portrait-glow: 0 0 0 1px rgba(94, 230, 208, 0.32), 0 0 16px -6px rgba(94, 230, 208, 0.42);
   /* Fragrance ambient atmospherics — luminous warm-white wash, faint
      cool rim, drifting pale haze. Tones pulled close to white so the
      gradient lifts the deep bg as light rather than colour. Alphas
@@ -104,6 +109,14 @@
      image keeps text readable without needing a near-solid cover. */
   --hero-veil: linear-gradient(90deg, rgba(236, 233, 225, 0.84) 0%, rgba(236, 233, 225, 0.42) 42%, rgba(236, 233, 225, 0) 100%);
   --img-filter: none; /* photos render in full colour */
+  /* About portrait: lift the near-black studio background toward a softer warm
+     charcoal so it isn't a harsh black box on the cream. Low contrast raises
+     the blacks (brightness alone can't — 0×k=0); brightness compensates. No
+     sepia (it killed the teal coordinates). */
+  --portrait-filter: saturate(1.05) brightness(1.12) contrast(0.8);
+  /* Tight, deeper teal glow in light mode — bright mint washed out on cream,
+     so use the deep teal at high alpha and keep the halo small. */
+  --portrait-glow: 0 0 0 1px rgba(8, 107, 89, 0.7), 0 0 12px -5px rgba(8, 107, 89, 0.5);
   /* Editorial warm-paper version — bright cream wash that brightens
      the paper bg without tinting it heavily. */
   --frag-ember: rgba(255, 245, 222, 0.4);
@@ -770,31 +783,66 @@ h1, h2, h3, h4 {
 }
 .portrait {
   position: relative;
-  /* No explicit height — grid stretching gives it the row height. The
-     image inside is absolutely positioned so it doesn't push the row
-     taller than the content column. */
+  /* Stretch to the text column so the bottom lines up with the last social
+     row; the photo fills the frame (cover) so the border, pressed edge and
+     teal glow hug it on all sides. */
+  align-self: stretch;
+  /* Extend ~4px below the stretched row so the frame sits flush with the last
+     social row's visual bottom. Negative bottom margin grows the border box
+     without enlarging the row (the text column stays put). */
+  margin-bottom: -4px;
   border-radius: var(--radius);
   overflow: hidden;
   border: 1px solid var(--border);
-  background: var(--surface);
+  background: #0e1014;
+  /* Teal accent lighting around the image. Fixed BRIGHT mint (not the theme
+     --glow): these effects sit against the dark photo, so the deep-teal
+     light-mode accent was invisible (dark on dark). Bright mint reads on the
+     photo edge in both schemes. Pressed walls are on ::before. */
+  box-shadow: var(--portrait-glow);
 }
-.portrait::after {
+/* Subtle, even pressed-in feel layered above the photo: a soft recess shadow
+   from the top and a faint 1px lift at the bottom. No thick bright lip and no
+   bottom-weighted teal wash, so the bottom no longer reads as an oversized
+   border (the teal accent is the even --glow on .portrait instead). */
+.portrait::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, transparent 55%, rgba(94, 230, 208, 0.14));
-  mix-blend-mode: screen;
+  z-index: 3;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow:
+    inset 0 2px 5px -3px var(--rule-ink),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.08);
+}
+/* Re-create the photo's left-edge coordinate readout as a teal HUD label, so
+   it survives the cover-crop of the filled frame (the baked-in one gets
+   trimmed). Vertical, monospace, reading bottom-to-top. */
+.portrait::after {
+  content: "N25.2848°   E55.2708°";
+  position: absolute;
+  left: 0.55rem;
+  bottom: 2rem;
+  z-index: 4;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  color: #5ee6d0;            /* bright mint in both modes — sits on the dark photo */
+  font-family: var(--font-mono);
+  font-size: 0.56rem;
+  letter-spacing: 0.22em;
+  opacity: 0.9;
+  pointer-events: none;
+  text-shadow: 0 0 6px rgba(94, 230, 208, 0.45), 0 0 2px rgba(0, 0, 0, 0.7);
 }
 .portrait img {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  /* Anchor the crop to the top so the head is preserved when the container
-     is shorter than the image's natural aspect. */
-  object-position: 50% 0%;
-  filter: var(--img-filter);
+  object-fit: cover;          /* fills the tall frame; sides cover-cropped */
+  object-position: 50% 50%;
+  filter: var(--portrait-filter, var(--img-filter));
   transition: filter var(--t);
 }
 .portrait:hover img { filter: none; }
@@ -834,7 +882,7 @@ h1, h2, h3, h4 {
   margin: 1.7rem 0 0;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.15rem 1.6rem;
+  gap: 0.55rem 1rem;
   font-family: var(--font-mono);
   font-size: 0.82rem;
 }
@@ -842,8 +890,10 @@ h1, h2, h3, h4 {
   display: flex;
   align-items: baseline;
   gap: 0.5rem;
-  padding: 0.62rem 0;
-  border-bottom: 1px solid var(--border-soft);
+  padding: 0.6rem 0.85rem;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
   color: var(--ink-soft);
 }
 .about__links li::before {

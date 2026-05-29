@@ -30,7 +30,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<img
 					src="<?php echo esc_url( THE_ALPHA_URI . '/assets/img/portrait.webp' ); ?>"
 					alt="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>"
-					width="1254" height="1254" loading="lazy" decoding="async">
+					width="768" height="768" loading="lazy" decoding="async">
 			</figure>
 
 			<div>
