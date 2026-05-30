@@ -61,8 +61,14 @@
   /* About portrait: slightly richer + a touch cooler so the studio photo
      sits into the cool slate without going flat. */
   --portrait-filter: saturate(1.06) contrast(1.04) brightness(0.985);
-  /* Tight teal glow around the portrait — bright mint reads on the slate. */
-  --portrait-glow: 0 0 0 1px rgba(94, 230, 208, 0.32), 0 0 16px -6px rgba(94, 230, 208, 0.42);
+  /* Neon-tube glow around the portrait — a bright mint "glass tube" line on
+     the border with a tight halo hugging it, like a bar neon sign. Keep the
+     spread small so it reads as a lit tube, not a soft bloom. */
+  --portrait-glow:
+    0 0 0 1.5px rgba(168, 255, 240, 0.95),
+    0 0 2px 0 rgba(94, 230, 208, 0.95),
+    0 0 6px 0 rgba(94, 230, 208, 0.7),
+    0 0 10px 0 rgba(94, 230, 208, 0.45);
   /* Fragrance ambient atmospherics — luminous warm-white wash, faint
      cool rim, drifting pale haze. Tones pulled close to white so the
      gradient lifts the deep bg as light rather than colour. Alphas
@@ -114,9 +120,14 @@
      the blacks (brightness alone can't — 0×k=0); brightness compensates. No
      sepia (it killed the teal coordinates). */
   --portrait-filter: saturate(1.05) brightness(1.12) contrast(0.8);
-  /* Tight, deeper teal glow in light mode — bright mint washed out on cream,
-     so use the deep teal at high alpha and keep the halo small. */
-  --portrait-glow: 0 0 0 1px rgba(8, 107, 89, 0.7), 0 0 12px -5px rgba(8, 107, 89, 0.5);
+  /* Neon-tube glow in light mode — a bright mint "glass tube" line backed by
+     deeper teal so the tight halo stays saturated against the cream instead
+     of washing out. Small spread keeps the lit-tube read. */
+  --portrait-glow:
+    0 0 0 1.5px rgba(120, 240, 218, 0.95),
+    0 0 2px 0 rgba(46, 196, 168, 0.9),
+    0 0 6px 0 rgba(8, 107, 89, 0.6),
+    0 0 10px 0 rgba(8, 107, 89, 0.4);
   /* Editorial warm-paper version — bright cream wash that brightens
      the paper bg without tinting it heavily. */
   --frag-ember: rgba(255, 245, 222, 0.4);
