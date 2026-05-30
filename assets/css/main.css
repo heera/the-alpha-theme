@@ -628,6 +628,7 @@ h1, h2, h3, h4 {
   color: var(--ink-dim);
 }
 .colophon-mini a { color: var(--ink-soft); }
+.colophon-mini a:hover { color: var(--accent); }
 
 /* Mobile top bar + toggle (hidden on desktop) */
 .topbar { display: none; }
@@ -795,7 +796,10 @@ h1, h2, h3, h4 {
 }
 .btn--primary { background: var(--accent-grad); color: #06120f; }
 .btn--primary:hover { color: #06120f; transform: translateY(-2px); box-shadow: var(--glow); }
-.btn--ghost { border: 1px solid var(--border); color: var(--ink); }
+/* Plain outline pill, but the line is a translucent fraction of --ink rather
+   than the solid --border token — so it stays a quiet hairline in both themes
+   and light mode no longer reads as a hard outline. */
+.btn--ghost { border: 1px solid color-mix(in srgb, var(--ink) 16%, transparent); color: var(--ink); }
 .btn--ghost:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
 
 /* ----- About -------------------------------------------------------------- */
