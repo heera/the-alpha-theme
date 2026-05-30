@@ -458,7 +458,11 @@ h1, h2, h3, h4 {
   font-size: 0.66rem;
   letter-spacing: 0.34em;
   text-transform: uppercase;
-  color: var(--ink-dim);
+  /* The sidebar's eyebrow — same small-caps mono species as the section
+     .eyebrow labels, so it carries the accent too. Toned toward --ink-dim so
+     it stays a whisper under the serif name. Mint in dark, terracotta in light
+     (it's var(--accent)). */
+  color: color-mix(in srgb, var(--accent) 78%, var(--ink-dim));
 }
 .brand__desc {
   font-family: "Rambla", var(--font-body);
