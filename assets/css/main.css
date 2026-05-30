@@ -86,7 +86,7 @@
   /* Warm off-white paper — refined character vs. clinical white */
   --bg: #f5f3ef;
   --bg-2: #ece9e1;        /* sidebar surface — a real step down, gives elevation */
-  --surface: #ffffff;     /* cards stay bright white: paper sheets on a warm desk */
+  --surface: #faf7f1;     /* warm off-white — paper sheets on a warm desk, not stark #fff against the cream bg */
   --surface-2: #efece4;
   --border: #cfcdc4;      /* deep enough that ghost buttons & dividers read with intent */
   --border-soft: #dedbd1;
@@ -1320,9 +1320,19 @@ h1, h2, h3, h4 {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  /* Step to the --bg base so contact reads as distinct from the blog above
-     (which shares --bg-2 with about). A real shade step in both themes. */
-  background: var(--bg);
+  /* Full-width, full-height ambient — no corner bias. The base is a vertical
+     wash that starts at the blog's --bg-2 at the very top (so the section
+     seam is invisible and contact reads as continuing the blog's surface)
+     and settles into contact's own --bg by ~60% down. Over it, the same
+     theme-aware --frag-* warmth is cast from wide, horizontally-centred
+     (50%) ellipses: a haze across the mid column and an ember pooling along
+     the whole bottom edge into the footer — even across the full width,
+     intensifying downward. Theme-aware via --frag-* + --bg/--bg-2, so light
+     and dark both resolve with no per-theme rule. */
+  background:
+    radial-gradient(ellipse 140% 95% at 50% 116%, var(--frag-ember) 0%, transparent var(--frag-ember-spread, 70%)),
+    radial-gradient(ellipse 160% 120% at 50% 58%, var(--frag-haze)  0%, transparent 92%),
+    linear-gradient(to bottom, var(--bg-2) 0%, var(--bg-2) 14%, var(--bg) 70%);
 }
 .contact__grid {
   display: grid;
