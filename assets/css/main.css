@@ -2384,6 +2384,15 @@ body.single .page-title {
   .frag,
   .post-nav { grid-template-columns: minmax(0, 1fr); }
   .about__links { grid-template-columns: minmax(0, 1fr); }
+  /* Single-column now: the portrait has no neighbouring text column to
+     `align-self: stretch` against, so the frame collapsed to its border
+     height (the absolutely-positioned img is out of flow). Give it an explicit
+     aspect ratio so it keeps a real height on its own. */
+  .portrait {
+    align-self: auto;
+    aspect-ratio: 4 / 5;
+    margin-bottom: 0;
+  }
   /* Use dvh, not vh: on mobile `vh` is the *large* (address-bar-hidden)
      viewport, which pushed the hero's bottom — and the scroll hint anchored
      there — below the visible fold behind the browser UI. dvh tracks the
