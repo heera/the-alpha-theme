@@ -679,9 +679,17 @@ h1, h2, h3, h4 {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: var(--img-filter);
+  /* Gentle blur softens the photo behind the headline without losing the
+     scene. Scale up slightly so the blur's feathered edge doesn't reveal --bg. */
+  filter: blur(2px);
+  transform: scale(1.04);
 }
-/* Hero photo renders in full colour in both schemes. */
+/* Light mode: the bright B&W photo washes into the cream veil where the
+   veil opens up on the right. Darken it and add the warm sepia the light
+   palette was designed around so the subject and text stay readable. */
+[data-theme="light"] .hero__bg img {
+  filter: blur(2px) brightness(0.74) sepia(0.28) contrast(1.05);
+}
 .hero__bg::after {
   content: "";
   position: absolute;
@@ -736,6 +744,20 @@ h1, h2, h3, h4 {
   margin: 0 0.62em;
   color: var(--accent);
   font-weight: 500;
+}
+/* Light mode: the roles sit over the bright right half of the photo where
+   the veil has faded out (esp. "Fragrance Lover"). Use the strong ink, a
+   touch more weight, and a faint cream halo so they read over any tone. */
+[data-theme="light"] .hero__roles {
+  color: var(--ink);
+  font-weight: 400;
+  text-shadow: 0 1px 2px rgba(247, 244, 237, 0.75);
+}
+/* Dark mode: keep the soft secondary tone, but add a dark halo so the light
+   text stays legible over the bright keyboard highlights (full --ink read too
+   bright here, unlike light mode where it needs the contrast). */
+[data-theme="dark"] .hero__roles {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
 }
 .hero__cta { display: flex; flex-wrap: wrap; gap: 0.9rem; margin-top: 2.2rem; }
 
