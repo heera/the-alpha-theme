@@ -2386,12 +2386,19 @@ body.single .page-title {
   .about__links { grid-template-columns: minmax(0, 1fr); }
   /* Single-column now: the portrait has no neighbouring text column to
      `align-self: stretch` against, so the frame collapsed to its border
-     height (the absolutely-positioned img is out of flow). Give it an explicit
-     aspect ratio so it keeps a real height on its own. */
+     height (the desktop img is absolutely positioned, out of flow). Pull the
+     image back into normal flow so it sizes itself — it's square (768x768),
+     so width:100%/height:auto gives the figure a real height. We avoid
+     `aspect-ratio` on the figure here: iOS Safari mis-computes it on grid
+     items and the frame collapsed to zero. The ::before/::after overlays stay
+     absolute over the now-taller figure. */
   .portrait {
     align-self: auto;
-    aspect-ratio: 4 / 5;
     margin-bottom: 0;
+  }
+  .portrait img {
+    position: static;
+    height: auto;
   }
   /* Use dvh, not vh: on mobile `vh` is the *large* (address-bar-hidden)
      viewport, which pushed the hero's bottom — and the scroll hint anchored
