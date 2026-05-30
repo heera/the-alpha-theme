@@ -65,9 +65,9 @@
      the border with a tight halo hugging it, like a bar neon sign. Keep the
      spread small so it reads as a lit tube, not a soft bloom. */
   --portrait-glow:
-    0 0 3px 0 rgba(94, 230, 208, 0.85),
-    0 0 6px 0 rgba(94, 230, 208, 0.6),
-    0 0 11px 0 rgba(94, 230, 208, 0.4);
+    0 0 2px 0 rgba(94, 230, 208, 0.85),
+    0 0 3px 0 rgba(94, 230, 208, 0.6),
+    0 0 8px 0 rgba(94, 230, 208, 0.4);
   /* Fragrance ambient atmospherics — luminous warm-white wash, faint
      cool rim, drifting pale haze. Tones pulled close to white so the
      gradient lifts the deep bg as light rather than colour. Alphas
@@ -128,9 +128,9 @@
      terracotta accent can't, so its bright amber relative carries the bloom
      and stays vibrant. No spread, just a soft bloom. */
   --portrait-glow:
-    0 0 3px 0 rgba(214, 170, 90, 0.9),
-    0 0 6px 0 rgba(214, 170, 90, 0.65),
-    0 0 11px 0 rgba(207, 155, 79, 0.45);
+    0 0 2px 0 rgba(214, 170, 90, 0.9),
+    0 0 3px 0 rgba(214, 170, 90, 0.65),
+    0 0 8px 0 rgba(207, 155, 79, 0.45);
   /* Editorial warm-paper version — bright cream wash that brightens
      the paper bg without tinting it heavily. Ember kept light + smoky so it
      dissolves into the paper instead of reading as a corner glow; the longer
