@@ -480,37 +480,47 @@ h1, h2, h3, h4 {
   width: 140px;
   height: 140px;
   margin: 1.7rem auto 0;
-  background: #000;
-  /* Glow uses the accent's bright sibling — amber in light mode (vibrant on
-     the dark disc), mirrored by mint in the dark-theme block below. */
-  border: solid 1px rgba(214, 170, 90, .65);
+  /* Static gradient border: solid disc on the padding-box, the accent gradient
+     on the border-box. Auto-themes via --accent-grad (terracotta→gold in light,
+     teal→purple in dark). */
+  border: 1px solid transparent;
   border-radius: 50%;
-  overflow: hidden;
+  background:
+    /* Disc matches the sidebar surface so the cutout blends into the panel —
+       the same logic dark mode already used (#000 ≈ dark sidebar). */
+    linear-gradient(var(--bg-2), var(--bg-2)) padding-box,
+    var(--accent-grad) border-box;
   outline: none;
   box-shadow:
     inset 0 0 18px 6px rgba(214, 170, 90, .4),
           0 0 12px 4px rgba(207, 155, 79, .25);
-  transition: border .4s ease, box-shadow .4s ease;
+  transition: box-shadow .4s ease;
 }
 .brand__avatar img {
   width: 100%;
   height: 100%;
   display: block;
-  object-fit: cover;         /* face crop baked into the asset (Image #5) */
+  border-radius: 50%;        /* crop to circle inside the gradient border */
+  object-fit: cover;         /* face crop baked into the asset */
   object-position: 50% 50%;
+}
+/* Light mode: the cutout's feathered edge was authored to fade into a dark
+   backing, so keep a dark medallion disc (lit from below) rather than the
+   cream sidebar — it absorbs the fade and lets the portrait pop. */
+[data-theme="light"] .brand__avatar {
+  background:
+    linear-gradient(#1a1919, #595656) padding-box,
+    var(--accent-grad) border-box;
 }
 .brand__avatar:hover,
 .brand__avatar:focus-visible {
-  border: 1px solid rgba(224, 184, 110, .95);
   box-shadow:
     inset 0 0 30px 10px rgba(214, 170, 90, .6),
           0 0 28px 0 rgba(207, 155, 79, .45);
 }
-/* Dark theme: the original glow values are tuned for a light page; on the
-   near-black sidebar they turn hazy/blown-out. Soften the inner glow and
-   add a crisp rim + soft halo so the medallion separates cleanly. */
+/* Dark theme: softer mint glow so the medallion separates on the near-black
+   sidebar (the gradient border itself comes from --accent-grad). */
 [data-theme="dark"] .brand__avatar {
-  border-color: rgba(94, 230, 208, .5);
   box-shadow:
     inset 0 0 16px 4px rgba(94, 230, 208, .2),
           0 0 0 1px rgba(94, 230, 208, .12),
@@ -519,7 +529,6 @@ h1, h2, h3, h4 {
 }
 [data-theme="dark"] .brand__avatar:hover,
 [data-theme="dark"] .brand__avatar:focus-visible {
-  border-color: rgba(168, 255, 240, .9);
   box-shadow:
     inset 0 0 24px 6px rgba(94, 230, 208, .4),
           0 0 0 1px rgba(94, 230, 208, .28),
