@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<div class="hero__bg">
 		<img
 			src="<?php echo esc_url( THE_ALPHA_URI . '/assets/img/hero.webp' ); ?>"
-			alt="" width="1800" height="1200" fetchpriority="high" decoding="async">
+			alt="" width="1264" height="763" fetchpriority="high" decoding="async">
 	</div>
 
 	<div class="hero__inner">
