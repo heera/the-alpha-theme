@@ -56,7 +56,12 @@
   --eyebrow: var(--accent);
   --shadow: 0 1px 0 rgba(255, 255, 255, 0.03), 0 18px 50px -22px rgba(0, 0, 0, 0.85);
   --glow: 0 0 0 1px rgba(94, 230, 208, 0.18), 0 0 34px -10px rgba(94, 230, 208, 0.45);
-  --hero-veil: linear-gradient(90deg, rgba(16, 18, 22, 0.92) 0%, rgba(16, 18, 22, 0.54) 42%, rgba(16, 18, 22, 0.16) 100%);
+  /* The photo's left is near-black, so a black veil shows no gradient. Layer a
+     faint pale-mint tint over the directional darkening — same left→right fade
+     and stop positions as the light veil, so it covers the same area. */
+  --hero-veil:
+    linear-gradient(90deg, rgba(205, 246, 240, 0.12) 0%, rgba(205, 246, 240, 0.06) 16%, rgba(205, 246, 240, 0) 46%),
+    linear-gradient(90deg, rgba(16, 18, 22, 0.78) 0%, rgba(16, 18, 22, 0.46) 16%, rgba(16, 18, 22, 0.2) 46%, rgba(16, 18, 22, 0) 100%);
   --img-filter: none; /* photos render in full colour */
   /* About portrait: slightly richer + a touch cooler so the studio photo
      sits into the cool slate without going flat. */
@@ -115,7 +120,10 @@
      subject can breathe instead of dissolving into the background.
      Less opaque than the dark veil — the warm sepia filter on the hero
      image keeps text readable without needing a near-solid cover. */
-  --hero-veil: linear-gradient(90deg, rgba(224, 211, 190, 0.82) 0%, rgba(224, 211, 190, 0.34) 42%, rgba(224, 211, 190, 0) 100%);
+  /* Left edge starts at the sidebar cream (--bg-2 #ece9e1, near-opaque) so the
+     sidebar→hero seam disappears like dark mode, then warms to sand within the
+     first slice so most of the hero still reads warm, and opens to the photo. */
+  --hero-veil: linear-gradient(90deg, rgba(228, 222, 209, 0.6) 0%, rgba(226, 214, 194, 0.34) 16%, rgba(222, 209, 188, 0.15) 46%, rgba(222, 209, 188, 0) 100%);
   --img-filter: none; /* photos render in full colour */
   /* About portrait: lift the near-black studio background toward a softer warm
      charcoal so it isn't a harsh black box on the cream. Low contrast raises
@@ -136,10 +144,10 @@
      dissolves into the paper instead of reading as a corner glow; the longer
      --frag-ember-spread stretches its falloff (light mode only — dark falls
      back to 70% via the var fallback in the gradient). */
-  --frag-ember: rgba(255, 245, 222, 0.26);
-  --frag-ember-spread: 80%;
-  --frag-rim: rgba(120, 100, 80, 0.06);
-  --frag-haze: rgba(245, 232, 212, 0.22);
+  --frag-ember: rgba(255, 242, 220, 0.42);
+  --frag-ember-spread: 82%;
+  --frag-rim: rgba(214, 180, 138, 0.1);
+  --frag-haze: rgba(247, 236, 218, 0.34);
   --rule-ink: rgba(17, 20, 28, 0.18);
   --rule-lip: rgba(255, 255, 255, 0.95);
   color-scheme: light;
@@ -698,11 +706,11 @@ h1, h2, h3, h4 {
 [data-theme="dark"] .hero__bg img {
   filter: brightness(1.28) contrast(1.06) saturate(1.08);
 }
-/* Light mode: the bright B&W photo washes into the cream veil where the
-   veil opens up on the right. Darken it and add the warm sepia the light
-   palette was designed around so the subject and text stay readable. */
+/* Light mode: emulate the live site's airy treatment — desaturate the moody
+   color photo to a bright warm-B&W so it reads evenly across the hero (rather
+   than a dark, heavy image), with a soft sepia to sit in the warm palette. */
 [data-theme="light"] .hero__bg img {
-  filter: brightness(0.74) sepia(0.28) contrast(1.05);
+  filter: grayscale(0.92) brightness(1.5) sepia(0.18) contrast(0.84);
 }
 .hero__bg::after {
   content: "";
@@ -769,7 +777,7 @@ h1, h2, h3, h4 {
    the veil has faded out (esp. "Fragrance Lover"). Use the strong ink, a
    touch more weight, and a faint cream halo so they read over any tone. */
 [data-theme="light"] .hero__roles {
-  color: #cccdce;
+  color: #cccdce; /* whitish grey */
   font-weight: 400;
 }
 /* Match the separators to the light-mode role text so they read as clearly as
@@ -790,7 +798,7 @@ h1, h2, h3, h4 {
 /* Light mode: deep rust eyebrow — richer and a touch redder than the gradient
    terracotta, for stronger contrast on the warm veil. */
 [data-theme="light"] .hero__hi {
-  color: #92340a;
+  color: #ee9771; /* brighter warm gold that merges with the accent family */
 }
 
 .hero__scroll {
@@ -868,6 +876,9 @@ h1, h2, h3, h4 {
    and light mode no longer reads as a hard outline. */
 .btn--ghost { border: 1px solid color-mix(in srgb, var(--ink) 16%, transparent); color: var(--ink); }
 .btn--ghost:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
+/* Light mode: the 16% hairline nearly vanishes on the warm hero — give the
+   ghost button a stronger outline so it reads next to the primary button. */
+[data-theme="light"] .btn--ghost { border-color: color-mix(in srgb, var(--ink) 36%, transparent); }
 
 /* ----- About -------------------------------------------------------------- */
 .about__grid {
@@ -1401,6 +1412,16 @@ h1, h2, h3, h4 {
     radial-gradient(ellipse 160% 120% at 50% 58%, var(--frag-haze)  0%, transparent 92%),
     linear-gradient(to bottom, var(--bg-2) 0%, var(--bg-2) 14%, var(--bg) 70%);
 }
+/* Light mode: the base wash lightens toward the bottom (bg-2 → bg), which
+   reads washed/plain. Pool a stronger warm glow up from the footer so the
+   section gains the same atmospheric depth dark mode gets from its ember. */
+[data-theme="light"] #contact {
+  background:
+    radial-gradient(ellipse 150% 100% at 50% 118%, rgba(246, 234, 212, 0.45) 0%, transparent 82%),
+    radial-gradient(ellipse 130% 90% at 50% 92%, rgba(244, 230, 206, 0.22) 0%, transparent 72%),
+    radial-gradient(ellipse 160% 120% at 50% 55%, var(--frag-haze) 0%, transparent 92%),
+    linear-gradient(to bottom, var(--bg-2) 0%, var(--bg-2) 20%, var(--surface) 100%);
+}
 .contact__grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -1443,6 +1464,11 @@ h1, h2, h3, h4 {
 }
 .contact__list li a { color: var(--ink); }
 .contact__list li a:hover { color: var(--accent); }
+/* Light mode: full-strength dividers read as a table/form grid on cream.
+   Soften them so the rows separate as quietly as they do in dark mode. */
+[data-theme="light"] .contact__list li {
+  border-top-color: color-mix(in srgb, var(--border-soft) 55%, transparent);
+}
 
 /* ----- Footer ------------------------------------------------------------- */
 .site-footer {
