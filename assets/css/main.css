@@ -123,7 +123,7 @@
   /* Left edge starts at the sidebar cream (--bg-2 #ece9e1, near-opaque) so the
      sidebar→hero seam disappears like dark mode, then warms to sand within the
      first slice so most of the hero still reads warm, and opens to the photo. */
-  --hero-veil: linear-gradient(90deg, rgba(228, 222, 209, 0.6) 0%, rgba(226, 214, 194, 0.34) 16%, rgba(222, 209, 188, 0.15) 46%, rgba(222, 209, 188, 0) 100%);
+  --hero-veil: linear-gradient(90deg, rgba(228, 222, 209, 0.6) 0%, rgba(226, 214, 194, 0.34) 16%, rgba(222, 209, 188, 0.2) 46%, rgba(222, 209, 188, 0.1) 62%, rgba(222, 209, 188, 0) 82%);
   --img-filter: none; /* photos render in full colour */
   /* About portrait: lift the near-black studio background toward a softer warm
      charcoal so it isn't a harsh black box on the cream. Low contrast raises
@@ -708,10 +708,13 @@ h1, h2, h3, h4 {
 [data-theme="dark"] .hero__bg img {
   filter: brightness(1.28) contrast(1.06) saturate(1.08);
 }
-/* Light mode: show the photo in colour, lifted a little; the wide white veil
-   (below) gives it the airy touch rather than desaturation. */
+/* Light mode: show the photo in colour with real snap. The old grade lifted
+   brightness while *lowering* contrast, which flattened the scene into a hazy
+   sepia film. Pull brightness back a touch and push contrast + saturation so
+   the mug, plant and bottles read crisp; the veil (below) still does the airy
+   left-to-right fade without needing the photo washed out. */
 [data-theme="light"] .hero__bg img {
-  filter: brightness(1.22) contrast(0.97) saturate(1.08);
+  filter: brightness(1.1) contrast(1.1) saturate(1.16);
 }
 .hero__bg::after {
   content: "";
@@ -785,7 +788,6 @@ h1, h2, h3, h4 {
    the words (the terracotta accent was too small/low-contrast on the veil). */
 [data-theme="light"] .hero__role + .hero__role::before {
   color: #fa6f31;
-  font-size: 1.15em;
   font-weight: 700;
 }
 /* Dark mode: keep the soft secondary tone, but add a dark halo so the light
@@ -881,11 +883,21 @@ h1, h2, h3, h4 {
 /* Plain outline pill, but the line is a translucent fraction of --ink rather
    than the solid --border token — so it stays a quiet hairline in both themes
    and light mode no longer reads as a hard outline. */
-.btn--ghost { border: 1px solid color-mix(in srgb, var(--ink) 16%, transparent); color: var(--ink); }
+.btn--ghost { border: 1px solid color-mix(in srgb, var(--ink) 16%, transparent); color: var(--ink); background: rgb(34 34 34 / 42%); }
 .btn--ghost:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
 /* Light mode: the 16% hairline nearly vanishes on the warm hero — give the
-   ghost button a stronger outline so it reads next to the primary button. */
-[data-theme="light"] .btn--ghost { border-color: color-mix(in srgb, var(--ink) 36%, transparent); }
+   ghost button a stronger neutral outline and a faint cream fill so it reads
+   as a real pill by default. On hover the border flips to the accent
+   (terracotta) via the shared rule; keep the filled look so it doesn't look
+   empty, just deepening the fill a touch for feedback. */
+[data-theme="light"] .btn--ghost {
+  border-color: rgb(182 182 182 / 70%);
+  background: rgba(245, 243, 239, 0.32);
+}
+[data-theme="light"] .btn--ghost:hover {
+  border-color: var(--accent);
+  background: rgba(245, 243, 239, 0.5);
+}
 
 /* ----- About -------------------------------------------------------------- */
 .about__grid {
