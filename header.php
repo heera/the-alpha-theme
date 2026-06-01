@@ -94,7 +94,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 			<p class="colophon-mini">
 				<?php the_alpha_copyright( true ); ?><br>
-				<?php esc_html_e( 'Sponsored by', 'the-alpha' ); ?> &mdash; <a href="https://authlab.io/" target="_blank" rel="noopener">authLab</a>
+				<?php esc_html_e( 'Sponsored by', 'the-alpha' ); ?> &mdash; <a href="https://authlab.io/" target="_blank" rel="noopener">authLab</a><br>
+				<?php esc_html_e( 'Built with', 'the-alpha' ); ?> <span class="colophon-mini__heart" role="img" aria-label="<?php esc_attr_e( 'love', 'the-alpha' ); ?>">&#10084;</span> <?php esc_html_e( 'and coffee', 'the-alpha' ); ?>
 			</p>
 		</div>
 	</aside>

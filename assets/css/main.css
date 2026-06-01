@@ -592,7 +592,7 @@ h1, h2, h3, h4 {
   padding: 0;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.45rem;
+  gap: 0.62rem;
   justify-content: center;
 }
 .socials a {
@@ -648,6 +648,17 @@ h1, h2, h3, h4 {
 }
 .colophon-mini a { color: var(--ink-soft); }
 .colophon-mini a:hover { color: var(--accent); }
+/* Red heart in the "Built with ❤ and coffee" line — force a flat red so the
+   glyph never renders as a multi-colour emoji and reads the same in both
+   themes. */
+.colophon-mini__heart {
+  color: #e2385a;
+  font-style: normal;
+  font-size: 1.15em;            /* a touch larger than the caps so it reads as a heart */
+  line-height: 0;               /* don't let the bigger glyph push the line height */
+  vertical-align: -0.06em;      /* re-center against the uppercase baseline */
+  -webkit-text-fill-color: currentColor; /* override emoji colouring in WebKit */
+}
 
 /* Mobile top bar + toggle (hidden on desktop) */
 .topbar { display: none; }
