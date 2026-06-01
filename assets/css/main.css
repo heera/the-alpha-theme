@@ -1622,62 +1622,59 @@ body.single .page-title {
 }
 
 /* ----- Distraction-free reading mode (single posts) ----------------------- */
-.focus-toggle {
-  position: fixed;
-  top: 1.25rem;
-  right: 1.25rem;
-  z-index: 121;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.45rem 0.8rem;
-  border-radius: 999px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  color: var(--ink-soft);
-  box-shadow: var(--shadow);
-  font-family: var(--font-mono);
-  font-size: 0.62rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: color var(--t-fast), border-color var(--t-fast), background var(--t-fast);
-}
-/* Clear the WordPress admin bar when it's present. */
-.admin-bar .focus-toggle { top: calc(1.25rem + 32px); }
-/* Mobile: stay fixed top-right but sit just below the sticky topbar so it
-   clears the menu/search buttons. */
-@media (max-width: 760px) {
+/* Only meaningful at >=1025px, where the sidebar sits BESIDE the content. On
+   phones / portrait tablets the page is already a single stacked column (nav in
+   the topbar, widgets below the article), so the toggle is hidden and the
+   reading-focus styles don't apply — a persisted state can't trap mobile. */
+.focus-toggle { display: none; }
+
+@media (min-width: 1025px) {
   .focus-toggle {
-    top: calc(env(safe-area-inset-top, 0px) + 4rem);
-    right: 1rem;
-    padding: 0.34rem 0.7rem;
+    display: inline-flex;
+    position: fixed;
+    top: 1.25rem;
+    right: 1.25rem;
+    z-index: 121;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.8rem;
+    border-radius: 999px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--ink-soft);
+    box-shadow: var(--shadow);
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: color var(--t-fast), border-color var(--t-fast), background var(--t-fast);
   }
-  .admin-bar .focus-toggle { top: calc(env(safe-area-inset-top, 0px) + 4rem + 46px); }
+  .admin-bar .focus-toggle { top: calc(1.25rem + 32px); }
+  .focus-toggle:hover,
+  .focus-toggle:focus-visible { color: var(--accent); border-color: var(--accent); }
+  .focus-toggle svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+  /* Active: hide the chrome and centre a single, comfortable reading column. */
+  body.reading-focus :is(.sidebar, .topbar, .scrim, .blog-aside, .breadcrumb, .post-nav) { display: none; }
+  /* Drop the left-nav offset on content + footer so the footer has no orphan gap. */
+  body.reading-focus .main,
+  body.reading-focus .site-footer { margin-left: 0; }
+  body.reading-focus .content-grid { grid-template-columns: minmax(0, 1fr); }
+  body.reading-focus .content-grid,
+  body.reading-focus .page-head .wrap {
+    max-width: 720px;
+    margin-inline: auto;
+    padding-inline: clamp(1.2rem, 4vw, 2rem);
+  }
+  body.reading-focus .prose {
+    max-width: none;
+    margin-inline: 0;
+    font-size: 1.02rem;
+    line-height: 1.9;
+  }
+  body.reading-focus .focus-toggle { background: var(--accent); color: #06120f; border-color: transparent; }
 }
-.focus-toggle:hover,
-.focus-toggle:focus-visible { color: var(--accent); border-color: var(--accent); }
-.focus-toggle svg { width: 15px; height: 15px; flex-shrink: 0; }
-/* Active: hide the chrome and centre a single, comfortable reading column. */
-body.reading-focus :is(.sidebar, .topbar, .scrim, .blog-aside, .breadcrumb, .post-nav) { display: none; }
-/* Drop the left-nav offset on both the content and the footer (the sidebar is
-   hidden), so the footer isn't left with an orphaned gap on the left. */
-body.reading-focus .main,
-body.reading-focus .site-footer { margin-left: 0; }
-body.reading-focus .content-grid { grid-template-columns: minmax(0, 1fr); }
-body.reading-focus .content-grid,
-body.reading-focus .page-head .wrap {
-  max-width: 720px;
-  margin-inline: auto;
-  padding-inline: clamp(1.2rem, 4vw, 2rem);
-}
-body.reading-focus .prose {
-  max-width: none;
-  margin-inline: 0;
-  font-size: 1.02rem;
-  line-height: 1.9;
-}
-body.reading-focus .focus-toggle { background: var(--accent); color: #06120f; border-color: transparent; }
 
 /* One post per full-width row (blog / archive / search listings) */
 /* Stacked post: full-width banner image, meta, title, excerpt, right "Read More" */
