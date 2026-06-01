@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 <section id="home" class="hero" aria-label="<?php esc_attr_e( 'Introduction', 'the-alpha' ); ?>">
 	<div class="hero__bg">
 		<img
-			src="<?php echo esc_url( THE_ALPHA_URI . '/assets/img/hero.webp' ); ?>"
+			src="<?php echo esc_url( add_query_arg( 'v', the_alpha_asset_ver( 'assets/img/hero.webp' ), THE_ALPHA_URI . '/assets/img/hero.webp' ) ); ?>"
 			alt="" width="1264" height="763" fetchpriority="high" decoding="async">
 	</div>
 

@@ -1645,16 +1645,15 @@ body.single .page-title {
 }
 /* Clear the WordPress admin bar when it's present. */
 .admin-bar .focus-toggle { top: calc(1.25rem + 32px); }
-/* Mobile: drop back inline into the post-meta row so it doesn't collide with
-   the sticky topbar's menu button. */
+/* Mobile: stay fixed top-right but sit just below the sticky topbar so it
+   clears the menu/search buttons. */
 @media (max-width: 760px) {
   .focus-toggle {
-    position: static;
-    margin-left: auto;
-    background: transparent;
-    box-shadow: none;
+    top: calc(env(safe-area-inset-top, 0px) + 4rem);
+    right: 1rem;
     padding: 0.34rem 0.7rem;
   }
+  .admin-bar .focus-toggle { top: calc(env(safe-area-inset-top, 0px) + 4rem + 46px); }
 }
 .focus-toggle:hover,
 .focus-toggle:focus-visible { color: var(--accent); border-color: var(--accent); }
