@@ -708,11 +708,10 @@ h1, h2, h3, h4 {
 [data-theme="dark"] .hero__bg img {
   filter: brightness(1.28) contrast(1.06) saturate(1.08);
 }
-/* Light mode: emulate the live site's airy treatment — desaturate the moody
-   color photo to a bright warm-B&W so it reads evenly across the hero (rather
-   than a dark, heavy image), with a soft sepia to sit in the warm palette. */
+/* Light mode: show the photo in colour, lifted a little; the wide white veil
+   (below) gives it the airy touch rather than desaturation. */
 [data-theme="light"] .hero__bg img {
-  filter: grayscale(0.92) brightness(1.5) sepia(0.18) contrast(0.84);
+  filter: brightness(1.22) contrast(0.97) saturate(1.08);
 }
 .hero__bg::after {
   content: "";
