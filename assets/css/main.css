@@ -642,12 +642,21 @@ h1, h2, h3, h4 {
   letter-spacing: 0.16em;
   text-transform: uppercase;
   line-height: 1.95;
-  /* --ink-dim fails AA here (~3.85:1 dark / ~3.3:1 light) on small text;
-     --ink-soft clears 4.5:1 in both themes. */
-  color: var(--ink-soft);
+  /* Lighter, more recessive colophon. --ink-dim sits below AA (~3.85:1 dark /
+     ~3.3:1 light) on this small text — acceptable for decorative credit lines,
+     but bump back to --ink-soft if strict AA is required. */
+  color: var(--ink-dim);
 }
-.colophon-mini a { color: var(--ink-soft); }
-.colophon-mini a:hover { color: var(--accent); }
+/* Match the dim colophon tone, but keep a faint underline so the one link
+   still signals it's clickable; the underline lifts to the accent on hover. */
+.colophon-mini a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, currentColor 55%, transparent);
+  text-underline-offset: 0.22em;
+  text-decoration-thickness: 1px;
+}
+.colophon-mini a:hover { color: var(--accent); text-decoration-color: var(--accent); }
 /* Red heart in the "Built with ❤ and coffee" line — force a flat red so the
    glyph never renders as a multi-colour emoji and reads the same in both
    themes. */
