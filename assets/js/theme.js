@@ -379,4 +379,51 @@
       }
     });
   });
+
+  /* ---- Distraction-free reading mode (single posts only). Injects a toggle
+     that hides the sidebars/chrome and drops into a clean, centred reading
+     column. Preference is remembered in localStorage; Esc exits. ------------- */
+  if (body.classList.contains("single")) {
+    var FOCUS_KEY = "the-alpha-focus";
+    var eyeIcon =
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
+      'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/>' +
+      '<circle cx="12" cy="12" r="3"/></svg>';
+    var focusBtn = document.createElement("button");
+    focusBtn.type = "button";
+    focusBtn.className = "focus-toggle";
+
+    function renderFocus(on) {
+      focusBtn.setAttribute("aria-pressed", on ? "true" : "false");
+      focusBtn.setAttribute(
+        "aria-label",
+        on ? "Exit distraction-free reading" : "Distraction-free reading"
+      );
+      focusBtn.innerHTML = eyeIcon + "<span>" + (on ? "Exit" : "Focus") + "</span>";
+    }
+    function setFocus(on) {
+      body.classList.toggle("reading-focus", on);
+      try { localStorage.setItem(FOCUS_KEY, on ? "1" : "0"); } catch (e) {}
+      renderFocus(on);
+    }
+
+    var startOn = false;
+    try { startOn = localStorage.getItem(FOCUS_KEY) === "1"; } catch (e) {}
+    if (startOn) { body.classList.add("reading-focus"); }
+    renderFocus(startOn);
+
+    focusBtn.addEventListener("click", function () {
+      setFocus(!body.classList.contains("reading-focus"));
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && body.classList.contains("reading-focus")) {
+        setFocus(false);
+      }
+    });
+    /* Sit inline at the end of the post-meta row (contextual); fall back to the
+       body if that row isn't present. */
+    var metaRow = document.querySelector(".post-meta-single");
+    (metaRow || body).appendChild(focusBtn);
+  }
 })();
