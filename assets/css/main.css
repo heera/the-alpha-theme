@@ -15,7 +15,7 @@
   --accent-2: #8b7cff;
   --accent-grad: linear-gradient(115deg, #5ee6d0 0%, #8b7cff 100%);
 
-  --sidebar-w: 400px;
+  --sidebar-w: clamp(360px, 23vw, 400px); /* 400 on large screens; narrows on laptops to give content more room */
   --aside-w: 384px;
   --maxw: 1180px;
   --maxw-wide: 1600px;
@@ -156,7 +156,7 @@
 /* ----- Reset -------------------------------------------------------------- */
 *, *::before, *::after { box-sizing: border-box; }
 * { margin: 0; }
-html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; scrollbar-gutter: stable both-edges; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after {
@@ -642,7 +642,9 @@ h1, h2, h3, h4 {
   letter-spacing: 0.16em;
   text-transform: uppercase;
   line-height: 1.95;
-  color: var(--ink-dim);
+  /* --ink-dim fails AA here (~3.85:1 dark / ~3.3:1 light) on small text;
+     --ink-soft clears 4.5:1 in both themes. */
+  color: var(--ink-soft);
 }
 .colophon-mini a { color: var(--ink-soft); }
 .colophon-mini a:hover { color: var(--accent); }
@@ -853,6 +855,12 @@ h1, h2, h3, h4 {
 }
 [data-theme="light"] .hero__scroll span::after {
   background: #fa6f31;
+}
+/* Dark mode: lift the scroll pill + label off the dark photo (was --ink-soft,
+   which read dim at the bottom of the hero). */
+[data-theme="dark"] .hero__scroll {
+  color: #d6dce3;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
 /* ----- Buttons ------------------------------------------------------------ */
@@ -1599,31 +1607,11 @@ body.single .page-title {
   max-width: 820px;
 }
 
-/* Single post (desktop): size the reading area to (text measure + sidebar) and
-   center it, so the article column is exactly the .prose measure — the body
-   fills it and lines up with the title, with the sidebar snug to its right
-   instead of a wide column with an internal gutter. The page-head shares the
-   same cap (same box model) so the title/meta/divider align with the body. */
+/* Single posts use the exact same layout as the blog listing — the default
+   .page-head .wrap + .content-grid (article fills, fixed sidebar at the right,
+   maxw-wide, symmetric padding). Only the prose fill differs: let it fill the
+   article column (like the listing's cards) instead of its 68ch page cap. */
 @media (min-width: 1025px) {
-  body.single {
-    --read-measure: 72ch;
-    --read-gap: clamp(2.5rem, 1.5rem + 3vw, 4.5rem);   /* gap to the widget sidebar (right of the article) */
-    --read-pad: clamp(3rem, 2rem + 3vw, 5.5rem);       /* gap from the left nav sidebar (left of the article) */
-  }
-  body.single .page-head .wrap,
-  body.single .content-grid {
-    max-width: calc(var(--read-measure) + var(--read-gap) + var(--aside-w) + 2 * var(--read-pad));
-    /* Left-align the reading area (vs. the default centered margin-inline:auto)
-       so it sits toward the sidebar and the slack pools on the right. */
-    margin-inline: 0;
-    padding-inline: var(--read-pad);
-  }
-  body.single .content-grid {
-    grid-template-columns: minmax(0, var(--read-measure)) var(--aside-w);
-    column-gap: var(--read-gap);
-  }
-  /* Let the article column (--read-measure) drive the text width on single
-     posts, instead of .prose's own 68ch cap (which still applies on pages). */
   body.single .prose { max-width: none; }
   /* Divider spans the full reading width (article + sidebar): it bounds the
      meta row (so "No Comments" no longer overruns it) and gives the sidebar a
@@ -2512,6 +2500,20 @@ body.single .page-title {
      there — below the visible fold behind the browser UI. dvh tracks the
      actual viewport so the hint stays on-screen. vh kept as a fallback. */
   .hero { min-height: 92vh; min-height: 92dvh; }
+  /* Mobile: a wide landscape photo in a tall portrait viewport must crop the
+     sides with `cover`. Anchor to the right (like desktop) so the crop frames
+     the mug / laptop / perfume side, with the text overlaid. */
+  .hero__bg img { object-position: right center; }
+  /* Mobile: the photo fills the full narrow width and the text spans it, so the
+     horizontal (left-dense) veil leaves the lower text over the bright part of
+     the image. Switch to a vertical wash that deepens toward the bottom (behind
+     the headline/roles/buttons). Theme-aware via each palette's veil colour. */
+  [data-theme="light"] .hero__bg::after {
+    background: linear-gradient(180deg, rgba(228, 222, 209, 0.42) 0%, rgba(228, 222, 209, 0.32) 32%, rgba(228, 222, 209, 0.74) 100%);
+  }
+  [data-theme="dark"] .hero__bg::after {
+    background: linear-gradient(180deg, rgba(16, 18, 22, 0.42) 0%, rgba(16, 18, 22, 0.38) 32%, rgba(16, 18, 22, 0.82) 100%);
+  }
   /* Keep the scroll hint on mobile; lift it clear of the iOS home indicator. */
   .hero__scroll { bottom: calc(1.4rem + env(safe-area-inset-bottom, 0px)); }
 
