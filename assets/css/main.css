@@ -740,7 +740,7 @@ h1, h2, h3, h4 {
    the mug, plant and bottles read crisp; the veil (below) still does the airy
    left-to-right fade without needing the photo washed out. */
 [data-theme="light"] .hero__bg img {
-  filter: brightness(1.1) contrast(1.1) saturate(1.16);
+  filter: grayscale(0.7) brightness(1.1) contrast(1.1) saturate(1.16);
 }
 .hero__bg::after {
   content: "";
