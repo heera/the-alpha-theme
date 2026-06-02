@@ -56,12 +56,15 @@
   --eyebrow: var(--accent);
   --shadow: 0 1px 0 rgba(255, 255, 255, 0.03), 0 18px 50px -22px rgba(0, 0, 0, 0.85);
   --glow: 0 0 0 1px rgba(94, 230, 208, 0.18), 0 0 34px -10px rgba(94, 230, 208, 0.45);
-  /* The photo's left is near-black, so a black veil shows no gradient. Layer a
-     faint pale-mint tint over the directional darkening — same left→right fade
-     and stop positions as the light veil, so it covers the same area. */
+  /* The photo's left third is genuinely dark, empty desk — no clutter to hide
+     (this hero shot has no cigarette/ashtray) — so the veil is light: just
+     enough left→right darkening to seat the headline and continue the sidebar
+     into the photo, fading out by ~80% to let the mug, plant, laptop and
+     bottles read at full strength. A faint pale-mint tint warms the near-black
+     left so the black veil still shows a gradient. */
   --hero-veil:
-    linear-gradient(90deg, rgba(205, 246, 240, 0.12) 0%, rgba(205, 246, 240, 0.06) 16%, rgba(205, 246, 240, 0) 46%),
-    linear-gradient(90deg, rgba(16, 18, 22, 0.78) 0%, rgba(16, 18, 22, 0.46) 16%, rgba(16, 18, 22, 0.2) 46%, rgba(16, 18, 22, 0) 100%);
+    linear-gradient(90deg, rgba(205, 246, 240, 0.08) 0%, rgba(205, 246, 240, 0.04) 20%, rgba(205, 246, 240, 0) 48%),
+    linear-gradient(90deg, rgba(16, 18, 22, 0.68) 0%, rgba(16, 18, 22, 0.44) 22%, rgba(16, 18, 22, 0.2) 45%, rgba(16, 18, 22, 0.05) 65%, rgba(16, 18, 22, 0) 80%);
   --img-filter: none; /* photos render in full colour */
   /* About portrait: slightly richer + a touch cooler so the studio photo
      sits into the cool slate without going flat. */
@@ -123,7 +126,10 @@
   /* Left edge starts at the sidebar cream (--bg-2 #ece9e1, near-opaque) so the
      sidebar→hero seam disappears like dark mode, then warms to sand within the
      first slice so most of the hero still reads warm, and opens to the photo. */
-  --hero-veil: linear-gradient(90deg, rgba(228, 222, 209, 0.6) 0%, rgba(226, 214, 194, 0.34) 16%, rgba(222, 209, 188, 0.2) 46%, rgba(222, 209, 188, 0.1) 62%, rgba(222, 209, 188, 0) 82%);
+  /* Light, fading out by ~80%: the hero shot's left is empty desk with no
+     clutter to soften, so the veil only needs to seat the headline and hide
+     the sidebar→hero seam before opening to the photo. */
+  --hero-veil: linear-gradient(90deg, rgba(228, 222, 209, 0.58) 0%, rgba(226, 214, 194, 0.32) 18%, rgba(222, 209, 188, 0.16) 42%, rgba(222, 209, 188, 0.05) 62%, rgba(222, 209, 188, 0) 80%);
   --img-filter: none; /* photos render in full colour */
   /* About portrait: lift the near-black studio background toward a softer warm
      charcoal so it isn't a harsh black box on the cream. Low contrast raises
