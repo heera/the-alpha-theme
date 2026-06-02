@@ -132,7 +132,7 @@
   /* Light, fading out by ~80%: the hero shot's left is empty desk with no
      clutter to soften, so the veil only needs to seat the headline and hide
      the sidebar→hero seam before opening to the photo. */
-  --hero-veil: linear-gradient(90deg, rgba(228, 222, 209, 0.58) 0%, rgba(226, 214, 194, 0.32) 18%, rgba(222, 209, 188, 0.16) 42%, rgba(222, 209, 188, 0.05) 62%, rgba(222, 209, 188, 0) 80%);
+  --hero-veil: linear-gradient(90deg, rgba(228, 222, 209, 0.58) 0%, rgba(226, 214, 194, 0.22) 15%, rgba(222, 209, 188, 0.08) 36%, rgba(222, 209, 188, 0.02) 55%, rgba(222, 209, 188, 0) 70%);
   --img-filter: none; /* photos render in full colour */
   /* About portrait: lift the near-black studio background toward a softer warm
      charcoal so it isn't a harsh black box on the cream. Low contrast raises
@@ -750,6 +750,15 @@ h1, h2, h3, h4 {
    left-to-right fade without needing the photo washed out. */
 [data-theme="light"] .hero__bg img {
   filter: grayscale(0.7) brightness(1.1) contrast(1.1) saturate(1.16);
+  /* Dissolve the photo's bottom edge to transparent instead of overlaying a
+     cream gradient on top of it — a translucent cream-over-dark-photo ramp
+     mixes into a muddy grey band (the old "foggy bloom"). A mask is pure alpha,
+     so the photo simply fades out and reveals the flat paper bg beneath; the
+     eased stops bunch the dissolve into the lower portion so it reads smooth. */
+  -webkit-mask-image: linear-gradient(
+    to bottom, #000 68%, rgba(0, 0, 0, 0.72) 83%, rgba(0, 0, 0, 0.32) 93%, transparent 100%);
+          mask-image: linear-gradient(
+    to bottom, #000 68%, rgba(0, 0, 0, 0.72) 83%, rgba(0, 0, 0, 0.32) 93%, transparent 100%);
 }
 .hero__bg::after {
   content: "";
@@ -774,10 +783,27 @@ h1, h2, h3, h4 {
 }
 /* Light mode: --bg-2 is bright cream, so fading the dark photo toward it blooms
    a foggy band. Short fade to a neutral grey instead — softens the photo's
-   bottom edge without a glow; the letterpress seam below carries the boundary. */
+   bottom edge without a glow; the letterpress seam below carries the boundary.
+   Eased stops (not an even ramp) keep the grey faint up top and bunch the
+   density toward the bottom so the band reads organic, not mechanically linear. */
+/* The photo mask above already dissolves the image, so the bottom strip is the
+   flat paper bg — no dark photo to mix with. We can now safely settle it onto
+   the section's own cream (--bg-2) for a seamless seam, eased so the colour
+   only firms up in the last sliver. No more grey band, no bloom. */
 [data-theme="light"] .hero::after {
-  height: clamp(36px, 3.5vh, 40px);
-  background: linear-gradient(to bottom, transparent, #575656);
+  height: clamp(90px, 13vh, 170px);
+  /* End on the section's exact cream (--bg-2) so the seam is invisible — the
+     final stop MUST match the surface below or it reads as a shadow line.
+     Spread over a tall region with gentle low-coverage stops so the fade is
+     gradual rather than a concentrated band, while keeping the bottles legible. */
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    color-mix(in srgb, var(--bg-2) 8%, transparent) 48%,
+    color-mix(in srgb, var(--bg-2) 24%, transparent) 74%,
+    color-mix(in srgb, var(--bg-2) 55%, transparent) 90%,
+    var(--bg-2) 100%
+  );
 }
 .hero__inner { position: relative; z-index: 2; max-width: 720px; }
 .hero__hi {
@@ -904,12 +930,15 @@ h1, h2, h3, h4 {
 /* Light mode: the eyebrow runs right into the thinning veil and the scroll
    pill sits at the bottom-centre over the dark photo, so both need help that
    the warm veil alone can't give. */
+/* The bottom fade now resolves to cream where the scroll hint sits, so a light
+   label vanishes. Use dark ink with a light halo so the pill + label read on the
+   cream (and survive the photo-edge transition just above it). */
 [data-theme="light"] .hero__scroll {
-  color: #efe7d6; /* warm light so the pill + label read over the dark photo */
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
+  color: var(--ink-soft);
+  text-shadow: 0 1px 2px rgba(245, 243, 239, 0.8);
 }
 [data-theme="light"] .hero__scroll span {
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 1px 4px rgba(245, 243, 239, 0.6);
 }
 [data-theme="light"] .hero__scroll span::after {
   background: #fa6f31;
@@ -2613,7 +2642,7 @@ body.single .page-title {
      the image. Switch to a vertical wash that deepens toward the bottom (behind
      the headline/roles/buttons). Theme-aware via each palette's veil colour. */
   [data-theme="light"] .hero__bg::after {
-    background: linear-gradient(180deg, rgba(228, 222, 209, 0.42) 0%, rgba(228, 222, 209, 0.32) 32%, rgba(228, 222, 209, 0.74) 100%);
+    background: linear-gradient(180deg, rgba(228, 222, 209, 0.28) 0%, rgba(228, 222, 209, 0.2) 38%, rgba(228, 222, 209, 0.46) 100%);
   }
   [data-theme="dark"] .hero__bg::after {
     background: linear-gradient(180deg, rgba(16, 18, 22, 0.42) 0%, rgba(16, 18, 22, 0.38) 32%, rgba(16, 18, 22, 0.82) 100%);
