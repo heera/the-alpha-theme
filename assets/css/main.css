@@ -133,9 +133,12 @@
   --img-filter: none; /* photos render in full colour */
   /* About portrait: lift the near-black studio background toward a softer warm
      charcoal so it isn't a harsh black box on the cream. Low contrast raises
-     the blacks (brightness alone can't — 0×k=0); brightness compensates. No
-     sepia (it killed the teal coordinates). */
-  --portrait-filter: saturate(1.05) brightness(1.12) contrast(0.8);
+     the blacks (brightness alone can't — 0×k=0); brightness compensates.
+     hue-rotate swings the baked-in teal HUD marks (frame, coords, bars) into
+     the warm accent family to match light mode. The photo itself is grayscale
+     — zero-saturation pixels are immune to hue-rotate — so only the marks
+     shift; teal (~170°) lands near terracotta/amber (~20°). */
+  --portrait-filter: hue-rotate(-150deg) saturate(1.05) brightness(1.12) contrast(0.8);
   /* Portrait glow uses amber (#d6aa5a) — the LIGHT sibling of the terracotta
      accent. Dark mode glows with light mint because glow = emitted light and
      only a light colour reads as glow against the dark photo; the dark
@@ -1003,6 +1006,9 @@ h1, h2, h3, h4 {
   transition: filter var(--t);
 }
 .portrait:hover img { filter: none; }
+/* In light mode, hover still drops the grade for a crisp photo, but keeps the
+   hue-rotate so the HUD marks stay warm instead of snapping back to teal. */
+[data-theme="light"] .portrait:hover img { filter: hue-rotate(-150deg); }
 
 .bio p {
   color: var(--ink-soft);
