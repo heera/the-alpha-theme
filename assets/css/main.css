@@ -96,7 +96,7 @@
 [data-theme="light"] {
   /* Warm off-white paper — refined character vs. clinical white */
   --bg: #f5f3ef;
-  --bg-2: #ece9e1;        /* sidebar surface — a real step down, gives elevation */
+  --bg-2: #eeebe3;        /* sidebar surface — a gentle step down from --bg; also the hero bottom-fog colour, so this value drives the fog brightness too (kept matched so the hero→About seam stays invisible) */
   --surface: #faf7f1;     /* warm off-white — paper sheets on a warm desk, not stark #fff against the cream bg */
   --surface-2: #efece4;
   --border: #cfcdc4;      /* deep enough that ghost buttons & dividers read with intent */
@@ -579,7 +579,7 @@ h1, h2, h3, h4 {
   text-transform: uppercase;
   color: var(--ink-soft);
   border-radius: 0;
-  transition: color var(--t-fast), background var(--t-fast);
+  transition: color var(--t-fast);
 }
 .nav__link::before {
   content: "";
@@ -594,9 +594,8 @@ h1, h2, h3, h4 {
   transition: height var(--t);
 }
 .nav__link:hover {
-  color: var(--ink);
-  /* Subtle ink-tint press — gentle darken on light, gentle lighten on dark. */
-  background: color-mix(in srgb, var(--ink) 5%, transparent);
+  /* Just tint the label with the accent — no background fill. */
+  color: var(--accent);
 }
 .nav__link.is-active { color: var(--ink); }
 .nav__link.is-active::before { height: 60%; }
@@ -753,13 +752,21 @@ h1, h2, h3, h4 {
   /* Dissolve the photo's bottom edge to transparent instead of overlaying a
      cream gradient on top of it — a translucent cream-over-dark-photo ramp
      mixes into a muddy grey band (the old "foggy bloom"). A mask is pure alpha,
-     so the photo simply fades out and reveals the flat paper bg beneath; the
-     eased stops bunch the dissolve into the lower portion so it reads smooth. */
+     so the photo simply fades out and reveals the bg beneath (set just below to
+     a warm taupe, so there's no bright paper pop and no flat cap — the photo
+     feathers into a soft shadow tone). The eased stops give a gentle dissolve
+     with no hard edge. */
   -webkit-mask-image: linear-gradient(
-    to bottom, #000 68%, rgba(0, 0, 0, 0.72) 83%, rgba(0, 0, 0, 0.32) 93%, transparent 100%);
+    to bottom, #000 74%, rgba(0, 0, 0, 0.6) 88%, rgba(0, 0, 0, 0.22) 96%, transparent 100%);
           mask-image: linear-gradient(
-    to bottom, #000 68%, rgba(0, 0, 0, 0.72) 83%, rgba(0, 0, 0, 0.32) 93%, transparent 100%);
+    to bottom, #000 74%, rgba(0, 0, 0, 0.6) 88%, rgba(0, 0, 0, 0.22) 96%, transparent 100%);
 }
+/* The dissolved photo reveals .hero__bg's background. Default --bg is bright
+   paper (#f5f3ef) which pops as a "deep white bar" against the photo; set it to
+   a warm taupe (a touch darker than the About surface) so the bottom reads as a
+   soft shadow rather than a white flash. Only matters where the photo is
+   transparent (the masked bottom strip); the photo covers it everywhere else. */
+[data-theme="light"] .hero__bg { background: #d8d5cb; }
 .hero__bg::after {
   content: "";
   position: absolute;
@@ -781,29 +788,13 @@ h1, h2, h3, h4 {
   pointer-events: none;
   background: linear-gradient(to bottom, transparent, var(--bg-2));
 }
-/* Light mode: --bg-2 is bright cream, so fading the dark photo toward it blooms
-   a foggy band. Short fade to a neutral grey instead — softens the photo's
-   bottom edge without a glow; the letterpress seam below carries the boundary.
-   Eased stops (not an even ramp) keep the grey faint up top and bunch the
-   density toward the bottom so the band reads organic, not mechanically linear. */
-/* The photo mask above already dissolves the image, so the bottom strip is the
-   flat paper bg — no dark photo to mix with. We can now safely settle it onto
-   the section's own cream (--bg-2) for a seamless seam, eased so the colour
-   only firms up in the last sliver. No more grey band, no bloom. */
+/* The photo mask above already dissolves the image straight onto the hero__bg
+   taupe (set in light mode), so the bottom resolves to a soft shadow tone on its
+   own. A cream wash on top is now redundant — it only re-introduces a flat
+   opaque cap (the "white bar"). Drop it; the photo feather + letterpress seam
+   carry the boundary with no haze. */
 [data-theme="light"] .hero::after {
-  height: clamp(90px, 13vh, 170px);
-  /* End on the section's exact cream (--bg-2) so the seam is invisible — the
-     final stop MUST match the surface below or it reads as a shadow line.
-     Spread over a tall region with gentle low-coverage stops so the fade is
-     gradual rather than a concentrated band, while keeping the bottles legible. */
-  background: linear-gradient(
-    to bottom,
-    transparent 0%,
-    color-mix(in srgb, var(--bg-2) 8%, transparent) 48%,
-    color-mix(in srgb, var(--bg-2) 24%, transparent) 74%,
-    color-mix(in srgb, var(--bg-2) 55%, transparent) 90%,
-    var(--bg-2) 100%
-  );
+  background: none;
 }
 .hero__inner { position: relative; z-index: 2; max-width: 720px; }
 .hero__hi {
@@ -941,7 +932,7 @@ h1, h2, h3, h4 {
   box-shadow: 0 1px 4px rgba(245, 243, 239, 0.6);
 }
 [data-theme="light"] .hero__scroll span::after {
-  background: #fa6f31;
+  background: var(--accent);
 }
 /* Dark mode: lift the scroll pill + label off the dark photo (was --ink-soft,
    which read dim at the bottom of the hero). */
