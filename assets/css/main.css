@@ -73,9 +73,12 @@
      the border with a tight halo hugging it, like a bar neon sign. Keep the
      spread small so it reads as a lit tube, not a soft bloom. */
   --portrait-glow:
-    0 0 2px 0 rgba(94, 230, 208, 0.85),
+    0 0 1px 0 rgba(94, 230, 208, 0.85),
     0 0 3px 0 rgba(94, 230, 208, 0.6),
     0 0 8px 0 rgba(94, 230, 208, 0.4);
+  /* Frame fill behind the contain-fitted portrait — matches the photo's dark
+     studio edge so the small top/bottom letterbox bands blend in (no black). */
+  --portrait-bg: #0e1014;
   /* Fragrance ambient atmospherics — luminous warm-white wash, faint
      cool rim, drifting pale haze. Tones pulled close to white so the
      gradient lifts the deep bg as light rather than colour. Alphas
@@ -134,10 +137,10 @@
   /* About portrait: lift the near-black studio background toward a softer warm
      charcoal so it isn't a harsh black box on the cream. Low contrast raises
      the blacks (brightness alone can't — 0×k=0); brightness compensates.
-     hue-rotate swings the baked-in teal HUD marks (frame, coords, bars) into
-     the warm accent family to match light mode. The photo itself is grayscale
-     — zero-saturation pixels are immune to hue-rotate — so only the marks
-     shift; teal (~170°) lands near terracotta/amber (~20°). */
+     hue-rotate swings the baked-in teal HUD (frame, coords, bars) into the warm
+     accent family for light mode. The portrait photo is grayscale — zero-
+     saturation pixels are immune to hue-rotate — so only the teal marks shift;
+     teal (~170°) lands near terracotta/amber (~20°). */
   --portrait-filter: hue-rotate(-150deg) saturate(1.05) brightness(1.12) contrast(0.8);
   /* Portrait glow uses amber (#d6aa5a) — the LIGHT sibling of the terracotta
      accent. Dark mode glows with light mint because glow = emitted light and
@@ -148,6 +151,9 @@
     0 0 2px 0 rgba(214, 170, 90, 0.9),
     0 0 3px 0 rgba(214, 170, 90, 0.65),
     0 0 8px 0 rgba(207, 155, 79, 0.45);
+  /* Band fill = the portrait's near-black edge run through the light-mode
+     --portrait-filter, so the contain letterbox blends instead of going black. */
+  --portrait-bg: #282724;
   /* Editorial warm-paper version — bright cream wash that brightens
      the paper bg without tinting it heavily. Ember kept light + smoky so it
      dissolves into the paper instead of reading as a corner glow; the longer
@@ -751,6 +757,28 @@ h1, h2, h3, h4 {
   inset: 0;
   background: var(--hero-veil);
 }
+/* Bottom fade — dissolve the hero photo into the About section's surface
+   (--bg-2) so the two sections merge instead of ending on a hard photo edge.
+   The letterpress seam (#about::before) then reads as a subtle pressed fold
+   rather than a sudden cut. Works in both themes (--bg-2 is charcoal / cream). */
+.hero::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: clamp(90px, 14vh, 190px);
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent, var(--bg-2));
+}
+/* Light mode: --bg-2 is bright cream, so fading the dark photo toward it blooms
+   a foggy band. Short fade to a neutral grey instead — softens the photo's
+   bottom edge without a glow; the letterpress seam below carries the boundary. */
+[data-theme="light"] .hero::after {
+  height: clamp(36px, 3.5vh, 40px);
+  background: linear-gradient(to bottom, transparent, #575656);
+}
 .hero__inner { position: relative; z-index: 2; max-width: 720px; }
 .hero__hi {
   font-family: var(--font-mono);
@@ -939,16 +967,15 @@ h1, h2, h3, h4 {
   position: relative;
   /* Stretch to the text column so the bottom lines up with the last social
      row; the photo fills the frame (cover) so the border, pressed edge and
-     teal glow hug it on all sides. */
+     glow hug it on all sides. With the 2-column social links the text block is
+     short enough that this frame reads as a tall-ish near-square at wide
+     viewports, showing the full HUD artwork. */
   align-self: stretch;
-  /* Extend ~4px below the stretched row so the frame sits flush with the last
-     social row's visual bottom. Negative bottom margin grows the border box
-     without enlarging the row (the text column stays put). */
   margin-bottom: -4px;
   border-radius: var(--radius);
   overflow: hidden;
   border: 1px solid var(--border);
-  background: #0e1014;
+  background: var(--portrait-bg, #0e1014);
   /* Teal accent lighting around the image. Fixed BRIGHT mint (not the theme
      --glow): these effects sit against the dark photo, so the deep-teal
      light-mode accent was invisible (dark on dark). Bright mint reads on the
@@ -970,45 +997,21 @@ h1, h2, h3, h4 {
     inset 0 2px 5px -3px var(--rule-ink),
     inset 0 -1px 0 rgba(255, 255, 255, 0.08);
 }
-/* Re-create the photo's left-edge coordinate readout as a teal HUD label, so
-   it survives the cover-crop of the filled frame (the baked-in one gets
-   trimmed). Vertical, monospace, reading bottom-to-top. */
-.portrait::after {
-  content: "N25.2848°   E55.2708°";
-  position: absolute;
-  left: 0.55rem;
-  bottom: 2rem;
-  z-index: 4;
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);
-  color: #5ee6d0;            /* dark mode: bright mint — sits on the dark photo */
-  font-family: var(--font-mono);
-  font-size: 0.56rem;
-  letter-spacing: 0.22em;
-  opacity: 0.9;
-  pointer-events: none;
-  text-shadow: 0 0 6px rgba(94, 230, 208, 0.45), 0 0 2px rgba(0, 0, 0, 0.7);
-}
-/* Light mode: HUD label goes amber to match the warm portrait glow (still on
-   the dark photo, so the bright amber reads). */
-[data-theme="light"] .portrait::after {
-  color: #e0b86e;
-  text-shadow: 0 0 6px rgba(214, 170, 90, 0.5), 0 0 2px rgba(0, 0, 0, 0.7);
-}
+/* No CSS coordinate label: the square frame shows the artwork's own baked-in
+   HUD (coords, brackets, bars) in full, so a re-drawn label would duplicate it.
+   In light mode the baked teal recolours to warm via hue-rotate on the img. */
 .portrait img {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;          /* fills the tall frame; sides cover-cropped */
+  /* contain (not cover): the frame is a touch taller than the square artwork,
+     so cover would crop the side coords/bars off the HUD. contain shows the
+     whole HUD; the few px of dark band top/bottom blend into the dark frame. */
+  object-fit: contain;
   object-position: 50% 50%;
   filter: var(--portrait-filter, var(--img-filter));
-  transition: filter var(--t);
 }
-.portrait:hover img { filter: none; }
-/* In light mode, hover still drops the grade for a crisp photo, but keeps the
-   hue-rotate so the HUD marks stay warm instead of snapping back to teal. */
-[data-theme="light"] .portrait:hover img { filter: hue-rotate(-150deg); }
 
 .bio p {
   color: var(--ink-soft);
