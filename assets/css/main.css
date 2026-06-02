@@ -830,6 +830,13 @@ h1, h2, h3, h4 {
 [data-theme="light"] .hero__title .grad {
   background-image: linear-gradient(115deg, #cf9b4f 0%, #9c4620 100%);
 }
+/* Light mode: keep the first name ("Sheikh") in the dark-mode cream (--ink from
+   the dark theme) instead of near-black ink. It sits over the moody left half of
+   the photo (dark desk/books), where the light tone reads far better than dark
+   ink and matches the elegant look carried over from dark mode. */
+[data-theme="light"] .hero__title {
+  color: #ccd1d8;
+}
 .hero__roles {
   /* slim, tracked monospace — the same stylish family as the side nav,
      on one line, never wider than "Sheikh Heera". */
@@ -925,7 +932,7 @@ h1, h2, h3, h4 {
    label vanishes. Use dark ink with a light halo so the pill + label read on the
    cream (and survive the photo-edge transition just above it). */
 [data-theme="light"] .hero__scroll {
-  color: var(--ink-soft);
+  color: #0b0e12; /* deep near-black drives both the label and the pill border (currentColor) */
   text-shadow: 0 1px 2px rgba(245, 243, 239, 0.8);
 }
 [data-theme="light"] .hero__scroll span {
