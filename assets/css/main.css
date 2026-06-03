@@ -1685,10 +1685,9 @@ body.single .page-title {
    maxw-wide, symmetric padding). Only the prose fill differs: let it fill the
    article column (like the listing's cards) instead of its 68ch page cap. */
 @media (min-width: 1025px) {
-  /* Cap the body text at a comfortable reading measure (~74ch) and left-align it
-     under the title — long-form lines stay legible while wide media (images,
-     code blocks) can still break out via their own rules. */
-  body.single .prose { max-width: 74ch; margin-inline: 0; }
+  /* Body text fills the full article column so it lines up with the featured
+     image and other media — no narrower reading cap. */
+  body.single .prose { max-width: none; margin-inline: 0; }
   /* Divider spans the full reading width (article + sidebar): it bounds the
      meta row (so "No Comments" no longer overruns it) and gives the sidebar a
      top "roof" line, matching the article. */
