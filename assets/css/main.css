@@ -656,10 +656,9 @@ h1, h2, h3, h4 {
   letter-spacing: 0.16em;
   text-transform: uppercase;
   line-height: 1.95;
-  /* Lighter, more recessive colophon. --ink-dim sits below AA (~3.85:1 dark /
-     ~3.3:1 light) on this small text — acceptable for decorative credit lines,
-     but bump back to --ink-soft if strict AA is required. */
-  color: var(--ink-dim);
+  /* --ink-soft for WCAG AA: --ink-dim sits below AA (~3.85:1 dark / ~3.3:1
+     light) on this small text. */
+  color: var(--ink-soft);
 }
 /* Match the dim colophon tone, but keep a faint underline so the one link
    still signals it's clickable; the underline lifts to the accent on hover. */
@@ -1565,10 +1564,23 @@ h1, h2, h3, h4 {
   grid-template-columns: 1fr 1fr;
   align-items: center;
   gap: 1.5rem 2rem;
-  color: var(--ink-dim);
+  /* --ink-soft (not --ink-dim) so the footer copy meets WCAG AA contrast
+     (~7.5:1 both themes); --ink-dim sits at ~3.3–3.8:1 and fails on this
+     small text. */
+  color: var(--ink-soft);
 }
 .site-footer a { color: var(--ink-soft); transition: color var(--t-fast); }
 .site-footer a:hover { color: var(--accent); }
+/* Inline prose links (e.g. "powered by …") carry an underline so they are
+   distinguishable without relying on colour alone (WCAG 1.4.1). The standalone
+   utility links (rss/terms) read as their own line, so they keep no underline. */
+.site-footer__copy a,
+.site-footer__sub a {
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, currentColor 55%, transparent);
+  text-underline-offset: 0.22em;
+  text-decoration-thickness: 1px;
+}
 
 .site-footer__col--left { justify-self: start; }
 .site-footer__col--right {
@@ -1589,7 +1601,7 @@ h1, h2, h3, h4 {
   text-transform: uppercase;
   line-height: 1.95;
 }
-.site-footer__sub { color: var(--ink-dim); }
+.site-footer__sub { color: var(--ink-soft); }
 
 .site-footer__rss,
 .site-footer__terms {
@@ -1601,8 +1613,14 @@ h1, h2, h3, h4 {
   letter-spacing: 0.2em;
   text-transform: uppercase;
   line-height: 1.95;
+  /* Grow the tap target past the 24px WCAG 2.5.8 minimum. The negative margin
+     cancels the padding's layout effect so the baseline grid above is
+     untouched — only the hit area expands. */
+  display: inline-block;
+  padding-block: 0.35rem;
+  margin-block: -0.35rem;
 }
-.site-footer__rss-slug { color: var(--ink-dim); letter-spacing: 0.12em; }
+.site-footer__rss-slug { color: var(--ink-soft); letter-spacing: 0.12em; }
 .socials--footer { justify-content: flex-end; }
 
 /* ----- Reading views (single / archive / search / 404) -------------------- */
@@ -2630,10 +2648,10 @@ body.single .page-title {
      there — below the visible fold behind the browser UI. dvh tracks the
      actual viewport so the hint stays on-screen. vh kept as a fallback. */
   .hero { min-height: 92vh; min-height: 92dvh; }
-  /* Mobile: a wide landscape photo in a tall portrait viewport must crop the
-     sides with `cover`. Anchor to the right (like desktop) so the crop frames
-     the mug / laptop / perfume side, with the text overlaid. */
-  .hero__bg img { object-position: right center; }
+  /* Mobile: the <picture> already serves a portrait-cropped composition
+     (laptop + perfume), so centre it — the crop is pre-framed and `cover` only
+     needs to trim a little off the sides to fit the viewport's exact ratio. */
+  .hero__bg img { object-position: center; }
   /* Mobile: the photo fills the full narrow width and the text spans it, so the
      horizontal (left-dense) veil leaves the lower text over the bright part of
      the image. Switch to a vertical wash that deepens toward the bottom (behind

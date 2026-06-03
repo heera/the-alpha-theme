@@ -11,9 +11,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 ?>
 <section id="home" class="hero" aria-label="<?php esc_attr_e( 'Introduction', 'the-alpha' ); ?>">
 	<div class="hero__bg">
-		<img
-			src="<?php echo esc_url( add_query_arg( 'v', the_alpha_asset_ver( 'assets/img/hero.webp' ), THE_ALPHA_URI . '/assets/img/hero.webp' ) ); ?>"
-			alt="" width="1324" height="882" fetchpriority="high" decoding="async">
+		<picture>
+			<?php // Phones get a portrait-cropped composition (laptop + perfume) so the wide desk shot isn't sliced into a blurry sliver; desktop keeps the full landscape. ?>
+			<source
+				media="(max-width: 760px)"
+				srcset="<?php echo esc_url( add_query_arg( 'v', the_alpha_asset_ver( 'assets/img/hero-portrait.webp' ), THE_ALPHA_URI . '/assets/img/hero-portrait.webp' ) ); ?>"
+				width="564" height="882">
+			<img
+				src="<?php echo esc_url( add_query_arg( 'v', the_alpha_asset_ver( 'assets/img/hero.webp' ), THE_ALPHA_URI . '/assets/img/hero.webp' ) ); ?>"
+				alt="" width="1324" height="882" fetchpriority="high" decoding="async">
+		</picture>
 	</div>
 
 	<div class="hero__inner">

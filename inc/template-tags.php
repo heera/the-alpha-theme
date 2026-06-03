@@ -49,7 +49,7 @@ function the_alpha_socials() {
 	return array(
 		'stackoverflow' => array(
 			'label' => 'Stack Overflow',
-			'url'   => 'https://stackoverflow.com/users/741747/the-alpha?tab=profile',
+			'url'   => 'https://stackoverflow.com/users/741747/the-alpha',
 			'icon'  => 'M21 21v-7h-2v5H5v-5H3v7h18zM7.5 14.6l8.1 1.7.4-2-8.1-1.7-.4 2zm1-4.7 7.5 3.5.9-1.8-7.5-3.5-.9 1.8zm2-4.3 6.4 5.3 1.3-1.5-6.4-5.3-1.3 1.5zM15 2l-1.6 1.2 5 6.6L20 8.6 15 2zM7 19h9v-2H7v2z',
 		),
 		'github'        => array(

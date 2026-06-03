@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		src="<?php echo esc_url( THE_ALPHA_URI . '/assets/img/bakhoor.webp' ); ?>"
 		alt=""
 		aria-hidden="true"
-		width="960" height="1200"
+		width="760" height="950"
 		loading="lazy" decoding="async">
 
 	<div class="wrap">
@@ -27,10 +27,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 		<div class="about__grid reveal">
 			<figure class="portrait">
+				<?php
+				$portrait_ver = the_alpha_asset_ver( 'assets/img/portrait.webp' );
+				$portrait_url = THE_ALPHA_URI . '/assets/img/portrait';
+				?>
 				<img
-					src="<?php echo esc_url( THE_ALPHA_URI . '/assets/img/portrait.webp?v=' . the_alpha_asset_ver( 'assets/img/portrait.webp' ) ); ?>"
+					src="<?php echo esc_url( $portrait_url . '.webp?v=' . $portrait_ver ); ?>"
+					srcset="<?php echo esc_url( $portrait_url . '-480.webp?v=' . $portrait_ver ) . ' 480w, ' . esc_url( $portrait_url . '-768.webp?v=' . $portrait_ver ) . ' 768w, ' . esc_url( $portrait_url . '.webp?v=' . $portrait_ver ) . ' 880w'; ?>"
+					sizes="(max-width: 760px) 92vw, 340px"
 					alt="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>"
-					width="768" height="768" loading="lazy" decoding="async">
+					width="880" height="880" loading="lazy" decoding="async">
 			</figure>
 
 			<div>

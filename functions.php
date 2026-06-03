@@ -24,6 +24,23 @@ function the_alpha_asset_ver( $relative_path ) {
 }
 
 /**
+ * Resolve an asset to its minified twin (`foo.min.css`) when one exists and
+ * SCRIPT_DEBUG is off, otherwise return the source path. The minified files are
+ * produced by `npm run minify`; if they are missing the theme still works by
+ * serving the unminified source. Returns a theme-relative path.
+ */
+function the_alpha_asset( $relative_path ) {
+	if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
+		return $relative_path;
+	}
+	$min = preg_replace( '/\.(css|js)$/', '.min.$1', $relative_path );
+	if ( $min !== $relative_path && file_exists( THE_ALPHA_DIR . '/' . ltrim( $min, '/' ) ) ) {
+		return $min;
+	}
+	return $relative_path;
+}
+
+/**
  * Theme supports.
  */
 function the_alpha_setup() {
@@ -77,7 +94,7 @@ function the_alpha_setup() {
 
 	// Load a custom block-editor stylesheet so the visual editor previews
 	// posts with the same typography and prose treatment as the frontend.
-	add_editor_style( 'assets/css/editor.css' );
+	add_editor_style( the_alpha_asset( 'assets/css/editor.css' ) );
 
 	add_image_size( 'the_alpha_card', 760, 480, true );
 	add_image_size( 'the_alpha_hero', 1600, 900, true );
@@ -141,25 +158,28 @@ add_filter( 'wp_preload_resources', 'the_alpha_preload_fonts' );
 function the_alpha_assets() {
 	// Self-hosted fonts (assets/css/fonts.css → assets/fonts/*.woff2): subset to
 	// latin + latin-ext, font-display: swap, no third-party request.
+	$fonts = the_alpha_asset( 'assets/css/fonts.css' );
 	wp_enqueue_style(
 		'the-alpha-fonts',
-		THE_ALPHA_URI . '/assets/css/fonts.css',
+		THE_ALPHA_URI . '/' . $fonts,
 		array(),
-		the_alpha_asset_ver( 'assets/css/fonts.css' )
+		the_alpha_asset_ver( $fonts )
 	);
 
+	$main = the_alpha_asset( 'assets/css/main.css' );
 	wp_enqueue_style(
 		'the-alpha',
-		THE_ALPHA_URI . '/assets/css/main.css',
+		THE_ALPHA_URI . '/' . $main,
 		array( 'the-alpha-fonts' ),
-		the_alpha_asset_ver( 'assets/css/main.css' )
+		the_alpha_asset_ver( $main )
 	);
 
+	$theme_js = the_alpha_asset( 'assets/js/theme.js' );
 	wp_enqueue_script(
 		'the-alpha',
-		THE_ALPHA_URI . '/assets/js/theme.js',
+		THE_ALPHA_URI . '/' . $theme_js,
 		array(),
-		the_alpha_asset_ver( 'assets/js/theme.js' ),
+		the_alpha_asset_ver( $theme_js ),
 		true
 	);
 	wp_script_add_data( 'the-alpha', 'defer', true );
@@ -206,6 +226,18 @@ function the_alpha_customize_register( $wp_customize ) {
 			'dark'  => __( 'Dark', 'the-alpha' ),
 			'light' => __( 'Light', 'the-alpha' ),
 		),
+	) );
+
+	$wp_customize->add_setting( 'the_alpha_mobile_light', array(
+		'default'           => true,
+		'sanitize_callback' => 'the_alpha_sanitize_bool',
+		'transport'         => 'refresh',
+	) );
+	$wp_customize->add_control( 'the_alpha_mobile_light', array(
+		'label'       => __( 'Light theme by default on phones', 'the-alpha' ),
+		'description' => __( 'First-time visitors on small screens (≤760px) land on the light theme regardless of the default above. Visitors can still toggle, and their choice persists.', 'the-alpha' ),
+		'section'     => 'the_alpha_options',
+		'type'        => 'checkbox',
 	) );
 
 	$wp_customize->add_setting( 'the_alpha_show_featured_listing', array(
@@ -299,17 +331,20 @@ function the_alpha_default_home_description() {
 /**
  * Flicker-free theme: set the colour scheme on <html> before first paint.
  * Resolution order:
- *   1. localStorage (visitor's explicit choice from the toggle)
- *   2. Site default from Customizer (dark / light / auto)
- *   3. If "auto": OS preference via prefers-color-scheme
- *   4. Final fallback: dark
+ *   1. localStorage (visitor's explicit choice from the toggle) — always wins
+ *   2. Phones (viewport <= 760px) land on light by default, when the
+ *      "Light theme by default on phones" Customizer option is enabled
+ *   3. Otherwise the site default from Customizer (dark / light / auto)
+ *   4. If "auto": OS preference via prefers-color-scheme
+ *   5. Final fallback: dark
  * Printed as early as possible inside <head>.
  */
 function the_alpha_no_fouc() {
 	$default_scheme = the_alpha_sanitize_scheme( get_theme_mod( 'the_alpha_default_scheme', 'auto' ) );
+	$mobile_light   = (bool) the_alpha_sanitize_bool( get_theme_mod( 'the_alpha_mobile_light', true ) );
 	?>
 <script>
-(function(){var d=document.documentElement;d.classList.add('js');try{var s=localStorage.getItem('the-alpha-theme');if(!s){var def=<?php echo wp_json_encode( $default_scheme ); ?>;s=(def==='auto')?(window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'):def;}d.setAttribute('data-theme',s);}catch(e){d.setAttribute('data-theme','dark');}})();
+(function(){var d=document.documentElement;d.classList.add('js');try{var s=localStorage.getItem('the-alpha-theme');if(!s){var mq=window.matchMedia;if(<?php echo $mobile_light ? 'true' : 'false'; ?>&&mq&&mq('(max-width: 760px)').matches){s='light';}else{var def=<?php echo wp_json_encode( $default_scheme ); ?>;s=(def==='auto')?(mq&&mq('(prefers-color-scheme: light)').matches?'light':'dark'):def;}}d.setAttribute('data-theme',s);}catch(e){d.setAttribute('data-theme','dark');}})();
 </script>
 	<?php
 }

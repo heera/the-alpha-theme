@@ -1,0 +1,15 @@
+{
+  "name": "the-alpha",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Build tooling for The Alpha WordPress theme (asset minification + production zip).",
+  "scripts": {
+    "minify": "node bin/minify.mjs",
+    "zip": "bash bin/build-zip.sh",
+    "build": "npm run minify && npm run zip"
+  },
+  "devDependencies": {
+    "clean-css": "^5.3.3",
+    "terser": "^5.31.0"
+  }
+}
