@@ -16,7 +16,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<?php $ta_cover_id = the_alpha_thumb_id(); ?>
 		<div class="post-row__media card__media<?php echo $ta_cover_id ? '' : ' card__media--ph'; ?>">
 			<?php if ( $ta_cover_id ) : ?>
-				<?php echo wp_get_attachment_image( $ta_cover_id, 'the_alpha_banner', false, array( 'loading' => 'lazy', 'decoding' => 'async', 'alt' => '' ) ); ?>
+				<?php // Listing rows display the cover in a short banner box; the 760x480 card keeps the download small instead of the full-size/banner image. ?>
+				<?php echo wp_get_attachment_image( $ta_cover_id, 'the_alpha_card', false, array( 'loading' => 'lazy', 'decoding' => 'async', 'alt' => '' ) ); ?>
 			<?php else : ?>
 				<?php
 				$ta_cats = get_the_category();
