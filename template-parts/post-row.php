@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 <article <?php post_class( 'post-row' ); ?>>
 	<?php if ( get_theme_mod( 'the_alpha_show_featured_listing', true ) ) : ?>
 		<?php $ta_cover_id = the_alpha_thumb_id(); ?>
-		<div class="post-row__media card__media<?php echo $ta_cover_id ? '' : ' card__media--ph'; ?>">
+		<a class="post-row__media card__media<?php echo $ta_cover_id ? '' : ' card__media--ph'; ?>" href="<?php the_permalink(); ?>" tabindex="-1" aria-hidden="true">
 			<?php if ( $ta_cover_id ) : ?>
 				<?php // Listing rows display the cover in a short banner box; the 760x480 card keeps the download small instead of the full-size/banner image. ?>
 				<?php echo wp_get_attachment_image( $ta_cover_id, 'the_alpha_card', false, array( 'loading' => 'lazy', 'decoding' => 'async', 'alt' => '' ) ); ?>
@@ -26,7 +26,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<span class="card__ph-kicker"><?php echo esc_html( $ta_kick ); ?></span>
 				<span class="card__ph-mark" aria-hidden="true">&lt;/&gt;</span>
 			<?php endif; ?>
-		</div>
+		</a>
 	<?php endif; ?>
 
 	<p class="post-row__meta">

@@ -1200,7 +1200,14 @@ h1, h2, h3, h4 {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   overflow: hidden;
+  transition: background var(--t);
 }
+/* Quiet whole-card feedback: the surface steps up one tone on hover/focus.
+   Dark mode lifts toward --surface-2 (lighter); light mode warms with a
+   whisper of amber instead, since its --surface-2 reads darker (a press, not
+   a lift). See the [data-theme="light"] override below. */
+.card:hover,
+.card:focus-within { background: var(--surface-2); }
 .card__media { aspect-ratio: 16 / 10; overflow: hidden; background: var(--surface-2); }
 .card__media--ph {
   position: relative;
@@ -1245,8 +1252,13 @@ h1, h2, h3, h4 {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: var(--img-filter);
+  /* Muted at rest, wakes to full colour on hover — no scaling, so crops never
+     break. (--img-filter is `none` in both themes, so hover = full strength.) */
+  filter: saturate(0.82) brightness(0.94);
+  transition: filter var(--t);
 }
+.card:hover .card__media img,
+.card:focus-within .card__media img { filter: var(--img-filter); }
 .card__body { padding: 1.4rem 1.4rem 1.6rem; display: flex; flex-direction: column; flex: 1; }
 .card__title {
   font-size: 1.2rem;
@@ -1254,9 +1266,11 @@ h1, h2, h3, h4 {
   letter-spacing: -0.01em;
 }
 .card__title a { color: var(--ink); transition: color var(--t-fast); }
-/* Title brightens to the accent on hover. The stretched link covers the whole
-   card, so this fires on card hover (not just over the title text). */
-.card__title a:hover { color: var(--accent); }
+/* Title brightens on hover. The stretched link covers the whole card (so the
+   image/body already trigger it); :has adds the READ link, which sits above
+   the overlay and otherwise wouldn't reach the title. */
+.card__title a:hover,
+.card:has(.card__more:hover) .card__title a { color: var(--accent); }
 /* Whole card clickable: the title's anchor stretches over the entire card so
    any click navigates. Meta + READ are raised above it to stay distinct. */
 .card__title a::after {
@@ -1278,6 +1292,8 @@ h1, h2, h3, h4 {
   align-self: flex-start;
   transition: color var(--t-fast);
 }
+/* Stays bright on hover — override the global `a:hover { color: --ink }`. */
+.card__more:hover { color: var(--accent); }
 .card__more::after { content: " \2192"; transition: margin var(--t-fast); }
 /* Arrow drifts out when the card is hovered or focused. */
 .card:hover .card__more::after,
@@ -1298,6 +1314,12 @@ h1, h2, h3, h4 {
 [data-theme="light"] .card__media {
   /* one step darker than card body, like surface-2 vs surface in dark */
   background: var(--bg-2);
+}
+/* Light mode warms instead of darkening: a whisper of amber over the warm
+   white reads as a gentle glow lift, where --surface-2 would look pressed. */
+[data-theme="light"] .card:hover,
+[data-theme="light"] .card:focus-within {
+  background: color-mix(in srgb, var(--surface) 94%, var(--accent-2) 6%);
 }
 
 .post-meta {
@@ -1799,6 +1821,7 @@ body.single .page-title {
 .post-list > .post-row:first-child { padding-top: 0; }
 .post-list > .post-row:last-child { border-bottom: 0; }
 .post-row__media {
+  display: block;          /* it's an <a> now — the clickable cover */
   aspect-ratio: 16 / 5;
   border-radius: var(--radius);
   border: 1px solid var(--border);
@@ -1807,6 +1830,9 @@ body.single .page-title {
 /* Slim 16:5 cover crop, centred (the Featured image; no separate banner). Centred
    so images whose subject sits below a dark/shadow top aren't cut off. */
 .post-row__media.card__media--ph { aspect-ratio: 16 / 5; } /* placeholder uses the same box */
+/* Cover wakes from muted (inherited from .card__media img) to full colour when
+   the image itself is hovered — no scaling, so the 16:5 crop stays put. */
+.post-row__media:hover img { filter: var(--img-filter); }
 .post-row__meta {
   font-family: var(--font-mono);
   font-size: 0.76rem;
@@ -1827,8 +1853,13 @@ body.single .page-title {
   margin: 0 0 0.85rem;
 }
 .post-row__title a { color: var(--ink-head); transition: color var(--t-fast); }
+/* Title brightens when ANY of the post's links is hovered — the cover image,
+   the title itself, or READ MORE. :has lets the sibling links (before and
+   after the title) reach back to it. */
 .post-row__title a:hover,
-.post-row__title a:focus-visible { color: var(--accent); }
+.post-row__title a:focus-visible,
+.post-row:has(.post-row__media:hover) .post-row__title a,
+.post-row:has(.post-row__more:hover) .post-row__title a { color: var(--accent); }
 .post-row__excerpt {
   color: var(--ink-soft);
   /* Size matches the single-post body (.prose) / landing content. Fills the
@@ -1840,7 +1871,10 @@ body.single .page-title {
   max-width: 90ch;
 }
 .post-row__more {
-  display: inline-block;
+  /* .post-row is a column flexbox, so a plain flex item stretches full-width
+     and the whole line becomes the hit area. align-self shrinks it to the
+     text so only the words "READ MORE →" react. */
+  align-self: flex-start;
   margin-top: 1.1rem;
   font-family: var(--font-mono);
   font-size: 0.76rem;
@@ -1850,8 +1884,10 @@ body.single .page-title {
   text-decoration: none;
   transition: color var(--t-fast);
 }
+/* Stays bright on hover — override the global `a:hover { color: --ink }`.
+   Only the arrow drifts. */
+.post-row__more:hover { color: var(--accent); }
 .post-row__more::after { content: " \2192"; transition: margin var(--t-fast); }
-.post-row__more:hover { color: var(--ink); }
 .post-row__more:hover::after { margin-left: 6px; }
 
 .entry { background: transparent; }
