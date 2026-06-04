@@ -468,11 +468,13 @@
   });
 
   /* ---- Slide-in drawer for Terms / Subscribe -----------------------------
-     Footer [data-drawer] links load their target page's content into a
-     right-hand drawer instead of navigating. The real pages stay the
-     canonical, shareable, no-JS fallback. Handles focus trap, Esc, scrim,
-     scroll-lock, browser Back, and a graceful fallback to full navigation if
-     the fetch fails. */
+     The drawer is pure URL-hash state, just like the #home/#about section nav:
+     #terms / #subscribe open the matching drawer, anything else closes it, and
+     `hashchange` drives the whole thing. A click sets the hash; closing is
+     history.back() (so the previous hash, e.g. #about, comes back for free).
+     The link href stays the real /terms/ page — it's both the content source
+     the panel fetches and the no-JS fallback. Adds focus trap, Esc, scrim,
+     scroll-lock, and a graceful fallback to the real page if the fetch fails. */
   (function initDrawer() {
     var triggers = Array.prototype.slice.call(
       document.querySelectorAll("[data-drawer]")
@@ -490,14 +492,17 @@
       document.querySelector(".to-top")
     ].filter(Boolean);
 
+    // The drawer is pure hash state, exactly like the #home/#about/#contact
+    // section nav: the hash decides what's open, hashchange drives it, and
+    // closing is just history.back() — which returns to whatever hash was there
+    // before (e.g. #about) on its own. No bespoke history bookkeeping.
     var isOpen = false;
     var lastFocus = null;
-    var pushed = false;
-    var hashMode = false; // opened via a #terms / #subscribe deep link
+    var closing = false; // guards against a double history.back() (e.g. Esc×2)
     var reqId = 0;
 
-    // The last path segment of a URL, lower-cased: "/terms/" → "terms". Used to
-    // pair a trigger with its hash so #terms ↔ the /terms/ link.
+    // The last path segment of a URL, lower-cased: "/terms/" → "terms". Pairs a
+    // trigger with its hash so #terms ↔ the /terms/ link.
     function slugOf(href) {
       return href
         .replace(/[?#].*$/, "")
@@ -507,8 +512,7 @@
         .toLowerCase();
     }
 
-    // Map a URL hash (#terms) to the matching trigger, so shared/clicked deep
-    // links open the right drawer.
+    // Map the current URL hash (#terms) to the matching trigger, or null.
     function triggerForHash() {
       var h = location.hash.replace(/^#/, "").toLowerCase();
       if (!h) return null;
@@ -594,39 +598,27 @@
         });
     }
 
-    function open(href, label, trigger, viaHash) {
-      if (isOpen) {
-        // Already open — just swap in the new page's content. No history change:
-        // the single same-URL entry from the first open() still backs Esc/Back.
-        load(href, label);
-        requestAnimationFrame(function () { panel.focus(); });
-        return;
+    // Fetch + show the page named by a trigger; opens the panel if needed, or
+    // just swaps the content when already open.
+    function show(trigger) {
+      if (!isOpen) {
+        isOpen = true;
+        closing = false;
+        lastFocus = trigger || document.activeElement;
+        drawer.hidden = false;
+        void drawer.offsetWidth; // reflow so the open transition runs
+        drawer.classList.add("is-open");
+        body.classList.add("drawer-open");
+        setInert(true);
       }
-      isOpen = true;
-      hashMode = !!viaHash;
-      lastFocus = trigger || document.activeElement;
-      drawer.hidden = false;
-      void drawer.offsetWidth; // reflow so the open transition runs
-      drawer.classList.add("is-open");
-      body.classList.add("drawer-open");
-      setInert(true);
-      // In-site clicks: push a history entry WITHOUT changing the URL, so Back
-      // (and our own close) can pop it to close the drawer while a refresh
-      // reloads the page the visitor was on — a transient overlay, not a nav.
-      // Deep links (#terms): the hash entry already represents the open drawer
-      // and stays in the URL so the link is shareable and survives a refresh;
-      // closing strips the hash back to the bare path (see requestClose).
-      if (!viaHash && history.pushState) {
-        history.pushState({ alphaDrawer: true }, "");
-        pushed = true;
-      }
-      load(href, label);
+      load(trigger.getAttribute("href"), trigger.textContent.trim());
       requestAnimationFrame(function () { panel.focus(); });
     }
 
     function closeUI() {
       if (!isOpen) return;
       isOpen = false;
+      closing = false;
       drawer.classList.remove("is-open");
       body.classList.remove("drawer-open");
       setInert(false);
@@ -651,38 +643,38 @@
       }
     }
 
-    // Manual close (button / scrim / Esc).
+    // The drawer's open state mirrors the hash: #terms/#subscribe → that drawer,
+    // anything else → closed. Driven by load, click (below), and hashchange.
+    function applyHash() {
+      var t = triggerForHash();
+      if (t) show(t);
+      else if (isOpen) closeUI();
+    }
+
+    // Close = go back one entry. Whatever hash preceded the drawer (e.g. #about,
+    // or nothing) is restored by the browser; the resulting hashchange closes
+    // the UI. `closing` stops a repeated Esc/click from popping twice.
     function requestClose() {
-      if (hashMode) {
-        // Strip the deep-link hash so the address bar returns to the bare path
-        // (e.g. "/") — replaceState avoids a history hop and an extra entry.
-        hashMode = false;
-        if (history.replaceState) {
-          history.replaceState(null, "", location.pathname + location.search);
-        }
-        closeUI();
-      } else if (pushed && history.state && history.state.alphaDrawer) {
-        // Rewind the entry we pushed; popstate → closeUI returns the address bar.
-        history.back();
-      } else {
-        closeUI();
-      }
+      if (!isOpen || closing) return;
+      closing = true;
+      history.back();
     }
 
     triggers.forEach(function (a) {
       a.addEventListener("click", function (e) {
         // Let modified / non-primary clicks navigate to the real page (new tab).
         if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return;
-        var seg = slugOf(a.getAttribute("href"));
-        if (!seg) return; // can't derive a slug → let it navigate
+        var slug = slugOf(a.getAttribute("href"));
+        if (!slug) return; // can't derive a slug → let it navigate
         e.preventDefault();
-        // Route the click through the hash (#terms) so the drawer is shareable
-        // and survives a refresh; the hashchange handler opens it. The href
-        // stays the real page as the no-JS fallback.
-        if (location.hash.replace(/^#/, "").toLowerCase() === seg) {
-          syncFromHash(); // hash already set but drawer closed — force open
+        if (isOpen) {
+          // Already open — swap in place without stacking a history entry.
+          if (history.replaceState) history.replaceState(null, "", "#" + slug);
+          applyHash();
+        } else if (location.hash.replace(/^#/, "").toLowerCase() === slug) {
+          applyHash(); // hash already matches but closed → open
         } else {
-          location.hash = seg;
+          location.hash = slug; // pushes an entry; hashchange opens the drawer
         }
       });
     });
@@ -718,26 +710,19 @@
       }
     });
 
-    window.addEventListener("popstate", function () {
-      pushed = false;
-      hashMode = false;
-      if (isOpen) closeUI();
-    });
+    window.addEventListener("hashchange", applyHash);
 
-    // Deep links: a shared #terms / #subscribe URL (e.g. heera.it/#terms) opens
-    // the drawer over whatever page loaded — typically home. Runs on load and
-    // whenever the hash changes (Back/forward, manual edits).
-    function syncFromHash() {
-      var t = triggerForHash();
-      if (t) {
-        // open() opens when closed, or swaps content when already open.
-        open(t.getAttribute("href"), t.textContent.trim(), t, true);
-      } else if (isOpen && hashMode) {
-        hashMode = false;
-        closeUI();
+    // A shared/deep-link #terms URL (e.g. heera.it/#terms) opens the drawer over
+    // whatever page loaded. If that hash is the very first history entry, slip a
+    // hash-free entry in behind it so closing (Back) returns to the page instead
+    // of leaving the site.
+    if (triggerForHash()) {
+      if (history.replaceState) {
+        var h = location.hash;
+        history.replaceState(null, "", location.pathname + location.search);
+        history.pushState(null, "", h);
       }
+      applyHash();
     }
-    window.addEventListener("hashchange", syncFromHash);
-    syncFromHash();
   })();
 })();
