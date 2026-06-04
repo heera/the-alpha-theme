@@ -57,7 +57,7 @@ $readers = array(
 				<label class="subscribe__feed-label" for="subscribe-feed-url"><?php esc_html_e( 'RSS feed URL', 'the-alpha' ); ?></label>
 				<div class="subscribe__feed-row">
 					<input id="subscribe-feed-url" class="subscribe__feed-input" type="text" readonly value="<?php echo esc_attr( $feed_url ); ?>">
-					<button type="button" class="subscribe__copy btn btn--ghost" data-copy-target="#subscribe-feed-url" aria-label="<?php esc_attr_e( 'Copy feed URL', 'the-alpha' ); ?>">
+					<button type="button" class="subscribe__copy btn btn--ghost" data-copy-target="#subscribe-feed-url" data-copied-label="<?php esc_attr_e( 'Copied', 'the-alpha' ); ?>" aria-label="<?php esc_attr_e( 'Copy feed URL', 'the-alpha' ); ?>">
 						<span class="subscribe__copy-label"><?php esc_html_e( 'Copy', 'the-alpha' ); ?></span>
 					</button>
 				</div>
@@ -91,34 +91,8 @@ $readers = array(
 		</div>
 	</article>
 </div>
-
-<script>
-(function () {
-	var btn = document.querySelector('.subscribe__copy');
-	if (!btn) return;
-	var target = document.querySelector(btn.getAttribute('data-copy-target'));
-	var label  = btn.querySelector('.subscribe__copy-label');
-	var orig   = label ? label.textContent : 'Copy';
-	btn.addEventListener('click', function () {
-		if (!target) return;
-		target.select();
-		target.setSelectionRange(0, 99999);
-		var done = function () {
-			if (!label) return;
-			label.textContent = '<?php echo esc_js( __( 'Copied', 'the-alpha' ) ); ?>';
-			btn.classList.add('is-copied');
-			setTimeout(function () {
-				label.textContent = orig;
-				btn.classList.remove('is-copied');
-			}, 1600);
-		};
-		if (navigator.clipboard && navigator.clipboard.writeText) {
-			navigator.clipboard.writeText(target.value).then(done, function () { document.execCommand('copy'); done(); });
-		} else {
-			try { document.execCommand('copy'); done(); } catch (e) {}
-		}
-	});
-})();
-</script>
 <?php
+/* The copy-to-clipboard handler lives in theme.js as a delegated listener so
+ * it also works when this page's content is loaded into the footer drawer
+ * (injected HTML never runs its own inline <script>). */
 get_footer();

@@ -1655,12 +1655,19 @@ h1, h2, h3, h4 {
   letter-spacing: 0.2em;
   text-transform: uppercase;
   line-height: 1.95;
-  /* Grow the tap target past the 24px WCAG 2.5.8 minimum. The negative margin
-     cancels the padding's layout effect so the baseline grid above is
-     untouched — only the hit area expands. */
-  display: inline-block;
-  padding-block: 0.35rem;
-  margin-block: -0.35rem;
+  /* The tap target is grown with a transparent ::after overlay (below) rather
+     than padding. Padding made the box — and therefore the :focus-visible ring
+     — taller than the line rhythm, so the ring spilled onto the next link. With
+     no padding the ring hugs the text exactly like the left column's "powered
+     by" link, while the overlay still expands the hit area past the 24px
+     WCAG 2.5.8 minimum. */
+  position: relative;
+}
+.site-footer__rss::after,
+.site-footer__terms::after {
+  content: "";
+  position: absolute;
+  inset: -0.34rem -0.4rem;
 }
 .site-footer__rss-slug { color: var(--ink-soft); letter-spacing: 0.12em; }
 .socials--footer { justify-content: flex-end; }
@@ -1710,13 +1717,17 @@ h1, h2, h3, h4 {
   align-items: start;
 }
 .content-grid--narrow { grid-template-columns: minmax(0, 1fr); max-width: 820px; }
-/* Pages (Terms, Privacy, Subscribe, About-style static pages) get a
-   wider content area so they fill the main column instead of feeling
-   like a cramped letterbox. Title aligns with content via the same cap
-   on .page-head .wrap. */
+/* Static pages (Terms, Privacy, Subscribe, …) share ONE contained, left-aligned
+   reading column so they look consistent. The column is a touch wider than the
+   old 68ch prose measure but far from the full main width, and the title +
+   .page-head .wrap use the same cap so the heading lines up with the body.
+   The body fills the column (no 68ch margin-auto recentre) so it sits directly
+   under the title instead of floating in a centred block with a left gutter. */
 body.page .content-grid--narrow,
-body.page .content-grid--single { max-width: 1400px; }
-body.page .page-head .wrap { max-width: 1400px; }
+body.page .content-grid--single { max-width: 900px; }
+body.page .page-head .wrap { max-width: 900px; }
+body.page .content-grid--narrow .prose,
+body.page .content-grid--single .prose { max-width: none; margin-inline: 0; }
 body.page .page-title {
   font-size: clamp(1.8rem, 1.2rem + 1.8vw, 2.6rem);
   letter-spacing: -0.01em;
@@ -2555,6 +2566,113 @@ body.single .page-title {
 }
 .bypostauthor > .comment-body { border-color: color-mix(in srgb, var(--accent) 40%, var(--border)); }
 .says { display: none; }
+
+/* ----- Terms / Subscribe drawer ------------------------------------------
+   Slide-in panel loaded by theme.js from the footer [data-drawer] links.
+   Hidden (display:none) until JS reveals it, so it costs nothing when JS is
+   off — the links just navigate to the real pages. */
+.drawer { position: fixed; inset: 0; z-index: 200; }
+.drawer[hidden] { display: none; }
+/* While opening/closing (not fully open) let clicks fall through rather than
+   trapping them behind the fading scrim. */
+.drawer:not(.is-open) { pointer-events: none; }
+.drawer__scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(2, 4, 6, 0.62);
+  opacity: 0;
+  transition: opacity var(--t);
+}
+.drawer.is-open .drawer__scrim { opacity: 1; }
+.drawer__panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: min(560px, 94vw);
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  border-left: 1px solid var(--border);
+  box-shadow: -24px 0 70px -28px rgba(0, 0, 0, 0.7);
+  transform: translateX(100%);
+  transition: transform var(--t);
+  will-change: transform;
+}
+.drawer.is-open .drawer__panel { transform: none; }
+.drawer__panel:focus { outline: none; }
+/* Keep the panel clear of the WordPress admin bar when it's present. */
+.admin-bar .drawer__panel { top: 32px; height: calc(100% - 32px); }
+
+.drawer__bar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0.9rem clamp(1.2rem, 0.8rem + 2vw, 2rem);
+  border-bottom: 1px solid var(--border);
+}
+.drawer__close {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: color var(--t-fast), border-color var(--t-fast), background var(--t-fast);
+}
+.drawer__close:hover,
+.drawer__close:focus-visible { color: var(--accent); border-color: var(--accent); }
+.drawer__scroll {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding: clamp(1.5rem, 1rem + 2vw, 2.4rem) clamp(1.2rem, 0.8rem + 2vw, 2rem)
+    calc(2.4rem + env(safe-area-inset-bottom, 0px));
+}
+.drawer__title {
+  margin: 0 0 1.3rem;
+  font-family: var(--font-display);
+  color: var(--ink-head);
+  font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.1rem);
+  letter-spacing: -0.01em;
+}
+.drawer__title:focus { outline: none; }
+.drawer__content { max-width: none; }
+/* The Subscribe page centres its content full-height; inside the drawer it's
+   just a normal flowing block. */
+.drawer__content.subscribe { min-height: 0; display: block; }
+/* Spinner shown while the page content is being fetched. */
+.drawer.is-loading .drawer__content::after {
+  content: "";
+  display: block;
+  width: 26px;
+  height: 26px;
+  margin: 2.4rem auto;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: drawer-spin 0.7s linear infinite;
+}
+@keyframes drawer-spin { to { transform: rotate(360deg); } }
+body.drawer-open { overflow: hidden; }
+/* Phones: full-bleed panel — no sliver of background to the left. */
+@media (max-width: 600px) {
+  .drawer__panel { width: 100%; border-left: 0; }
+}
+@media (max-width: 782px) {
+  .admin-bar .drawer__panel { top: 46px; height: calc(100% - 46px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .drawer__scrim, .drawer__panel { transition: none; }
+  .drawer.is-loading .drawer__content::after { animation: none; }
+}
 
 /* ----- Responsive --------------------------------------------------------- */
 @media (max-width: 1024px) {

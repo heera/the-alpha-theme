@@ -1,5 +1,6 @@
-/* The Alpha — ~3 KB, no dependencies, deferred.
-   Theme toggle · mobile nav · scroll-spy · progress · reveal · quote rotator. */
+/* The Alpha — no dependencies, deferred.
+   Theme toggle · mobile nav · scroll-spy · progress · reveal · quote rotator ·
+   copy buttons · Terms/Subscribe drawer. */
 (function () {
   "use strict";
 
@@ -189,9 +190,12 @@
           });
           // Mirror the active section into the URL hash without
           // polluting browser history (replaceState, not pushState).
+          // Skip while a drawer is open so a deep-link hash (e.g. #terms)
+          // isn't clobbered by the section behind the overlay.
           if (
             history.replaceState &&
-            location.hash !== "#" + id
+            location.hash !== "#" + id &&
+            !body.classList.contains("drawer-open")
           ) {
             history.replaceState(null, "", "#" + id);
           }
@@ -426,4 +430,314 @@
     var metaRow = document.querySelector(".post-meta-single");
     (metaRow || body).appendChild(focusBtn);
   }
+
+  /* ---- Subscribe feed-URL copy button -----------------------------------
+     Delegated on document so it works both on the /subscribe/ page and when
+     that page's content is loaded into the footer drawer (injected HTML never
+     runs its own inline <script>). */
+  document.addEventListener("click", function (e) {
+    var btn = e.target.closest && e.target.closest(".subscribe__copy");
+    if (!btn) return;
+    var row = btn.closest(".subscribe__feed-row");
+    var input = row
+      ? row.querySelector("input")
+      : document.querySelector(btn.getAttribute("data-copy-target"));
+    if (!input) return;
+    var label = btn.querySelector(".subscribe__copy-label");
+    var orig = label ? label.textContent : "Copy";
+    var copied = btn.getAttribute("data-copied-label") || "Copied";
+    var done = function (ok) {
+      if (label && ok) label.textContent = copied;
+      btn.classList.toggle("is-copied", ok);
+      setTimeout(function () {
+        if (label) label.textContent = orig;
+        btn.classList.remove("is-copied");
+      }, 1600);
+    };
+    input.focus();
+    input.select();
+    input.setSelectionRange(0, 99999);
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(input.value).then(
+        function () { done(true); },
+        function () { done(fallbackCopy(input.value)); }
+      );
+    } else {
+      done(fallbackCopy(input.value));
+    }
+  });
+
+  /* ---- Slide-in drawer for Terms / Subscribe -----------------------------
+     Footer [data-drawer] links load their target page's content into a
+     right-hand drawer instead of navigating. The real pages stay the
+     canonical, shareable, no-JS fallback. Handles focus trap, Esc, scrim,
+     scroll-lock, browser Back, and a graceful fallback to full navigation if
+     the fetch fails. */
+  (function initDrawer() {
+    var triggers = Array.prototype.slice.call(
+      document.querySelectorAll("[data-drawer]")
+    );
+    var drawer = document.getElementById("site-drawer");
+    if (!triggers.length || !drawer) return;
+
+    var panel = drawer.querySelector(".drawer__panel");
+    var titleEl = drawer.querySelector(".drawer__title");
+    var contentEl = drawer.querySelector(".drawer__content");
+    var scrollEl = drawer.querySelector(".drawer__scroll");
+    var inertEls = [
+      document.querySelector(".layout"),
+      document.querySelector(".site-footer"),
+      document.querySelector(".to-top")
+    ].filter(Boolean);
+
+    var isOpen = false;
+    var lastFocus = null;
+    var pushed = false;
+    var hashMode = false; // opened via a #terms / #subscribe deep link
+    var reqId = 0;
+
+    // The last path segment of a URL, lower-cased: "/terms/" → "terms". Used to
+    // pair a trigger with its hash so #terms ↔ the /terms/ link.
+    function slugOf(href) {
+      return href
+        .replace(/[?#].*$/, "")
+        .replace(/\/+$/, "")
+        .split("/")
+        .pop()
+        .toLowerCase();
+    }
+
+    // Map a URL hash (#terms) to the matching trigger, so shared/clicked deep
+    // links open the right drawer.
+    function triggerForHash() {
+      var h = location.hash.replace(/^#/, "").toLowerCase();
+      if (!h) return null;
+      for (var i = 0; i < triggers.length; i++) {
+        if (slugOf(triggers[i].getAttribute("href")) === h) return triggers[i];
+      }
+      return null;
+    }
+
+    // Track the current input modality. We only return focus to the trigger
+    // (which paints a focus ring) when the visitor is driving by keyboard —
+    // where that ring is wanted. After a mouse/touch close, restoring focus
+    // would flash an unwanted ring on the footer link, so we skip it.
+    var keyboardMode = false;
+    document.addEventListener("keydown", function () { keyboardMode = true; }, true);
+    document.addEventListener("pointerdown", function () { keyboardMode = false; }, true);
+
+    function setInert(on) {
+      inertEls.forEach(function (el) {
+        if (on) el.setAttribute("inert", "");
+        else el.removeAttribute("inert");
+      });
+    }
+
+    function focusables() {
+      return Array.prototype.slice
+        .call(
+          panel.querySelectorAll(
+            'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'
+          )
+        )
+        .filter(function (el) {
+          return el.offsetWidth || el.offsetHeight || el === document.activeElement;
+        });
+    }
+
+    function load(href, fallbackTitle) {
+      var id = ++reqId;
+      drawer.classList.add("is-loading");
+      panel.setAttribute("aria-busy", "true");
+      contentEl.className = "drawer__content prose";
+      contentEl.innerHTML = "";
+      titleEl.textContent = fallbackTitle || "";
+      fetch(href, {
+        credentials: "same-origin",
+        headers: { "X-Requested-With": "fetch" }
+      })
+        .then(function (r) {
+          if (!r.ok) throw new Error("HTTP " + r.status);
+          return r.text();
+        })
+        .then(function (html) {
+          if (id !== reqId) return; // a newer open() superseded this load
+          var doc = new DOMParser().parseFromString(html, "text/html");
+          var article = doc.querySelector(".content-grid .entry");
+          var bodyEl = doc.querySelector(".content-grid .prose");
+          var titleSrc = doc.querySelector(".page-title");
+          if (!bodyEl) throw new Error("No content");
+          var name = titleSrc ? titleSrc.textContent.trim() : fallbackTitle || "";
+          titleEl.textContent = name;
+          // Carry the page-specific class (e.g. .subscribe) so its scoped
+          // styles apply; .drawer__content.subscribe neutralises the page's
+          // full-height centring (see main.css).
+          if (article && article.classList.contains("subscribe")) {
+            contentEl.classList.add("subscribe");
+          }
+          contentEl.innerHTML = bodyEl.innerHTML;
+          drawer.classList.remove("is-loading");
+          panel.removeAttribute("aria-busy");
+          scrollEl.scrollTop = 0;
+        })
+        .catch(function () {
+          if (id !== reqId) return;
+          drawer.classList.remove("is-loading");
+          panel.removeAttribute("aria-busy");
+          var link = document.createElement("p");
+          var a = document.createElement("a");
+          a.href = href;
+          a.textContent = "Open the page →";
+          link.appendChild(document.createTextNode("Couldn’t load this here. "));
+          link.appendChild(a);
+          contentEl.appendChild(link);
+        });
+    }
+
+    function open(href, label, trigger, viaHash) {
+      if (isOpen) {
+        // Already open — just swap in the new page's content. No history change:
+        // the single same-URL entry from the first open() still backs Esc/Back.
+        load(href, label);
+        requestAnimationFrame(function () { panel.focus(); });
+        return;
+      }
+      isOpen = true;
+      hashMode = !!viaHash;
+      lastFocus = trigger || document.activeElement;
+      drawer.hidden = false;
+      void drawer.offsetWidth; // reflow so the open transition runs
+      drawer.classList.add("is-open");
+      body.classList.add("drawer-open");
+      setInert(true);
+      // In-site clicks: push a history entry WITHOUT changing the URL, so Back
+      // (and our own close) can pop it to close the drawer while a refresh
+      // reloads the page the visitor was on — a transient overlay, not a nav.
+      // Deep links (#terms): the hash entry already represents the open drawer
+      // and stays in the URL so the link is shareable and survives a refresh;
+      // closing strips the hash back to the bare path (see requestClose).
+      if (!viaHash && history.pushState) {
+        history.pushState({ alphaDrawer: true }, "");
+        pushed = true;
+      }
+      load(href, label);
+      requestAnimationFrame(function () { panel.focus(); });
+    }
+
+    function closeUI() {
+      if (!isOpen) return;
+      isOpen = false;
+      drawer.classList.remove("is-open");
+      body.classList.remove("drawer-open");
+      setInert(false);
+      var hide = function () { drawer.hidden = true; };
+      if (reduceMotion) {
+        hide();
+      } else {
+        var done = false;
+        var fin = function () {
+          if (done) return;
+          done = true;
+          hide();
+        };
+        panel.addEventListener("transitionend", fin, { once: true });
+        setTimeout(fin, 420); // fallback if transitionend doesn't fire
+      }
+      // Return focus to the trigger for keyboard users; for mouse/touch the
+      // hidden panel drops focus to the body on its own, so no ring flashes on
+      // the footer link.
+      if (keyboardMode && lastFocus && document.contains(lastFocus)) {
+        lastFocus.focus();
+      }
+    }
+
+    // Manual close (button / scrim / Esc).
+    function requestClose() {
+      if (hashMode) {
+        // Strip the deep-link hash so the address bar returns to the bare path
+        // (e.g. "/") — replaceState avoids a history hop and an extra entry.
+        hashMode = false;
+        if (history.replaceState) {
+          history.replaceState(null, "", location.pathname + location.search);
+        }
+        closeUI();
+      } else if (pushed && history.state && history.state.alphaDrawer) {
+        // Rewind the entry we pushed; popstate → closeUI returns the address bar.
+        history.back();
+      } else {
+        closeUI();
+      }
+    }
+
+    triggers.forEach(function (a) {
+      a.addEventListener("click", function (e) {
+        // Let modified / non-primary clicks navigate to the real page (new tab).
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return;
+        var seg = slugOf(a.getAttribute("href"));
+        if (!seg) return; // can't derive a slug → let it navigate
+        e.preventDefault();
+        // Route the click through the hash (#terms) so the drawer is shareable
+        // and survives a refresh; the hashchange handler opens it. The href
+        // stays the real page as the no-JS fallback.
+        if (location.hash.replace(/^#/, "").toLowerCase() === seg) {
+          syncFromHash(); // hash already set but drawer closed — force open
+        } else {
+          location.hash = seg;
+        }
+      });
+    });
+
+    drawer.addEventListener("click", function (e) {
+      if (e.target.closest("[data-drawer-close]")) requestClose();
+    });
+
+    document.addEventListener("keydown", function (e) {
+      if (!isOpen) return;
+      if (e.key === "Escape") {
+        e.preventDefault();
+        requestClose();
+        return;
+      }
+      if (e.key === "Tab") {
+        var f = focusables();
+        if (!f.length) {
+          e.preventDefault();
+          panel.focus();
+          return;
+        }
+        var first = f[0];
+        var last = f[f.length - 1];
+        var active = document.activeElement;
+        if (e.shiftKey && (active === first || active === panel)) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && active === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    });
+
+    window.addEventListener("popstate", function () {
+      pushed = false;
+      hashMode = false;
+      if (isOpen) closeUI();
+    });
+
+    // Deep links: a shared #terms / #subscribe URL (e.g. heera.it/#terms) opens
+    // the drawer over whatever page loaded — typically home. Runs on load and
+    // whenever the hash changes (Back/forward, manual edits).
+    function syncFromHash() {
+      var t = triggerForHash();
+      if (t) {
+        // open() opens when closed, or swaps content when already open.
+        open(t.getAttribute("href"), t.textContent.trim(), t, true);
+      } else if (isOpen && hashMode) {
+        hashMode = false;
+        closeUI();
+      }
+    }
+    window.addEventListener("hashchange", syncFromHash);
+    syncFromHash();
+  })();
 })();
