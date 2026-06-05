@@ -34,9 +34,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<p><?php esc_html_e( 'Outside of work stuff, you’re welcome to reach out — but fair warning, I run on my own clock. A quick call first is a good idea. Dropping by is fine too, just don’t expect military precision. Punctuality? Not exactly my superpower.', 'the-alpha' ); ?></p>
 				<ul class="contact__list">
 					<li><span><?php esc_html_e( 'Dial', 'the-alpha' ); ?></span><a class="js-tel" data-p="Kzg4MCAxNzE3IDU0MjYwOA==" href="#" aria-label="<?php esc_attr_e( 'Reveal phone number', 'the-alpha' ); ?>"><?php esc_html_e( 'Tap to call', 'the-alpha' ); ?></a></li>
-					<li><span><?php esc_html_e( 'Personal', 'the-alpha' ); ?></span><a href="mailto:mail@heera.it">mail@heera.it</a></li>
-					<li><span><?php esc_html_e( 'Company', 'the-alpha' ); ?></span><a href="mailto:heera@authlab.io">heera@authlab.io</a></li>
-					<li><span><?php esc_html_e( 'Public', 'the-alpha' ); ?></span><a href="mailto:heera.sheikh77@gmail.com">heera.sheikh77@gmail.com</a></li>
+					<li><span><?php esc_html_e( 'Personal', 'the-alpha' ); ?></span><a class="js-mail" data-m="bWFpbEBoZWVyYS5pdA==" href="#" aria-label="<?php esc_attr_e( 'Reveal email address', 'the-alpha' ); ?>"><?php esc_html_e( 'Tap to email', 'the-alpha' ); ?></a></li>
+					<li><span><?php esc_html_e( 'Company', 'the-alpha' ); ?></span><a class="js-mail" data-m="aGVlcmFAYXV0aGxhYi5pbw==" href="#" aria-label="<?php esc_attr_e( 'Reveal email address', 'the-alpha' ); ?>"><?php esc_html_e( 'Tap to email', 'the-alpha' ); ?></a></li>
+					<li><span><?php esc_html_e( 'Public', 'the-alpha' ); ?></span><a class="js-mail" data-m="aGVlcmEuc2hlaWtoNzdAZ21haWwuY29t" href="#" aria-label="<?php esc_attr_e( 'Reveal email address', 'the-alpha' ); ?>"><?php esc_html_e( 'Tap to email', 'the-alpha' ); ?></a></li>
 					<li><span><?php esc_html_e( 'Hideout', 'the-alpha' ); ?></span><a href="https://maps.app.goo.gl/Lfb2kVSmxukend5f7" target="_blank" rel="noopener">14 Duel, Masimpur (Modern Bari), Sylhet &mdash; 3100</a></li>
 					<li><span><?php esc_html_e( 'Hours', 'the-alpha' ); ?></span><?php esc_html_e( 'I live by mood, not the clock — calls may go unanswered', 'the-alpha' ); ?></li>
 				</ul>

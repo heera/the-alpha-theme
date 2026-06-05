@@ -57,8 +57,9 @@ $readers = array(
 				<label class="subscribe__feed-label" for="subscribe-feed-url"><?php esc_html_e( 'RSS feed URL', 'the-alpha' ); ?></label>
 				<div class="subscribe__feed-row">
 					<input id="subscribe-feed-url" class="subscribe__feed-input" type="text" readonly value="<?php echo esc_attr( $feed_url ); ?>">
-					<button type="button" class="subscribe__copy btn btn--ghost" data-copy-target="#subscribe-feed-url" data-copied-label="<?php esc_attr_e( 'Copied', 'the-alpha' ); ?>" aria-label="<?php esc_attr_e( 'Copy feed URL', 'the-alpha' ); ?>">
-						<span class="subscribe__copy-label"><?php esc_html_e( 'Copy', 'the-alpha' ); ?></span>
+					<button type="button" class="subscribe__copy btn btn--ghost" data-copy-target="#subscribe-feed-url" title="<?php esc_attr_e( 'Copy feed URL', 'the-alpha' ); ?>" aria-label="<?php esc_attr_e( 'Copy feed URL', 'the-alpha' ); ?>">
+						<svg class="subscribe__copy-icon subscribe__copy-icon--copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>
+						<svg class="subscribe__copy-icon subscribe__copy-icon--check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
 					</button>
 				</div>
 			</div>

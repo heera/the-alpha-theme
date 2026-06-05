@@ -315,8 +315,7 @@
   /* ---- Phone-number reveal ----------------------------------------------
      Numbers live base64-encoded in `data-p` so the raw HTML has no `tel:`
      prefix and no continuous digit run — cheap regex harvesters bounce.
-     JS decodes on load and writes both the visible text and the tel: href.
-     If JS fails (rare), the email rows below are still usable. */
+     JS decodes on load and writes both the visible text and the tel: href. */
   document.querySelectorAll("a.js-tel").forEach(function (a) {
     var enc = a.getAttribute("data-p");
     if (!enc) return;
@@ -325,6 +324,20 @@
     a.setAttribute("href", "tel:" + pretty.replace(/\s+/g, ""));
     a.setAttribute("aria-label", pretty);
     a.textContent = pretty;
+  });
+
+  /* ---- Email reveal ------------------------------------------------------
+     Same idea as the phone reveal: addresses live base64-encoded in `data-m`
+     so the raw HTML carries no `@`/`mailto:` for harvesters to scrape. JS
+     decodes on load and writes both the visible text and the mailto: href. */
+  document.querySelectorAll("a.js-mail").forEach(function (a) {
+    var enc = a.getAttribute("data-m");
+    if (!enc) return;
+    var addr;
+    try { addr = atob(enc); } catch (e) { return; }
+    a.setAttribute("href", "mailto:" + addr);
+    a.setAttribute("aria-label", addr);
+    a.textContent = addr;
   });
 
   /* ---- Copy button on code blocks --------------------------------------- */
