@@ -74,13 +74,28 @@ if ( ! defined( 'ABSPATH' ) ) {
 					</p>
 				</div>
 
+				<?php
+				// Social manifest — real, clickable identity links rendered as a
+				// monospace "credentials" block (terminal motif, see main.css).
+				$socials = array(
+					array( 'k' => 'Stack Overflow', 'v' => '/the-alpha',    'href' => 'https://stackoverflow.com/users/741747/the-alpha' ),
+					array( 'k' => 'Facebook',       'v' => '/sheikh.heera',  'href' => 'https://www.facebook.com/sheikh.heera' ),
+					array( 'k' => 'LinkedIn',       'v' => '/sheikh-heera',  'href' => 'https://www.linkedin.com/in/sheikh-heera' ),
+					array( 'k' => 'X (Twitter)',    'v' => '/@heerasheikh',  'href' => 'https://x.com/heerasheikh' ),
+					array( 'k' => 'GitHub',         'v' => '/heera',         'href' => 'https://github.com/heera' ),
+					array( 'k' => 'Pinterest',      'v' => '/sheikhheera',   'href' => 'https://www.pinterest.com/sheikhheera' ),
+				);
+				?>
+				<p class="about__links-label"><?php esc_html_e( 'Find me', 'the-alpha' ); ?></p>
 				<ul class="about__links" role="list">
-					<li><span class="k">Stack Overflow:</span> <span class="v">/the-alpha</span></li>
-					<li><span class="k">Facebook:</span> <span class="v">/sheikh.heera</span></li>
-					<li><span class="k">LinkedIn:</span> <span class="v">/sheikh-heera</span></li>
-					<li><span class="k">X (Twitter):</span> <span class="v">/@heerasheikh</span></li>
-					<li><span class="k">GitHub:</span> <span class="v">/heera</span></li>
-					<li><span class="k">Pinterest:</span> <span class="v">/sheikhheera</span></li>
+					<?php foreach ( $socials as $s ) : ?>
+						<li>
+							<a class="about__link" href="<?php echo esc_url( $s['href'] ); ?>" target="_blank" rel="me noopener">
+								<span class="k"><?php echo esc_html( $s['k'] ); ?>:</span>
+								<span class="v"><?php echo esc_html( $s['v'] ); ?></span>
+							</a>
+						</li>
+					<?php endforeach; ?>
 				</ul>
 			</div>
 		</div>

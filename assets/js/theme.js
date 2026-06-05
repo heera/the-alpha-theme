@@ -254,6 +254,37 @@
     });
   }
 
+  /* ---- Portrait scanner sweep trigger -----------------------------------
+     The one-shot scan + AUTHORIZED is its own trigger, NOT the generic .reveal
+     `.in` class: that class is also applied by the safety-net sweep() above to
+     anything already scrolled past (e.g. you land then jump straight to a lower
+     section — About is now above the viewport and gets `.in` while off-screen),
+     which would burn the one-shot animation before it's ever seen. Gating it on
+     `.scanned` — added ONLY on a genuine viewport intersection, with no sweep
+     fallback (it's decorative) — means the sweep plays the first time the
+     portrait is actually looked at, whichever way you arrive at About. */
+  var aboutGrid = document.querySelector(".about__grid");
+  if (aboutGrid) {
+    if (!("IntersectionObserver" in window)) {
+      aboutGrid.classList.add("scanned");
+    } else {
+      var scanObs = new IntersectionObserver(
+        function (entries, obs) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("scanned");
+              obs.unobserve(entry.target);
+            }
+          });
+        },
+        // ~30% of the portrait on screen before the beam fires, so it reads as
+        // "you arrived at the frame" rather than triggering from a 1px sliver.
+        { threshold: 0.3 }
+      );
+      scanObs.observe(aboutGrid);
+    }
+  }
+
   /* ---- Scroll progress + back-to-top ------------------------------------- */
   var bar = document.querySelector(".scroll-progress");
   var toTop = document.querySelector(".to-top");
@@ -339,6 +370,58 @@
     a.setAttribute("aria-label", addr);
     a.textContent = addr;
   });
+
+  /* ---- Office availability live tick -------------------------------------
+     The status is rendered correct server-side; this just keeps it honest if
+     the page stays open across an open/close boundary. Reads the schedule from
+     data-* and evaluates "now" in the office timezone via Intl, so it doesn't
+     depend on the visitor's own clock. Only the dot + primary label update —
+     the schedule line and any reopen hint are left as the server set them. */
+  var statusEl = document.querySelector(".contact__status[data-tz]");
+  if (statusEl) {
+    var stTz = statusEl.getAttribute("data-tz");
+    var stOpen = parseInt(statusEl.getAttribute("data-open"), 10);
+    var stClose = parseInt(statusEl.getAttribute("data-close"), 10);
+    var stTextEl = statusEl.querySelector(".contact__status-text");
+    var stLabelOpen = statusEl.getAttribute("data-label-open") || "Available now";
+    var stLabelAway = statusEl.getAttribute("data-label-away") || "Away";
+    var stLabelHoliday = statusEl.getAttribute("data-label-holiday") || "Holiday";
+    var stHolidays = (statusEl.getAttribute("data-holidays") || "")
+      .split(",").filter(Boolean);
+    var stWeekdays = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+    var officeState = function () {
+      var parts = new Intl.DateTimeFormat("en-US", {
+        timeZone: stTz, weekday: "short", year: "numeric", month: "2-digit",
+        day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false
+      }).formatToParts(new Date());
+      var m = {};
+      parts.forEach(function (p) { m[p.type] = p.value; });
+      var ymd = m.year + "-" + m.month + "-" + m.day;
+      var holiday = stHolidays.indexOf(ymd) !== -1;
+      var mins = (parseInt(m.hour, 10) % 24) * 60 + parseInt(m.minute, 10);
+      var inHours = stWeekdays.indexOf(m.weekday) !== -1 && !holiday &&
+        mins >= stOpen * 60 && mins < stClose * 60;
+      return { open: inHours, holiday: holiday };
+    };
+    var stTick = function () {
+      var s = officeState();
+      statusEl.classList.toggle("is-open", s.open);
+      statusEl.classList.toggle("is-closed", !s.open);
+      if (stTextEl) {
+        stTextEl.textContent = s.open ? stLabelOpen
+          : (s.holiday ? stLabelHoliday : stLabelAway);
+      }
+    };
+    stTick();
+    // Recompute every minute for an open tab, and immediately whenever the page
+    // is shown again — background tabs get their timers throttled, so this keeps
+    // someone who left the page open across closing time from seeing a stale
+    // "Available now" when they return.
+    setInterval(stTick, 60000);
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState === "visible") stTick();
+    });
+  }
 
   /* ---- Copy button on code blocks --------------------------------------- */
   /* Adds a "Copy" button to every <pre> inside post content. Uses the

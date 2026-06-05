@@ -1098,8 +1098,10 @@ h1, h2, h3, h4 {
 /* One-shot scanner sweep: a soft horizontal beam (bright core + halo) that
    travels once down the portrait when the About grid reveals into view, then
    fades out — animating the "acquiring subject" metaphor the frame implies.
-   Hidden by default and at rest; only the .in trigger + no-reduced-motion plays
-   it (the JS reveal observer adds .in to .about__grid; theme.js:217). */
+   Hidden by default and at rest; only the .scanned trigger + no-reduced-motion
+   plays it (a dedicated JS observer adds .scanned to .about__grid the first time
+   the portrait genuinely enters the viewport — see the scanner trigger block in
+   theme.js, kept off the generic .reveal `.in` so the sweep can't burn it). */
 .portrait__scan {
   position: absolute;
   left: 0;
@@ -1121,7 +1123,7 @@ h1, h2, h3, h4 {
   );
 }
 @media (prefers-reduced-motion: no-preference) {
-  .about__grid.in .portrait__scan {
+  .about__grid.scanned .portrait__scan {
     /* top animates % of the portrait (its containing block), so the beam sweeps
        from just above the frame to just below it regardless of frame height. */
     animation: portrait-scan 1.7s cubic-bezier(0.4, 0, 0.2, 1) 0.35s 1 forwards;
@@ -1156,7 +1158,7 @@ h1, h2, h3, h4 {
   );
 }
 @media (prefers-reduced-motion: no-preference) {
-  .about__grid.in .portrait::after {
+  .about__grid.scanned .portrait::after {
     /* runs across the sweep + decide beat, fading to 0 as AUTHORIZED locks in. */
     animation: portrait-interference 2.05s ease-out 0.35s 1 forwards;
   }
@@ -1198,10 +1200,10 @@ h1, h2, h3, h4 {
 }
 /* Reduced motion: no sweep/flicker — just present the confirmation on reveal. */
 @media (prefers-reduced-motion: reduce) {
-  .about__grid.in .portrait__auth { opacity: 0.85; }
+  .about__grid.scanned .portrait__auth { opacity: 0.85; }
 }
 @media (prefers-reduced-motion: no-preference) {
-  .about__grid.in .portrait__auth {
+  .about__grid.scanned .portrait__auth {
     /* delay = ~2.05s sweep (0.35s + 1.7s) + a ~0.35s "deciding" beat, then the
        word TYPES in left-to-right via a stepped clip-path wipe — one step per
        letter (AUTHORIZED = 10) — like a terminal printing it out. `both` keeps
@@ -1243,17 +1245,29 @@ h1, h2, h3, h4 {
   margin-bottom: 1.1rem;
 }
 
+/* Eyebrow that frames the social grid as a terminal output block — the `//`
+   prefix matches the site's other mono labels. */
+.about__links-label {
+  margin: 1.7rem 0 0.7rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+.about__links-label::before { content: "// "; color: var(--accent); }
+
 .about__links {
   list-style: none;
   padding: 0;
-  margin: 1.7rem 0 0;
+  margin: 0;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.55rem 1rem;
   font-family: var(--font-mono);
   font-size: 0.82rem;
 }
-.about__links li {
+.about__link {
   display: flex;
   align-items: baseline;
   gap: 0.5rem;
@@ -1262,16 +1276,39 @@ h1, h2, h3, h4 {
   border-radius: var(--radius-sm);
   background: var(--surface-2);
   color: var(--ink-soft);
+  text-decoration: none;
+  transition: border-color var(--t-fast), background var(--t-fast);
 }
-.about__links li::before {
+.about__link::before {
+  /* hollow node at rest → fills on hover/focus, echoing the portrait's
+     "subject acquired" scanner beat. */
   content: "\25CB";
   color: var(--accent);
   font-size: 0.7em;
   line-height: 1;
   transform: translateY(-1px);
 }
+.about__link:hover,
+.about__link:focus-visible {
+  border-color: var(--accent);
+  background: var(--surface);
+  outline: none;
+}
+.about__link:hover::before,
+.about__link:focus-visible::before { content: "\25CF"; }
 .about__links .k { color: var(--ink); font-weight: 600; }
-.about__links .v { color: var(--accent); }
+.about__links .v {
+  color: var(--accent);
+  /* accent hairline wipes in under the handle on hover — same interaction
+     language as the contact rows. */
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size var(--t-fast);
+}
+.about__link:hover .v,
+.about__link:focus-visible .v { background-size: 100% 1px; }
 
 /* Fragrance subsection — full-width, single column. Atmosphere lives on
    #about (below) so it bleeds continuously across the whole section. */
@@ -1752,7 +1789,10 @@ h1, h2, h3, h4 {
   letter-spacing: -0.01em;
   color: var(--ink-head);
 }
-.contact__list li span {
+/* Label = the row's FIRST span only. Scoped to the direct first child so it
+   never bleeds onto value-side spans (e.g. the Hours status badge nests its
+   own spans inside the row). */
+.contact__list li > span:first-child {
   font-family: var(--font-mono);
   font-size: 0.68rem;
   letter-spacing: 0.1em;
@@ -1766,16 +1806,51 @@ h1, h2, h3, h4 {
 .contact__list li a {
   color: var(--ink-head);
   text-decoration: none;
-  background-image: linear-gradient(var(--accent), var(--accent));
-  background-size: 0% 1px;
-  background-position: 0 100%;
-  background-repeat: no-repeat;
-  transition: color var(--t-fast), background-size var(--t-fast);
+  transition: color var(--t-fast);
 }
-.contact__list li a:hover {
-  color: var(--accent);
-  background-size: 100% 1px;
+.contact__list li a:hover { color: var(--accent); }
+/* Office "Hours" row carries a live availability badge above the schedule —
+   computed server-side from Asia/Dhaka time, kept honest by a JS tick. The
+   node mirrors the About manifest's ○ / ● language: filled + softly lit when
+   open, hollow + dimmed when away. No pulsing — it's a state, not a beacon. */
+.contact__hours {
+  /* status badge + schedule flow on one line; the compact size keeps both in a
+     single row inside a half-width card, wrapping only on very narrow phones. */
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.1rem 0.5rem;
+  font-size: 0.72rem;
 }
+.contact__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.contact__status-dot {
+  flex-shrink: 0;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  transition: background var(--t-fast), box-shadow var(--t-fast);
+}
+.contact__status.is-open { color: var(--accent); }
+.contact__status.is-open .contact__status-dot {
+  background: var(--accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+.contact__status.is-closed { color: var(--ink-dim); }
+.contact__status.is-closed .contact__status-dot { background: transparent; }
+.contact__status-detail {
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink-dim);
+}
+.contact__hours-sched { color: var(--ink-soft); }
 /* Light mode: full-strength dividers read as a table/form grid on cream.
    Soften them so the rows separate as quietly as they do in dark mode. */
 [data-theme="light"] .contact__list li {
