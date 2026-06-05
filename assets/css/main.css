@@ -1177,7 +1177,8 @@ h1, h2, h3, h4 {
    instrument-style, anchored near the baked-in bracket, pairing with the
    lower-left coords as a left data column (the bottom serial stays the single
    centred element). Hidden until the scan clears, then types in left-to-right. */
-.portrait__auth {
+.portrait__auth,
+.portrait__authing {
   position: absolute;
   top: clamp(0.5rem, 0.3rem + 1vw, 1rem);
   /* inset from the left edge, with a rem floor so it clears the corner on
@@ -1214,6 +1215,23 @@ h1, h2, h3, h4 {
 @keyframes portrait-type {
   from { clip-path: inset(0 100% 0 0); opacity: 0.85; }
   to   { clip-path: inset(0 0 0 0);    opacity: 0.85; }
+}
+
+/* "Authorizing…" — the in-progress status that rides the sweep. It fades in as
+   the beam starts, holds (a touch dimmer than the final tag, reading as "still
+   working"), then fades out at ~2.4s, exactly as the AUTHORIZED tag begins
+   typing in — so the HUD resolves from working → confirmed without a gap or
+   overlap. Motion only; reduced-motion users skip straight to the confirmation. */
+@media (prefers-reduced-motion: no-preference) {
+  .about__grid.scanned .portrait__authing {
+    animation: portrait-authing 2.05s ease-out 0.35s 1 both;
+  }
+}
+@keyframes portrait-authing {
+  0%   { opacity: 0; }
+  12%  { opacity: 0.6; }
+  82%  { opacity: 0.6; }
+  100% { opacity: 0; }
 }
 
 .bio p {

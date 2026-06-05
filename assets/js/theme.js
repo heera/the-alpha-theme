@@ -258,31 +258,51 @@
      The scan + AUTHORIZED is its own trigger, NOT the generic .reveal `.in`
      class: that class is also applied by the safety-net sweep() above to
      anything already scrolled past, which would burn the animation off-screen.
-     Instead we gate on `.scanned`, RE-ARMED on each visit: add it when the
-     portrait is genuinely on screen (≥35% visible = "you arrived at the
-     frame"), and remove it once the grid has fully left the viewport. So the
-     beam replays whenever you come back to About — including scrolling up from
-     the bottom — but won't flicker while you're sitting on the section. */
+     We want the sweep to play only when you actually LAND on About — arriving
+     there and stopping, from any direction (scrolling down, scrolling up, or a
+     nav-anchor click) — NOT while merely passing through it on the way to
+     Contact. So instead of firing the instant the frame crosses a visibility
+     threshold, we wait for scrolling to SETTLE and then check whether the
+     portrait is parked in the viewport (straddling its vertical middle, or
+     mostly on screen). ONCE-PER-LOAD: after it plays we stop listening; a
+     refresh / new page load arms it again. */
   var aboutGrid = document.querySelector(".about__grid");
   if (aboutGrid) {
-    if (!("IntersectionObserver" in window)) {
+    var portrait = aboutGrid.querySelector(".portrait") || aboutGrid;
+
+    var landed = function () {
+      var r = portrait.getBoundingClientRect();
+      var vh = window.innerHeight || document.documentElement.clientHeight;
+      if (r.height === 0) return false;
+      var mid = vh / 2;
+      // Parked here if the portrait straddles the viewport's middle, or at
+      // least half of it (capped to viewport height) is on screen.
+      var onScreen = Math.min(r.bottom, vh) - Math.max(r.top, 0);
+      var ratio = onScreen / Math.min(r.height, vh);
+      return (r.top <= mid && r.bottom >= mid) || ratio >= 0.5;
+    };
+
+    var fire = function () {
       aboutGrid.classList.add("scanned");
-    } else {
-      var scanObs = new IntersectionObserver(
-        function (entries) {
-          entries.forEach(function (entry) {
-            if (entry.isIntersecting && entry.intersectionRatio >= 0.35) {
-              entry.target.classList.add("scanned");
-            } else if (!entry.isIntersecting) {
-              // fully out of view → re-arm so the next arrival plays again.
-              entry.target.classList.remove("scanned");
-            }
-          });
-        },
-        { threshold: [0, 0.35] }
-      );
-      scanObs.observe(aboutGrid);
-    }
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+
+    var settleTimer = null;
+    var onScroll = function () {
+      if (settleTimer) clearTimeout(settleTimer);
+      // Fire only after scrolling has paused (~200ms) AND we ended up on About,
+      // so a smooth-scroll/flick that passes through About never burns it.
+      settleTimer = setTimeout(function () {
+        if (landed()) fire();
+      }, 200);
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    // Cover the case where the page loads already parked on About (refresh
+    // mid-page, or a #about deep link) — no scroll event would fire otherwise.
+    onScroll();
   }
 
   /* ---- Scroll progress + back-to-top ------------------------------------- */

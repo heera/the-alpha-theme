@@ -39,7 +39,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 					width="880" height="880" loading="lazy" decoding="async">
 					<?php // One-shot scanner sweep, fired by .about__grid.in (see main.css). ?>
 					<span class="portrait__scan" aria-hidden="true"></span>
-					<?php // "AUTHORIZED" confirmation, fades in after the sweep (see main.css). ?>
+					<?php // HUD status: "Authorizing…" rides the sweep, then resolves into the typed "Authorized" (see main.css). ?>
+					<span class="portrait__authing" aria-hidden="true"><?php echo esc_html_x( 'Authorizing&hellip;', 'portrait HUD scan in progress', 'the-alpha' ); ?></span>
 					<span class="portrait__auth" aria-hidden="true"><?php echo esc_html_x( 'Authorized', 'portrait HUD scan confirmation', 'the-alpha' ); ?></span>
 				<?php
 				// Cryptic HUD readout overlaid on the photo: each digit of the year (see bio
