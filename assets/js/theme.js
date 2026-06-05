@@ -284,12 +284,12 @@
 
     var fire = function () {
       aboutGrid.classList.add("scanned");
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      window.removeEventListener("scroll", onScanScroll);
+      window.removeEventListener("resize", onScanScroll);
     };
 
     var settleTimer = null;
-    var onScroll = function () {
+    var onScanScroll = function () {
       if (settleTimer) clearTimeout(settleTimer);
       // Fire only after scrolling has paused (~200ms) AND we ended up on About,
       // so a smooth-scroll/flick that passes through About never burns it.
@@ -298,11 +298,11 @@
       }, 200);
     };
 
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll, { passive: true });
+    window.addEventListener("scroll", onScanScroll, { passive: true });
+    window.addEventListener("resize", onScanScroll, { passive: true });
     // Cover the case where the page loads already parked on About (refresh
     // mid-page, or a #about deep link) — no scroll event would fire otherwise.
-    onScroll();
+    onScanScroll();
   }
 
   /* ---- Scroll progress + back-to-top ------------------------------------- */
