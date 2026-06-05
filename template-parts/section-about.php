@@ -37,6 +37,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 					sizes="(max-width: 760px) 92vw, 340px"
 					alt="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>"
 					width="880" height="880" loading="lazy" decoding="async">
+					<?php // One-shot scanner sweep, fired by .about__grid.in (see main.css). ?>
+					<span class="portrait__scan" aria-hidden="true"></span>
+					<?php // "AUTHORIZED" confirmation, fades in after the sweep (see main.css). ?>
+					<span class="portrait__auth" aria-hidden="true"><?php echo esc_html_x( 'Authorized', 'portrait HUD scan confirmation', 'the-alpha' ); ?></span>
+				<?php
+				// Cryptic HUD readout overlaid on the photo: each digit of the year (see bio
+				// below), is encoded as its own 8-bit byte, echoing the artwork's baked-in scanner
+				// motif: 1 9 7 7 -> 00000001 00001001 00000111 00000111.
+				$since_year = 1977;
+				?>
+				<span class="portrait__code"
+					aria-label="<?php /* translators: %d: year. */ printf( esc_attr__( 'Since %d', 'the-alpha' ), $since_year ); ?>">
+					<?php echo esc_html( implode( '-', array_map( static function ( $d ) { return str_pad( decbin( (int) $d ), 8, '0', STR_PAD_LEFT ); }, str_split( (string) $since_year ) ) ) ); ?>
+				</span>
 			</figure>
 
 			<div>

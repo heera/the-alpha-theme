@@ -74,11 +74,15 @@
      spread small so it reads as a lit tube, not a soft bloom. */
   --portrait-glow:
     0 0 1px 0 rgba(94, 230, 208, 0.85),
-    0 0 3px 0 rgba(94, 230, 208, 0.6),
-    0 0 8px 0 rgba(94, 230, 208, 0.4);
+    0 0 2.5px 0 rgba(94, 230, 208, 0.55),
+    0 0 6.5px 0 rgba(94, 230, 208, 0.32);
   /* Frame fill behind the contain-fitted portrait — matches the photo's dark
      studio edge so the small top/bottom letterbox bands blend in (no black). */
   --portrait-bg: #0e1014;
+  /* Colour of the CSS HUD readout (the binary "coding since" string) overlaid
+     on the photo. Same bright mint as the glow so it reads as one lit system;
+     a hair more transparent so it sits quietly against the studio dark. */
+  --portrait-hud: rgba(94, 230, 208, 0.72);
   /* Fragrance ambient atmospherics — luminous warm-white wash, faint
      cool rim, drifting pale haze. Tones pulled close to white so the
      gradient lifts the deep bg as light rather than colour. Alphas
@@ -148,12 +152,15 @@
      terracotta accent can't, so its bright amber relative carries the bloom
      and stays vibrant. No spread, just a soft bloom. */
   --portrait-glow:
-    0 0 2px 0 rgba(214, 170, 90, 0.9),
-    0 0 3px 0 rgba(214, 170, 90, 0.65),
-    0 0 8px 0 rgba(207, 155, 79, 0.45);
+    0 0 1.5px 0 rgba(214, 170, 90, 0.9),
+    0 0 2.5px 0 rgba(214, 170, 90, 0.6),
+    0 0 6.5px 0 rgba(207, 155, 79, 0.38);
   /* Band fill = the portrait's near-black edge run through the light-mode
      --portrait-filter, so the contain letterbox blends instead of going black. */
   --portrait-bg: #282724;
+  /* HUD readout in light mode: warm amber (the glow's light sibling) so the
+     overlaid binary string stays legible against the lifted charcoal photo. */
+  --portrait-hud: rgba(214, 170, 90, 0.82);
   /* Editorial warm-paper version — bright cream wash that brightens
      the paper bg without tinting it heavily. Ember kept light + smoky so it
      dissolves into the paper instead of reading as a corner glow; the longer
@@ -1003,6 +1010,9 @@ h1, h2, h3, h4 {
   margin-bottom: -4px;
   border-radius: var(--radius);
   overflow: hidden;
+  /* Query container so the binary readout can be sized in cqw and span almost
+     the full frame width at any viewport (see .portrait__code). */
+  container-type: inline-size;
   border: 1px solid var(--border);
   background: var(--portrait-bg, #0e1014);
   /* Teal accent lighting around the image. Fixed BRIGHT mint (not the theme
@@ -1040,6 +1050,168 @@ h1, h2, h3, h4 {
   object-fit: contain;
   object-position: 50% 50%;
   filter: var(--portrait-filter, var(--img-filter));
+}
+/* Binary "coding since 1995" readout overlaid on the photo, centred along the
+   TOP edge like a scanner header. Sits above the image but below the pressed-
+   edge ::before (z-index 3) so the frame's recess still reads on top. Sized in
+   cqw against the portrait container so the 11-digit string spans almost the
+   full frame width at any viewport. The trailing letter-spacing is trimmed off
+   the transform so the string stays optically centred. */
+.portrait__code {
+  position: absolute;
+  /* Anchored to the BOTTOM as a telemetry-style footer serial: it rides over
+     the dark shirt (low detail) and keeps the smoky top negative space clean.
+     Inset is clamped in rem so it stays clear of the baked-in bottom brackets
+     at any frame height. */
+  bottom: clamp(0.5rem, 0.3rem + 1vw, 1rem);
+  /* Span the full frame and centre the line so the serial never gets
+     width-clamped (and wrapped) the way a left:50% box would. */
+  left: 0;
+  right: 0;
+  z-index: 2;
+  margin: 0;
+  /* Dashes separate the four 8-bit groups (one per year digit), so the whole
+     thing reads as one cryptic serial; centre it on a single line. */
+  text-align: center;
+  white-space: nowrap;
+  font-family: ui-monospace, "SFMono-Regular", "Cascadia Code", Menlo, Consolas, monospace;
+  /* 2.2cqw is the validated value; because cqw tracks the portrait's own width
+     it holds the same proportion on every device, so smaller frames get a
+     proportionally smaller serial automatically. The rem floor/ceiling are
+     scaled to match 2.2cqw and only engage at true extremes (tiny phone / huge
+     monitor) so it never collapses to unreadable nor balloons. */
+  font-size: clamp(0.34rem, 2.2cqw, 0.58rem);
+  /* Thin + dim so the readout reads as a quiet telemetry footer, not a bold
+     neon billboard fighting the fine baked-in HUD. */
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  line-height: 1;
+  color: var(--portrait-hud);
+  opacity: 0.82;
+  /* Soft, low bloom only — no hard 1px core, so the thin strokes stay airy
+     rather than reading as solid lit tubes. */
+  text-shadow: 0 0 0.5em var(--portrait-hud);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* One-shot scanner sweep: a soft horizontal beam (bright core + halo) that
+   travels once down the portrait when the About grid reveals into view, then
+   fades out — animating the "acquiring subject" metaphor the frame implies.
+   Hidden by default and at rest; only the .in trigger + no-reduced-motion plays
+   it (the JS reveal observer adds .in to .about__grid; theme.js:217). */
+.portrait__scan {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -10%;
+  height: 10%;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+  /* Beam: a crisp bright core with a tight falloff above/below so it reads as a
+     thin lit scan line, not a hard bar. Built from the theme HUD colour. */
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    color-mix(in srgb, var(--portrait-hud) 28%, transparent) 44%,
+    var(--portrait-hud) 50%,
+    color-mix(in srgb, var(--portrait-hud) 28%, transparent) 56%,
+    transparent
+  );
+}
+@media (prefers-reduced-motion: no-preference) {
+  .about__grid.in .portrait__scan {
+    /* top animates % of the portrait (its containing block), so the beam sweeps
+       from just above the frame to just below it regardless of frame height. */
+    animation: portrait-scan 1.7s cubic-bezier(0.4, 0, 0.2, 1) 0.35s 1 forwards;
+  }
+}
+@keyframes portrait-scan {
+  0%   { top: -10%; opacity: 0; }
+  14%  { opacity: 1; }
+  86%  { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+
+/* Ultra-subtle analog scan interference: fine horizontal lines that flicker
+   faintly ONLY while the beam sweeps, then vanish — the "device is working"
+   texture. Peaks ~0.05 opacity on purpose, so it reads as a passing artifact,
+   not a permanent scanline overlay (staying clear of HUD overload). */
+.portrait::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  /* above the photo, below the beam (2) and the pressed-edge ::before (3) */
+  z-index: 1;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 2px,
+    color-mix(in srgb, var(--portrait-hud) 45%, transparent) 2px,
+    color-mix(in srgb, var(--portrait-hud) 45%, transparent) 3px
+  );
+}
+@media (prefers-reduced-motion: no-preference) {
+  .about__grid.in .portrait::after {
+    /* runs across the sweep + decide beat, fading to 0 as AUTHORIZED locks in. */
+    animation: portrait-interference 2.05s ease-out 0.35s 1 forwards;
+  }
+}
+@keyframes portrait-interference {
+  0%   { opacity: 0; }
+  12%  { opacity: 0.05; }
+  22%  { opacity: 0.015; }
+  40%  { opacity: 0.045; }
+  58%  { opacity: 0.02; }
+  74%  { opacity: 0.035; }
+  100% { opacity: 0; }
+}
+
+/* "AUTHORIZED" confirmation: a small dim STATUS TAG in the top-left corner —
+   instrument-style, anchored near the baked-in bracket, pairing with the
+   lower-left coords as a left data column (the bottom serial stays the single
+   centred element). Hidden until the scan clears, then types in left-to-right. */
+.portrait__auth {
+  position: absolute;
+  top: clamp(0.5rem, 0.3rem + 1vw, 1rem);
+  /* inset from the left edge, with a rem floor so it clears the corner on
+     small frames; width is shrink-to-fit so clip-path can wipe it open. */
+  left: max(0.7rem, 7%);
+  right: auto;
+  z-index: 2;
+  white-space: nowrap;
+  font-family: ui-monospace, "SFMono-Regular", "Cascadia Code", Menlo, Consolas, monospace;
+  font-size: clamp(0.4rem, 2.4cqw, 0.62rem);
+  font-weight: 400;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  line-height: 1;
+  color: var(--portrait-hud);
+  text-shadow: 0 0 0.5em var(--portrait-hud);
+  pointer-events: none;
+  user-select: none;
+  opacity: 0;
+}
+/* Reduced motion: no sweep/flicker — just present the confirmation on reveal. */
+@media (prefers-reduced-motion: reduce) {
+  .about__grid.in .portrait__auth { opacity: 0.85; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .about__grid.in .portrait__auth {
+    /* delay = ~2.05s sweep (0.35s + 1.7s) + a ~0.35s "deciding" beat, then the
+       word TYPES in left-to-right via a stepped clip-path wipe — one step per
+       letter (AUTHORIZED = 10) — like a terminal printing it out. `both` keeps
+       it clipped (hidden) through the delay so it never flashes early. */
+    animation: portrait-type 0.66s steps(10, end) 2.4s 1 both;
+  }
+}
+@keyframes portrait-type {
+  from { clip-path: inset(0 100% 0 0); opacity: 0.85; }
+  to   { clip-path: inset(0 0 0 0);    opacity: 0.85; }
 }
 
 .bio p {
