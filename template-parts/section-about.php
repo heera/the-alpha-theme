@@ -114,6 +114,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 						echo '<span class="chip">' . esc_html( $note ) . '</span>';
 					}
 					echo esc_html__( ' — layered with incense, drifting smoke, and the kind of resin that hangs in a room long after you leave it.', 'the-alpha' );
+					// Fragrantica woven into the fragrance prose (not the About
+					// "Find me" developer-identity grid). Worded as a presence —
+					// the public wardrobe there isn't kept current.
+					printf(
+						/* translators: %s: linked "Fragrantica" profile. */
+						' ' . wp_kses( __( 'You&rsquo;ll also find me over on %s.', 'the-alpha' ), array() ),
+						'<a class="frag__profile-link" href="' . esc_url( 'https://www.fragrantica.com/member/1374163' ) . '" target="_blank" rel="me noopener">' . esc_html__( 'Fragrantica', 'the-alpha' ) . '</a>'
+					);
 					?>
 				</p>
 			</div>

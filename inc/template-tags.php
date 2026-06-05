@@ -80,6 +80,10 @@ function the_alpha_socials() {
 		'fragrantica'   => array(
 			'label' => 'Fragrantica',
 			'url'   => 'https://www.fragrantica.com/member/1374163',
+			// Kept here so the profile still feeds the JSON-LD sameAs signal
+			// (see functions.php), but hidden from the visible icon row — it
+			// gets a contextual home in the About fragrance copy instead.
+			'hidden' => true,
 			// Official Fragrantica hummingbird mark; carries its own 0 0 100 100
 			// viewBox + fill-rule (bird is negative space), so it ships as full
 			// inline SVG rather than the shared 24x24 single-path template.
@@ -97,6 +101,11 @@ function the_alpha_social_links( $classname = 'socials' ) {
 	$socials = the_alpha_socials();
 	echo '<ul class="' . esc_attr( $classname ) . '">';
 	foreach ( $socials as $key => $s ) {
+		// Entries flagged 'hidden' stay in the data (for sameAs / SEO) but
+		// are not rendered as visible icons.
+		if ( ! empty( $s['hidden'] ) ) {
+			continue;
+		}
 		// Most entries carry an 'icon' path drawn into a shared 24x24 svg;
 		// an entry may instead supply ready-made 'svg' markup (e.g. a brand
 		// mark with its own viewBox). Both are theme-authored, not user input.

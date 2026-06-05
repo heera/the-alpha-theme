@@ -1364,6 +1364,15 @@ h1, h2, h3, h4 {
   background: linear-gradient(to left, var(--accent), transparent);
   opacity: 0.65;
 }
+/* The trailing hairline sits over the dark bakhoor photo. In light mode the
+   accent is a dark terracotta — dark-on-dark, so it vanishes. Use a brighter
+   warm tone, full opacity, and a slightly thicker line so it stays legible
+   against the photo. */
+[data-theme="light"] .frag__quote::after {
+  opacity: 1;
+  height: 2px;
+  background: linear-gradient(to left, #e89a63, transparent);
+}
 /* Let frag paragraphs span the full text-column width so they wrap into
    fewer lines (text reaches the bottles instead of capping at 60ch). */
 .frag .lede { max-width: none; }
@@ -1376,6 +1385,11 @@ h1, h2, h3, h4 {
   text-transform: uppercase;
   font-size: clamp(1.35rem, 0.9rem + 1.4vw, 1.95rem);
 }
+/* Inline Fragrantica link woven into the fragrance prose — matches the bio
+   prose-link treatment (accent underline, accent on hover). */
+.frag__profile-link { color: var(--ink); border-bottom: 1px solid var(--accent); }
+.frag__profile-link:hover { color: var(--accent); }
+
 .tags-inline { margin-top: 1.2rem; display: flex; flex-wrap: wrap; gap: 0.5rem; }
 .chip {
   /* Inline note terms — distinguished by mono font only; same colour as
