@@ -255,31 +255,31 @@
   }
 
   /* ---- Portrait scanner sweep trigger -----------------------------------
-     The one-shot scan + AUTHORIZED is its own trigger, NOT the generic .reveal
-     `.in` class: that class is also applied by the safety-net sweep() above to
-     anything already scrolled past (e.g. you land then jump straight to a lower
-     section — About is now above the viewport and gets `.in` while off-screen),
-     which would burn the one-shot animation before it's ever seen. Gating it on
-     `.scanned` — added ONLY on a genuine viewport intersection, with no sweep
-     fallback (it's decorative) — means the sweep plays the first time the
-     portrait is actually looked at, whichever way you arrive at About. */
+     The scan + AUTHORIZED is its own trigger, NOT the generic .reveal `.in`
+     class: that class is also applied by the safety-net sweep() above to
+     anything already scrolled past, which would burn the animation off-screen.
+     Instead we gate on `.scanned`, RE-ARMED on each visit: add it when the
+     portrait is genuinely on screen (≥35% visible = "you arrived at the
+     frame"), and remove it once the grid has fully left the viewport. So the
+     beam replays whenever you come back to About — including scrolling up from
+     the bottom — but won't flicker while you're sitting on the section. */
   var aboutGrid = document.querySelector(".about__grid");
   if (aboutGrid) {
     if (!("IntersectionObserver" in window)) {
       aboutGrid.classList.add("scanned");
     } else {
       var scanObs = new IntersectionObserver(
-        function (entries, obs) {
+        function (entries) {
           entries.forEach(function (entry) {
-            if (entry.isIntersecting) {
+            if (entry.isIntersecting && entry.intersectionRatio >= 0.35) {
               entry.target.classList.add("scanned");
-              obs.unobserve(entry.target);
+            } else if (!entry.isIntersecting) {
+              // fully out of view → re-arm so the next arrival plays again.
+              entry.target.classList.remove("scanned");
             }
           });
         },
-        // ~30% of the portrait on screen before the beam fires, so it reads as
-        // "you arrived at the frame" rather than triggering from a 1px sliver.
-        { threshold: 0.3 }
+        { threshold: [0, 0.35] }
       );
       scanObs.observe(aboutGrid);
     }
