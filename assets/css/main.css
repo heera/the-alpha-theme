@@ -1984,7 +1984,8 @@ h1, h2, h3, h4 {
   /* Maintain the original footer footprint after removing the center brand
      block — keeps the top edge aligned with the sidebar's socials row. */
   min-height: 11rem;
-  border-top: 1px solid var(--border);
+  position: relative;   /* anchors the accent hairline + centre node */
+  border-top: 0;        /* replaced by the gradient hairline on ::before */
   background: var(--bg-2);
   display: grid;
   /* Two clean columns: utility info left, utility links right. */
@@ -1995,6 +1996,57 @@ h1, h2, h3, h4 {
      (~7.5:1 both themes); --ink-dim sits at ~3.3–3.8:1 and fails on this
      small text. */
   color: var(--ink-soft);
+}
+/* Footer top edge — a faint accent hairline that fades out toward the sides
+   and glows toward a small node at the centre (theme-aware via --accent). */
+.site-footer::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  /* wide accent band glowing out from the centre, fading to a faint border at
+     the sides and to nothing at the very edges. */
+  /* accent glow extends well out to both sides, brightest at the centre,
+     dissolving to nothing at the very edges. */
+  background: linear-gradient(to right,
+    transparent 0%,
+    color-mix(in srgb, var(--accent) 30%, transparent) 12%,
+    color-mix(in srgb, var(--accent) 60%, transparent) 30%,
+    color-mix(in srgb, var(--accent) 95%, transparent) 50%,
+    color-mix(in srgb, var(--accent) 60%, transparent) 70%,
+    color-mix(in srgb, var(--accent) 30%, transparent) 88%,
+    transparent 100%);
+  pointer-events: none;
+}
+.site-footer::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  margin-left: -2px;
+  border-radius: 50%;
+  background: var(--accent);
+  /* small node core with a layered bloom (tight → medium → soft halo); sized to
+     match the section-seam nodes, with a tighter glow radius. */
+  box-shadow:
+    0 0 4px 1px color-mix(in srgb, var(--accent) 92%, transparent),
+    0 0 9px 2px color-mix(in srgb, var(--accent) 48%, transparent),
+    0 0 18px 4px color-mix(in srgb, var(--accent) 22%, transparent);
+  pointer-events: none;
+}
+/* Light mode: a soft halo reads as a muddy stain on the cream (a glow only
+   reads as light against a dark surface), so the node becomes a crisp dot with
+   just a tight glow — clean rather than smudged. */
+[data-theme="light"] .site-footer::after {
+  width: 4px;
+  height: 4px;
+  margin-left: -2px;
+  top: -2px;
+  box-shadow: 0 0 4px 1px color-mix(in srgb, var(--accent) 45%, transparent);
 }
 .site-footer a { color: var(--ink-soft); transition: color var(--t-fast); }
 .site-footer a:hover { color: var(--accent); }
