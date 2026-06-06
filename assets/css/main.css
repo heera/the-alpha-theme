@@ -1019,7 +1019,14 @@ h1, h2, h3, h4 {
      --glow): these effects sit against the dark photo, so the deep-teal
      light-mode accent was invisible (dark on dark). Bright mint reads on the
      photo edge in both schemes. Pressed walls are on ::before. */
-  box-shadow: var(--portrait-glow);
+  /* Clean, even edge glow — the original tight HUD-tinted halo, no heavy bezel
+     or bloom. A subtle grounding shadow (light only) seats the card on the
+     cream surface so it doesn't float; dark sits on dark and needs none. */
+  --portrait-ground: 0 0 0 0 transparent;
+  box-shadow: var(--portrait-glow), var(--portrait-ground);
+}
+[data-theme="light"] .portrait {
+  --portrait-ground: 0 16px 34px -20px rgba(40, 31, 22, 0.28);
 }
 /* Subtle, even pressed-in feel layered above the photo: a soft recess shadow
    from the top and a faint 1px lift at the bottom. No thick bright lip and no
@@ -1126,14 +1133,16 @@ h1, h2, h3, h4 {
   .about__grid.scanned .portrait__scan {
     /* top animates % of the portrait (its containing block), so the beam sweeps
        from just above the frame to just below it regardless of frame height. */
-    animation: portrait-scan 1.7s cubic-bezier(0.4, 0, 0.2, 1) 0.35s 1 forwards;
+    animation: portrait-scan 2.8s cubic-bezier(0.45, 0, 0.55, 1) 0.35s 1 forwards;
   }
 }
 @keyframes portrait-scan {
   0%   { top: -10%; opacity: 0; }
-  14%  { opacity: 1; }
-  86%  { opacity: 1; }
-  100% { top: 100%; opacity: 0; }
+  8%   { opacity: 1; }
+  44%  { top: 100%; opacity: 1; }   /* sweep down to just below the frame */
+  52%  { top: 100%; opacity: 1; }   /* brief dwell at the bottom */
+  92%  { top: -10%; opacity: 1; }   /* sweep back up to the top */
+  100% { top: -10%; opacity: 0; }
 }
 
 /* Ultra-subtle analog scan interference: fine horizontal lines that flicker
@@ -1205,11 +1214,11 @@ h1, h2, h3, h4 {
 }
 @media (prefers-reduced-motion: no-preference) {
   .about__grid.scanned .portrait__auth {
-    /* delay = ~2.05s sweep (0.35s + 1.7s) + a ~0.35s "deciding" beat, then the
-       word TYPES in left-to-right via a stepped clip-path wipe — one step per
-       letter (AUTHORIZED = 10) — like a terminal printing it out. `both` keeps
-       it clipped (hidden) through the delay so it never flashes early. */
-    animation: portrait-type 0.66s steps(10, end) 2.4s 1 both;
+    /* delay = ~3.15s round-trip sweep (0.35s + 2.8s) + a short "deciding" beat,
+       then the identity TYPES in left-to-right via a stepped clip-path wipe —
+       one step per monospace char (THE ALPHA = 9) — like a terminal printing
+       it out. `both` keeps it clipped through the delay so it never flashes. */
+    animation: portrait-type 0.7s steps(9, end) 3.3s 1 both;
   }
 }
 @keyframes portrait-type {
@@ -1219,12 +1228,12 @@ h1, h2, h3, h4 {
 
 /* "Authorizing…" — the in-progress status that rides the sweep. It fades in as
    the beam starts, holds (a touch dimmer than the final tag, reading as "still
-   working"), then fades out at ~2.4s, exactly as the AUTHORIZED tag begins
+   working"), then fades out at ~3.15s, exactly as the AUTHORIZED tag begins
    typing in — so the HUD resolves from working → confirmed without a gap or
    overlap. Motion only; reduced-motion users skip straight to the confirmation. */
 @media (prefers-reduced-motion: no-preference) {
   .about__grid.scanned .portrait__authing {
-    animation: portrait-authing 2.05s ease-out 0.35s 1 both;
+    animation: portrait-authing 2.8s ease-out 0.35s 1 both;
   }
 }
 @keyframes portrait-authing {
@@ -1232,6 +1241,85 @@ h1, h2, h3, h4 {
   12%  { opacity: 0.6; }
   82%  { opacity: 0.6; }
   100% { opacity: 0; }
+}
+
+/* --- Dossier HUD overlays (decorative; all --portrait-hud, staggered in
+   after the scan resolves). Line-art so they read the same teal over the dark
+   portrait in both themes. --- */
+.portrait__readout,
+.portrait__gauge,
+.portrait__wave {
+  position: absolute;
+  z-index: 2;
+  color: var(--portrait-hud);
+  pointer-events: none;
+  user-select: none;
+  opacity: 0;
+  filter: drop-shadow(0 0 0.4em color-mix(in srgb, var(--portrait-hud) 34%, transparent));
+}
+/* Frosted-glass panels behind the rectangular readouts — faint backdrop blur,
+   a thin HUD-tinted border and a clipped corner notch, so they read as lit
+   instrument cards rather than floating text. */
+.portrait__readout,
+.portrait__wave {
+  box-sizing: border-box;
+  padding: 0.5em 0.62em;
+  background: color-mix(in srgb, var(--portrait-bg) 58%, transparent);
+  border: 1px solid color-mix(in srgb, var(--portrait-hud) 26%, transparent);
+  border-radius: 7px;
+  -webkit-backdrop-filter: blur(3px);
+          backdrop-filter: blur(3px);
+  clip-path: polygon(0 0, calc(100% - 9px) 0, 100% 9px, 100% 100%, 9px 100%, 0 calc(100% - 9px));
+}
+.portrait__readout {
+  top: clamp(1.9rem, 1.2rem + 3.2vw, 3.2rem);
+  left: max(0.7rem, 7%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.3em;
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: clamp(0.3rem, 1.4cqw, 0.46rem);
+  letter-spacing: 0.09em;
+  line-height: 1.1;
+  white-space: nowrap;
+  text-shadow: 0 0 0.5em var(--portrait-hud);
+}
+.portrait__readout .portrait__bars { font-style: normal; opacity: 0.85; letter-spacing: -0.06em; }
+.portrait__gauge {
+  top: 41%;
+  right: 2%;
+  width: clamp(66px, 24%, 100px);
+  aspect-ratio: 122 / 100;
+}
+.portrait__gauge-cap {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: 9px;
+  letter-spacing: 0.6px;
+  opacity: 0.72;
+}
+.portrait__gauge-val {
+  font-family: var(--font-display), ui-sans-serif, sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+}
+.portrait__wave {
+  bottom: clamp(2.2rem, 1.5rem + 3vw, 3.4rem);
+  left: max(0.7rem, 7%);
+  width: clamp(92px, 34%, 144px);
+  aspect-ratio: 151 / 40;
+}
+@media (prefers-reduced-motion: reduce) {
+  .about__grid.scanned :is(.portrait__readout, .portrait__gauge, .portrait__wave) { opacity: 0.92; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .about__grid.scanned .portrait__readout { animation: portrait-hud-in 0.5s ease-out 4s both; }
+  .about__grid.scanned .portrait__gauge   { animation: portrait-hud-in 0.5s ease-out 4.35s both; }
+  .about__grid.scanned .portrait__wave    { animation: portrait-hud-in 0.5s ease-out 4.5s both; }
+}
+@keyframes portrait-hud-in {
+  from { opacity: 0;    transform: translateY(5px); }
+  to   { opacity: 0.92; transform: none; }
 }
 
 .bio p {
@@ -1271,7 +1359,7 @@ h1, h2, h3, h4 {
   font-size: 0.68rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: var(--ink-dim);
+  color: var(--eyebrow);
 }
 .about__links-label::before { content: "// "; color: var(--accent); }
 
@@ -1316,17 +1404,17 @@ h1, h2, h3, h4 {
 .about__link:focus-visible::before { content: "\25CF"; }
 .about__links .k { color: var(--ink); font-weight: 600; }
 .about__links .v {
-  color: var(--accent);
+  color: var(--ink-soft);
   /* accent hairline wipes in under the handle on hover — same interaction
      language as the contact rows. */
   background-image: linear-gradient(currentColor, currentColor);
   background-size: 0% 1px;
   background-position: 0 100%;
   background-repeat: no-repeat;
-  transition: background-size var(--t-fast);
+  transition: color var(--t-fast), background-size var(--t-fast);
 }
 .about__link:hover .v,
-.about__link:focus-visible .v { background-size: 100% 1px; }
+.about__link:focus-visible .v { color: var(--accent); background-size: 100% 1px; }
 
 /* Fragrance subsection — full-width, single column. Atmosphere lives on
    #about (below) so it bleeds continuously across the whole section. */
