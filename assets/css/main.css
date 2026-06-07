@@ -11,9 +11,9 @@
   --font-body: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
-  --accent: #5ee6d0;
+  --accent: #66cdb9;
   --accent-2: #8b7cff;
-  --accent-grad: linear-gradient(115deg, #5ee6d0 0%, #8b7cff 100%);
+  --accent-grad: linear-gradient(115deg, #66cdb9 0%, #8b7cff 100%);
 
   --sidebar-w: clamp(360px, 23vw, 400px); /* 400 on large screens; narrows on laptops to give content more room */
   --aside-w: 384px;
@@ -55,7 +55,7 @@
   --ink-head: #bcc2cb;
   --eyebrow: var(--accent);
   --shadow: 0 1px 0 rgba(255, 255, 255, 0.03), 0 18px 50px -22px rgba(0, 0, 0, 0.85);
-  --glow: 0 0 0 1px rgba(94, 230, 208, 0.18), 0 0 34px -10px rgba(94, 230, 208, 0.45);
+  --glow: 0 0 0 1px rgba(102, 205, 185, 0.14), 0 0 34px -10px rgba(102, 205, 185, 0.34);
   /* The photo's left third is genuinely dark, empty desk — no clutter to hide
      (this hero shot has no cigarette/ashtray) — so the veil is light: just
      enough left→right darkening to seat the headline and continue the sidebar
@@ -73,16 +73,16 @@
      the border with a tight halo hugging it, like a bar neon sign. Keep the
      spread small so it reads as a lit tube, not a soft bloom. */
   --portrait-glow:
-    0 0 1px 0 rgba(94, 230, 208, 0.85),
-    0 0 2.5px 0 rgba(94, 230, 208, 0.55),
-    0 0 6.5px 0 rgba(94, 230, 208, 0.32);
+    0 0 1px 0 rgba(102, 205, 185, 0.68),
+    0 0 2.5px 0 rgba(102, 205, 185, 0.44),
+    0 0 6.5px 0 rgba(102, 205, 185, 0.26);
   /* Frame fill behind the contain-fitted portrait — matches the photo's dark
      studio edge so the small top/bottom letterbox bands blend in (no black). */
   --portrait-bg: #0e1014;
   /* Colour of the CSS HUD readout (the binary "coding since" string) overlaid
      on the photo. Same bright mint as the glow so it reads as one lit system;
      a hair more transparent so it sits quietly against the studio dark. */
-  --portrait-hud: rgba(94, 230, 208, 0.72);
+  --portrait-hud: rgba(110, 208, 190, 0.7);
   /* Fragrance ambient atmospherics — luminous warm-white wash, faint
      cool rim, drifting pale haze. Tones pulled close to white so the
      gradient lifts the deep bg as light rather than colour. Alphas
@@ -106,8 +106,8 @@
   --border: #cfcdc4;      /* deep enough that ghost buttons & dividers read with intent */
   --border-soft: #dedbd1;
   --ink: #14171c;
-  --ink-soft: #41464d;    /* deeper so secondary text is readable, not faded */
-  --ink-dim: #7a7f87;
+  --ink-soft: #363b42;    /* deeper so secondary text is readable, not faded */
+  --ink-dim: #686d75;
   --ink-head: var(--ink); /* light mode: dark headings on light bg don't glare */
   /* Light mode runs a fully WARM identity — the mirror of dark mode's all-cool
      mint. Terracotta is the primary accent (links/focus/nav/buttons); it reads
@@ -138,29 +138,20 @@
      the sidebar→hero seam before opening to the photo. */
   --hero-veil: linear-gradient(90deg, rgba(228, 222, 209, 0.58) 0%, rgba(226, 214, 194, 0.22) 15%, rgba(222, 209, 188, 0.08) 36%, rgba(222, 209, 188, 0.02) 55%, rgba(222, 209, 188, 0) 70%);
   --img-filter: none; /* photos render in full colour */
-  /* About portrait: lift the near-black studio background toward a softer warm
-     charcoal so it isn't a harsh black box on the cream. Low contrast raises
-     the blacks (brightness alone can't — 0×k=0); brightness compensates.
-     hue-rotate swings the baked-in teal HUD (frame, coords, bars) into the warm
-     accent family for light mode. The portrait photo is grayscale — zero-
-     saturation pixels are immune to hue-rotate — so only the teal marks shift;
-     teal (~170°) lands near terracotta/amber (~20°). */
-  --portrait-filter: hue-rotate(-150deg) saturate(1.05) brightness(1.12) contrast(0.8);
-  /* Portrait glow uses amber (#d6aa5a) — the LIGHT sibling of the terracotta
-     accent. Dark mode glows with light mint because glow = emitted light and
-     only a light colour reads as glow against the dark photo; the dark
-     terracotta accent can't, so its bright amber relative carries the bloom
-     and stays vibrant. No spread, just a soft bloom. */
+  /* Light mode swaps in a dedicated high-key photo (cream backdrop, see
+     .portrait__photo--light), so it needs almost no grading — just a touch of
+     contrast. No hue-rotate: the new photos carry no baked-in HUD to recolour. */
+  --portrait-filter: contrast(1.04) brightness(1);
+  /* Soft amber bloom around the frame (light sibling of the terracotta accent). */
   --portrait-glow:
     0 0 1.5px 0 rgba(214, 170, 90, 0.9),
     0 0 2.5px 0 rgba(214, 170, 90, 0.6),
     0 0 6.5px 0 rgba(207, 155, 79, 0.38);
-  /* Band fill = the portrait's near-black edge run through the light-mode
-     --portrait-filter, so the contain letterbox blends instead of going black. */
-  --portrait-bg: #282724;
-  /* HUD readout in light mode: warm amber (the glow's light sibling) so the
-     overlaid binary string stays legible against the lifted charcoal photo. */
-  --portrait-hud: rgba(214, 170, 90, 0.82);
+  /* Letterbox band + readout panel = warm cream, matching the high-key photo. */
+  --portrait-bg: #e7e2d6;
+  /* The photo is bright now, so the HUD reads as dark bronze "ink" (printed
+     marks) rather than glow-on-dark — see the [data-theme="light"] block. */
+  --portrait-hud: rgba(96, 66, 20, 0.95);
   /* Editorial warm-paper version — bright cream wash that brightens
      the paper bg without tinting it heavily. Ember kept light + smoky so it
      dissolves into the paper instead of reading as a corner glow; the longer
@@ -1013,20 +1004,47 @@ h1, h2, h3, h4 {
   /* Query container so the binary readout can be sized in cqw and span almost
      the full frame width at any viewport (see .portrait__code). */
   container-type: inline-size;
+  /* Thin edge + glowing accent halo around the card (mint in dark, amber in
+     light, per --portrait-glow). Separate from the photos' baked inner frame.
+     The grounding shadow (light) seats the card on the cream surface. */
   border: 1px solid var(--border);
   background: var(--portrait-bg, #0e1014);
-  /* Teal accent lighting around the image. Fixed BRIGHT mint (not the theme
-     --glow): these effects sit against the dark photo, so the deep-teal
-     light-mode accent was invisible (dark on dark). Bright mint reads on the
-     photo edge in both schemes. Pressed walls are on ::before. */
-  /* Clean, even edge glow — the original tight HUD-tinted halo, no heavy bezel
-     or bloom. A subtle grounding shadow (light only) seats the card on the
-     cream surface so it doesn't float; dark sits on dark and needs none. */
   --portrait-ground: 0 0 0 0 transparent;
   box-shadow: var(--portrait-glow), var(--portrait-ground);
 }
 [data-theme="light"] .portrait {
+  /* No border or accent glow in light mode — only a soft grounding shadow seats
+     the card on the cream so it reads as part of the surface, not a framed box. */
   --portrait-ground: 0 16px 34px -20px rgba(40, 31, 22, 0.28);
+  border: 0;
+  box-shadow: var(--portrait-ground);
+}
+/* Per-theme photo swap: dark studio shot by default, bright high-key shot in
+   light mode (the toggle is manual, so this keys off [data-theme], not the OS). */
+.portrait__photo--light { display: none; }
+[data-theme="light"] .portrait__photo--dark { display: none; }
+[data-theme="light"] .portrait__photo--light { display: block; }
+/* On the bright photo the HUD becomes dark bronze "ink" with a soft white halo,
+   a printed-dossier read instead of dark mode's lit-glow-on-dark. */
+[data-theme="light"] .portrait__readout {
+  /* Deep espresso ink so the telemetry reads strongly on the light panel. */
+  color: rgba(38, 26, 8, 0.96);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+  /* Lighter, more opaque panel so the ink reads cleanly over the warm photo. */
+  background: color-mix(in srgb, #f7f4ed 92%, transparent);
+  border-color: color-mix(in srgb, var(--portrait-hud) 22%, transparent);
+}
+[data-theme="light"] :is(.portrait__code, .portrait__auth, .portrait__authing, .portrait__verified) {
+  /* Vivid terracotta with a warm amber glow — the light-mode counterpart to dark
+     mode's lit mint labels, so they read bright/alive rather than flat black. */
+  color: var(--accent);
+  text-shadow:
+    0 0 0.5em color-mix(in srgb, var(--accent-2) 60%, transparent),
+    0 0 1px rgba(255, 251, 244, 0.7);
+}
+[data-theme="light"] .portrait__verified svg,
+[data-theme="light"] :is(.portrait__gauge, .portrait__wave) {
+  filter: drop-shadow(0 0 1px rgba(255, 251, 244, 0.85)) drop-shadow(0 1px 1px rgba(96, 66, 20, 0.25));
 }
 /* Subtle, even pressed-in feel layered above the photo: a soft recess shadow
    from the top and a faint 1px lift at the bottom. No thick bright lip and no
@@ -1046,6 +1064,14 @@ h1, h2, h3, h4 {
 /* No CSS coordinate label: the square frame shows the artwork's own baked-in
    HUD (coords, brackets, bars) in full, so a re-drawn label would duplicate it.
    In light mode the baked teal recolours to warm via hue-rotate on the img. */
+/* Registered so it can be animated: the scan "focus" ramps this from a soft
+   blur down to 0 as the beam sweeps, resolving the subject into sharp view.
+   Defaults to 0 so no-JS / reduced-motion users always see the image crisp. */
+@property --portrait-scan-blur {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
 .portrait img {
   position: absolute;
   inset: 0;
@@ -1056,7 +1082,31 @@ h1, h2, h3, h4 {
      whole HUD; the few px of dark band top/bottom blend into the dark frame. */
   object-fit: contain;
   object-position: 50% 50%;
-  filter: var(--portrait-filter, var(--img-filter));
+  /* Theme grade + the scan's de-focus blur (0 at rest). */
+  filter: var(--portrait-filter, var(--img-filter)) blur(var(--portrait-scan-blur, 0px));
+}
+@media (prefers-reduced-motion: no-preference) {
+  /* Armed by JS the moment the scanner is wired up: the subject sits soft-
+     focused from before it scrolls into view (no-JS never arms → stays crisp). */
+  .about__grid.scan-armed .portrait img { --portrait-scan-blur: 9px; }
+  /* On landing, the descending beam resolves the blur to 0 — the subject
+     "comes into focus" as it's scanned, then holds sharp (forwards). */
+  .about__grid.scanned .portrait img {
+    animation: portrait-focus 2.8s ease-out 0.35s 1 both;
+  }
+}
+@keyframes portrait-focus {
+  0%   { --portrait-scan-blur: 9px; }
+  12%  { --portrait-scan-blur: 9px; }
+  90%  { --portrait-scan-blur: 0px; }
+  100% { --portrait-scan-blur: 0px; }
+}
+/* After the scan has played once (JS adds .scan-complete), lock the photo sharp
+   and kill the focus animation — otherwise swapping the per-theme photo on a
+   theme toggle (display:none → block) restarts the blur-in on the shown image. */
+.about__grid.scan-complete .portrait img {
+  animation: none;
+  --portrait-scan-blur: 0px;
 }
 /* Binary "coding since 1995" readout overlaid on the photo, centred along the
    TOP edge like a scanner header. Sits above the image but below the pressed-
@@ -1129,6 +1179,19 @@ h1, h2, h3, h4 {
     transparent
   );
 }
+/* Light mode: the HUD ink is dark, so a beam built from it reads as a dark line.
+   Use a luminous warm gold instead so it reads as a lit sweep on the bright photo. */
+[data-theme="light"] .portrait__scan {
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(224, 150, 56, 0.45) 44%,
+    rgba(255, 196, 104, 0.95) 50%,
+    rgba(224, 150, 56, 0.45) 56%,
+    transparent
+  );
+  mix-blend-mode: screen;
+}
 @media (prefers-reduced-motion: no-preference) {
   .about__grid.scanned .portrait__scan {
     /* top animates % of the portrait (its containing block), so the beam sweeps
@@ -1138,11 +1201,9 @@ h1, h2, h3, h4 {
 }
 @keyframes portrait-scan {
   0%   { top: -10%; opacity: 0; }
-  8%   { opacity: 1; }
-  44%  { top: 100%; opacity: 1; }   /* sweep down to just below the frame */
-  52%  { top: 100%; opacity: 1; }   /* brief dwell at the bottom */
-  92%  { top: -10%; opacity: 1; }   /* sweep back up to the top */
-  100% { top: -10%; opacity: 0; }
+  6%   { opacity: 1; }
+  90%  { top: 100%; opacity: 1; }   /* one steady sweep down to just below the frame */
+  100% { top: 100%; opacity: 0; }   /* fade out at the bottom — no return trip */
 }
 
 /* Ultra-subtle analog scan interference: fine horizontal lines that flicker
@@ -1208,9 +1269,45 @@ h1, h2, h3, h4 {
   user-select: none;
   opacity: 0;
 }
+/* "Verified" counter-stamp — mirrors the identity tag to the opposite top
+   corner (tick on the left, label after). Same mono HUD species as
+   .portrait__auth, anchored right; struck in once the subject resolves. */
+.portrait__verified {
+  position: absolute;
+  top: clamp(0.5rem, 0.3rem + 1vw, 1rem);
+  right: max(0.7rem, 7%);
+  left: auto;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  white-space: nowrap;
+  font-family: ui-monospace, "SFMono-Regular", "Cascadia Code", Menlo, Consolas, monospace;
+  font-size: clamp(0.4rem, 2.4cqw, 0.62rem);
+  font-weight: 400;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  line-height: 1;
+  color: var(--portrait-hud);
+  text-shadow: 0 0 0.5em var(--portrait-hud);
+  pointer-events: none;
+  user-select: none;
+  opacity: 0;
+}
+/* Trailing tracking on the last glyph would float the label off the right edge;
+   pull it back so the stamp sits flush opposite the identity tag. */
+.portrait__verified > span { margin-right: -0.28em; }
+.portrait__verified svg {
+  flex: none;
+  width: 1em;
+  height: 1em;
+  filter: drop-shadow(0 0 0.4em var(--portrait-hud));
+}
+
 /* Reduced motion: no sweep/flicker — just present the confirmation on reveal. */
 @media (prefers-reduced-motion: reduce) {
   .about__grid.scanned .portrait__auth { opacity: 0.85; }
+  .about__grid.scanned .portrait__verified { opacity: 0.85; }
 }
 @media (prefers-reduced-motion: no-preference) {
   .about__grid.scanned .portrait__auth {
@@ -1224,6 +1321,19 @@ h1, h2, h3, h4 {
 @keyframes portrait-type {
   from { clip-path: inset(0 100% 0 0); opacity: 0.85; }
   to   { clip-path: inset(0 0 0 0);    opacity: 0.85; }
+}
+
+/* The "verified" stamp strikes in just after the identity finishes typing
+   (~4s): a quick over-scale settle, reading as a mark pressed onto the dossier. */
+@media (prefers-reduced-motion: no-preference) {
+  .about__grid.scanned .portrait__verified {
+    animation: portrait-stamp 0.45s var(--ease) 4.1s 1 both;
+  }
+}
+@keyframes portrait-stamp {
+  0%   { opacity: 0;    transform: scale(1.4); }
+  55%  { opacity: 0.95; }
+  100% { opacity: 0.85; transform: scale(1); }
 }
 
 /* "Authorizing…" — the in-progress status that rides the sweep. It fades in as
@@ -1260,11 +1370,10 @@ h1, h2, h3, h4 {
 /* Frosted-glass panels behind the rectangular readouts — faint backdrop blur,
    a thin HUD-tinted border and a clipped corner notch, so they read as lit
    instrument cards rather than floating text. */
-.portrait__readout,
-.portrait__wave {
+.portrait__readout {
   box-sizing: border-box;
   padding: 0.5em 0.62em;
-  background: color-mix(in srgb, var(--portrait-bg) 58%, transparent);
+  background: color-mix(in srgb, var(--portrait-bg) 72%, transparent);
   border: 1px solid color-mix(in srgb, var(--portrait-hud) 26%, transparent);
   border-radius: 7px;
   -webkit-backdrop-filter: blur(3px);
@@ -1272,29 +1381,44 @@ h1, h2, h3, h4 {
   clip-path: polygon(0 0, calc(100% - 9px) 0, 100% 9px, 100% 100%, 9px 100%, 0 calc(100% - 9px));
 }
 .portrait__readout {
-  top: clamp(1.9rem, 1.2rem + 3.2vw, 3.2rem);
+  /* Dropped a touch so the panel clears the frame's top edge / rounded corner. */
+  top: clamp(2.4rem, 1.7rem + 3.4vw, 3.9rem);
   left: max(0.7rem, 7%);
   display: flex;
   flex-direction: column;
   gap: 0.3em;
   font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-  font-size: clamp(0.3rem, 1.4cqw, 0.46rem);
+  /* A shade larger + heavier, on a more opaque panel, so the telemetry stays
+     legible over the bright photo instead of dissolving into bloom. */
+  font-size: clamp(0.34rem, 1.55cqw, 0.52rem);
+  font-weight: 500;
   letter-spacing: 0.09em;
-  line-height: 1.1;
+  line-height: 1.15;
   white-space: nowrap;
-  text-shadow: 0 0 0.5em var(--portrait-hud);
+  color: color-mix(in srgb, var(--portrait-hud), #d7fff7 24%);
+  /* Tight glow for the HUD feel + a dark backing for crisp contrast. */
+  text-shadow: 0 0 0.32em color-mix(in srgb, var(--portrait-hud) 60%, transparent), 0 1px 1px rgba(0, 0, 0, 0.5);
 }
-.portrait__readout .portrait__bars { font-style: normal; opacity: 0.85; letter-spacing: -0.06em; }
+.portrait__readout .portrait__bars {
+  font-style: normal;
+  opacity: 0.85;
+  letter-spacing: -0.06em;
+  /* The block glyphs render at the bottom of the line box, so they sit below the
+     caps — lift them to align with the text row. */
+  display: inline-block;
+  transform: translateY(-0.4em);
+}
 .portrait__gauge {
   top: 41%;
-  right: 2%;
-  width: clamp(66px, 24%, 100px);
-  aspect-ratio: 122 / 100;
+  right: 4%;
+  width: clamp(60px, 22%, 92px);
+  aspect-ratio: 1 / 1;
 }
 .portrait__gauge-cap {
   font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
   font-size: 9px;
-  letter-spacing: 0.6px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
   opacity: 0.72;
 }
 .portrait__gauge-val {
@@ -1303,12 +1427,17 @@ h1, h2, h3, h4 {
   font-weight: 600;
   letter-spacing: 0.4px;
 }
+/* Bare voice-print: no frosted panel — just the bars with an open HUD
+   corner-bracket on the left (drawn in the SVG). The viewBox carries the left
+   gutter + vertical padding, so the element only needs sizing here. */
 .portrait__wave {
   bottom: clamp(2.2rem, 1.5rem + 3vw, 3.4rem);
   left: max(0.7rem, 7%);
-  width: clamp(92px, 34%, 144px);
-  aspect-ratio: 151 / 40;
+  width: clamp(105px, 39%, 165px);
+  aspect-ratio: 173 / 56;
+  overflow: visible;
 }
+.portrait__wave-frame { opacity: 0.62; }
 @media (prefers-reduced-motion: reduce) {
   .about__grid.scanned :is(.portrait__readout, .portrait__gauge, .portrait__wave) { opacity: 0.92; }
 }
@@ -1321,6 +1450,7 @@ h1, h2, h3, h4 {
   from { opacity: 0;    transform: translateY(5px); }
   to   { opacity: 0.92; transform: none; }
 }
+
 
 .bio p {
   color: var(--ink-soft);
@@ -1383,7 +1513,7 @@ h1, h2, h3, h4 {
   background: var(--surface-2);
   color: var(--ink-soft);
   text-decoration: none;
-  transition: border-color var(--t-fast), background var(--t-fast);
+  transition: border-color var(--t-fast);
 }
 .about__link::before {
   /* hollow node at rest → fills on hover/focus, echoing the portrait's
@@ -1397,7 +1527,6 @@ h1, h2, h3, h4 {
 .about__link:hover,
 .about__link:focus-visible {
   border-color: var(--accent);
-  background: var(--surface);
   outline: none;
 }
 .about__link:hover::before,
@@ -1830,15 +1959,15 @@ h1, h2, h3, h4 {
    atmospheric layer — the warm glow registers without the burner ever
    reading as a discrete object. */
 [data-theme="dark"] #about .section-smoke {
-  opacity: 0.72;
+  opacity: 0.6;
   filter: brightness(1.05) saturate(1.05);
   mix-blend-mode: screen;
 }
 /* Light mode: same dissolved treatment with brightness lift so the
    warm tones bleed into the paper as a soft glow, not a photo. */
 [data-theme="light"] #about .section-smoke {
-  opacity: 0.62;
-  filter: brightness(1.05) saturate(0.95);
+  opacity: 0.74;
+  filter: brightness(1.02) saturate(0.98);
   mix-blend-mode: multiply;
 }
 /* Contact subtracts the footer's approximate height so contact + footer
@@ -3289,6 +3418,225 @@ body.drawer-open { overflow: hidden; }
   .site-footer__col--left,
   .site-footer__col--right { justify-self: center; align-items: center; }
   .socials--footer { justify-content: center; }
+}
+
+/* ===== 404 — "Wrong turn" / lost in the woods ============================= */
+/* Drop the fixed sidebar on the 404 (desktop) so the forest fills the whole
+   viewport. Mobile keeps its off-canvas drawer + topbar, so it's left intact. */
+@media (min-width: 1025px) {
+  body.error404 .sidebar { display: none; }
+  body.error404 .main,
+  body.error404 .site-footer { margin-left: 0; }
+}
+.lost {
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: clamp(2.5rem, 2rem + 3vw, 4.5rem) clamp(1.4rem, 1rem + 4vw, 5rem);
+  overflow: hidden;
+}
+/* Forest backdrop. Drop 404-dark.webp / 404-light.webp into assets/img and they
+   take over; until then a layered fog/forest gradient stands in (the gradient
+   layers sit BEHIND the photo layer, so they only show when it's absent). */
+.lost__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-color: var(--bg);
+  background-size: cover;
+  background-position: right center;
+  background-repeat: no-repeat;
+}
+[data-theme="dark"] .lost__bg {
+  background-image:
+    url("../img/404-dark.webp"),
+    radial-gradient(70% 50% at 50% 82%, color-mix(in srgb, var(--accent) 16%, transparent) 0%, transparent 62%),
+    linear-gradient(180deg, #0c1316 0%, #0f181b 45%, #080d0f 100%);
+  /* Framed so the sign reads upper-right and the figure drops below the 404. */
+  background-position: right 70%;
+}
+[data-theme="light"] .lost__bg {
+  background-image:
+    url("../img/404-light.webp"),
+    radial-gradient(70% 50% at 50% 82%, rgba(255, 250, 240, 0.55) 0%, transparent 62%),
+    linear-gradient(180deg, #e8e3d7 0%, #ddd5c6 45%, #cec5b2 100%);
+  /* The figure sits lower in the light photo than the dark one — lift the framing
+     so it lands on the path like dark mode, not behind the menu. */
+  background-position: right 58%;
+}
+/* Veil over the photo so the type reads top + bottom. */
+.lost__bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+[data-theme="dark"] .lost__bg::after {
+  background: linear-gradient(180deg, rgba(8, 13, 15, 0.5) 0%, rgba(8, 13, 15, 0.12) 32%, rgba(8, 13, 15, 0.5) 60%, rgba(8, 13, 15, 0.82) 80%, rgba(8, 13, 15, 0.95) 100%);
+}
+[data-theme="light"] .lost__bg::after {
+  background: linear-gradient(180deg, rgba(233, 228, 216, 0.5) 0%, rgba(233, 228, 216, 0.08) 32%, rgba(236, 231, 221, 0.58) 60%, rgba(238, 234, 225, 0.88) 80%, rgba(240, 236, 228, 0.97) 100%);
+}
+
+.lost__inner,
+.lost__foot { position: relative; z-index: 1; width: 100%; }
+
+/* Centre block: eyebrow → 404 → wrong turn → lede → button */
+.lost__inner {
+  margin: auto 0;
+  max-width: 640px;
+  padding-top: clamp(1rem, 3vw, 3rem);
+}
+.lost__eyebrow {
+  font-family: var(--font-mono);
+  font-size: clamp(0.66rem, 0.6rem + 0.3vw, 0.8rem);
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 clamp(0.6rem, 2vw, 1.2rem);
+}
+.lost__code {
+  margin: 0;
+  font-family: var(--font-display), ui-sans-serif, sans-serif;
+  font-weight: 800;
+  font-size: clamp(5rem, 3.5rem + 13vw, 11rem);
+  line-height: 0.86;
+  letter-spacing: 0.01em;
+  color: var(--accent);
+}
+[data-theme="dark"] .lost__code {
+  text-shadow:
+    0 0 0.32em color-mix(in srgb, var(--accent) 60%, transparent),
+    0 0 0.9em color-mix(in srgb, var(--accent) 38%, transparent);
+}
+[data-theme="light"] .lost__code {
+  color: #2a1c0c;
+  text-shadow: 0 2px 0 rgba(255, 250, 240, 0.45);
+}
+.lost__turn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.7rem, 2vw, 1.3rem);
+  margin: clamp(0.4rem, 1.5vw, 0.9rem) 0 0;
+  font-family: var(--font-display), ui-sans-serif, sans-serif;
+  font-weight: 600;
+  font-size: clamp(1.05rem, 0.8rem + 1.4vw, 1.65rem);
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.lost__turn span { transform: translateX(0.17em); }
+.lost__turn::before,
+.lost__turn::after {
+  content: "";
+  height: 1px;
+  width: clamp(26px, 8vw, 66px);
+  background: currentColor;
+  opacity: 0.5;
+}
+.lost__lede {
+  margin: clamp(1.2rem, 3vw, 1.8rem) auto 0;
+  max-width: 34rem;
+  color: var(--ink-soft);
+  font-size: clamp(0.95rem, 0.9rem + 0.3vw, 1.05rem);
+  line-height: 1.6;
+}
+[data-theme="dark"] .lost__lede { text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6); }
+[data-theme="light"] .lost__lede { text-shadow: 0 1px 1px rgba(255, 250, 240, 0.6); }
+.lost__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: clamp(1.4rem, 3vw, 2.2rem);
+}
+
+/* Foot: label + quick links + quote, anchored to the bottom */
+.lost__foot {
+  margin: auto auto 0;
+  max-width: var(--maxw);
+  padding-top: clamp(1.5rem, 4vw, 3rem);
+}
+.lost__foot-label { justify-content: center; margin: 0 0 clamp(1rem, 2.5vw, 1.6rem); }
+.lost__links {
+  list-style: none;
+  margin: 0;
+  padding: clamp(0.9rem, 2.5vw, 1.4rem) 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid color-mix(in srgb, var(--ink) 30%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--ink) 30%, transparent);
+}
+.lost__links li:not(:first-child) { border-left: 1px solid color-mix(in srgb, var(--ink) 24%, transparent); }
+.lost-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.8rem;
+  text-decoration: none;
+  color: var(--ink-soft);
+}
+.lost-link__icon { color: var(--accent); transition: transform var(--t-fast); }
+.lost-link__title { color: var(--ink); font-weight: 600; font-size: 0.92rem; }
+.lost-link__desc {
+  color: var(--ink-soft);
+  font-size: 0.76rem;
+  line-height: 1.4;
+  max-width: 18ch;
+}
+/* The foot sits over the photo, so give the text a halo (light in light mode,
+   dark in dark mode) and strengthen the dividers so both read on any patch. */
+[data-theme="light"] :is(.lost-link__title, .lost-link__desc, .lost__foot-label, .lost__quote p, .lost__quote cite) {
+  text-shadow: 0 1px 1px rgba(255, 252, 246, 0.5);
+}
+[data-theme="dark"] :is(.lost-link__title, .lost-link__desc, .lost__foot-label, .lost__quote p, .lost__quote cite) {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+.lost-link:hover .lost-link__title,
+.lost-link:focus-visible .lost-link__title { color: var(--accent); }
+.lost-link:hover .lost-link__icon,
+.lost-link:focus-visible .lost-link__icon { transform: translateY(-2px); }
+
+.lost__quote {
+  position: relative;
+  margin: clamp(1.6rem, 4vw, 2.6rem) auto 0;
+  max-width: 40rem;
+}
+.lost__quote::before {
+  content: "\201C";
+  display: block;
+  font-family: var(--font-brand), serif;
+  font-size: 2.6rem;
+  line-height: 0.6;
+  color: var(--accent);
+  opacity: 0.7;
+  margin-bottom: 0.2rem;
+}
+.lost__quote p {
+  margin: 0 0 0.7rem;
+  font-family: var(--font-brand), serif;
+  font-style: italic;
+  font-size: clamp(1.05rem, 0.95rem + 0.6vw, 1.35rem);
+  line-height: 1.5;
+  color: var(--ink);
+}
+.lost__quote cite {
+  font-style: normal;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+@media (max-width: 720px) {
+  .lost__links { grid-template-columns: repeat(2, 1fr); gap: 0.4rem 0; }
+  .lost__links li:nth-child(2n+1) { border-left: 0; }
+  .lost__links li:nth-child(n+3) { border-top: 1px solid color-mix(in srgb, var(--ink) 12%, transparent); padding-top: 1rem; }
 }
 
 @media print {

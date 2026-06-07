@@ -270,6 +270,11 @@
   if (aboutGrid) {
     var portrait = aboutGrid.querySelector(".portrait") || aboutGrid;
 
+    // Arm the soft-focus immediately so the portrait is already blurred when it
+    // scrolls into view; the scan (on landing) resolves it to sharp. CSS gates
+    // the blur to no-reduced-motion, and no-JS never arms it — both stay crisp.
+    aboutGrid.classList.add("scan-armed");
+
     var landed = function () {
       var r = portrait.getBoundingClientRect();
       var vh = window.innerHeight || document.documentElement.clientHeight;
@@ -286,6 +291,13 @@
       aboutGrid.classList.add("scanned");
       window.removeEventListener("scroll", onScanScroll);
       window.removeEventListener("resize", onScanScroll);
+      // Lock the scan in after it has played once, so the focus blur never
+      // re-fires — switching theme swaps the per-theme photo via display, which
+      // would otherwise restart the CSS focus animation on the newly shown <img>.
+      setTimeout(function () {
+        aboutGrid.classList.add("scan-complete");
+        aboutGrid.classList.remove("scan-armed");
+      }, 5200);
     };
 
     var settleTimer = null;

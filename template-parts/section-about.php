@@ -28,20 +28,36 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<div class="about__grid reveal">
 			<figure class="portrait">
 				<?php
-				$portrait_ver = the_alpha_asset_ver( 'assets/img/portrait.webp' );
-				$portrait_url = THE_ALPHA_URI . '/assets/img/portrait';
+				$portrait_ver   = the_alpha_asset_ver( 'assets/img/portrait.webp' );
+				$portrait_lver  = the_alpha_asset_ver( 'assets/img/portrait-light.webp' );
+				$portrait_url   = THE_ALPHA_URI . '/assets/img/portrait';
+				$portrait_sizes = '(max-width: 760px) 92vw, 340px';
+				// Two purpose-graded photos: a dark studio shot for dark mode and a
+				// bright high-key shot for light mode, swapped by [data-theme] in CSS
+				// (the theme toggle is manual, so prefers-color-scheme can't drive it).
 				?>
-				<img
+				<img class="portrait__photo portrait__photo--dark"
 					src="<?php echo esc_url( $portrait_url . '.webp?v=' . $portrait_ver ); ?>"
 					srcset="<?php echo esc_url( $portrait_url . '-480.webp?v=' . $portrait_ver ) . ' 480w, ' . esc_url( $portrait_url . '-768.webp?v=' . $portrait_ver ) . ' 768w, ' . esc_url( $portrait_url . '.webp?v=' . $portrait_ver ) . ' 880w'; ?>"
-					sizes="(max-width: 760px) 92vw, 340px"
+					sizes="<?php echo esc_attr( $portrait_sizes ); ?>"
 					alt="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>"
+					width="880" height="880" loading="lazy" decoding="async">
+				<img class="portrait__photo portrait__photo--light"
+					src="<?php echo esc_url( $portrait_url . '-light.webp?v=' . $portrait_lver ); ?>"
+					srcset="<?php echo esc_url( $portrait_url . '-light-480.webp?v=' . $portrait_lver ) . ' 480w, ' . esc_url( $portrait_url . '-light-768.webp?v=' . $portrait_lver ) . ' 768w, ' . esc_url( $portrait_url . '-light.webp?v=' . $portrait_lver ) . ' 880w'; ?>"
+					sizes="<?php echo esc_attr( $portrait_sizes ); ?>"
+					alt="" aria-hidden="true"
 					width="880" height="880" loading="lazy" decoding="async">
 					<?php // One-shot scanner sweep, fired by .about__grid.in (see main.css). ?>
 					<span class="portrait__scan" aria-hidden="true"></span>
-					<?php // HUD status: "Identifying…" rides the sweep, then resolves into the typed identity "The Alpha" (top-left, see main.css). ?>
-					<span class="portrait__authing" aria-hidden="true"><?php echo esc_html_x( 'Identifying…', 'portrait HUD scan in progress', 'the-alpha' ); ?></span>
+					<?php // HUD status: "Verifying…" rides the sweep, then resolves into the typed identity "The Alpha" (top-left, see main.css). ?>
+					<span class="portrait__authing" aria-hidden="true"><?php echo esc_html_x( 'Verifying…', 'portrait HUD scan in progress', 'the-alpha' ); ?></span>
 					<span class="portrait__auth" aria-hidden="true"><?php echo esc_html_x( 'The Alpha', 'portrait HUD identified subject', 'the-alpha' ); ?></span>
+					<?php // Counter-stamp at the opposite top corner: a dossier "verified" mark (tick + label) that strikes in once the subject resolves. ?>
+					<span class="portrait__verified" aria-hidden="true">
+						<svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" d="M4 12.6 9.4 18 20 6.4"/></svg>
+						<span><?php echo esc_html_x( 'Verified', 'portrait HUD verification stamp', 'the-alpha' ); ?></span>
+					</span>
 				<?php
 				// Cryptic HUD readout overlaid on the photo: each digit of the year (see bio
 				// below), is encoded as its own 8-bit byte, echoing the artwork's baked-in scanner
@@ -54,24 +70,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 				</span>
 				<?php // Dossier HUD overlays (decorative): readout, status gauge, waveform — all --portrait-hud, revealed after the scan (see main.css). ?>
 				<div class="portrait__readout" aria-hidden="true">
-					<span><?php echo esc_html_x( 'LOC: N25.2848° E55.2708°', 'portrait HUD readout', 'the-alpha' ); ?></span>
+					<span><?php echo esc_html_x( 'LOC: N24.884011° E91.877673°', 'portrait HUD readout', 'the-alpha' ); ?></span>
 					<span><?php echo esc_html_x( 'ID: [REDACTED]', 'portrait HUD readout', 'the-alpha' ); ?></span>
 					<span><?php echo esc_html_x( 'PSYCH: STABLE', 'portrait HUD readout', 'the-alpha' ); ?> <i class="portrait__bars">▂▄▆▅</i></span>
 					<span><?php echo esc_html_x( 'CLASS: PRIORITY', 'portrait HUD readout', 'the-alpha' ); ?> <i class="portrait__bars">▁▃▅▇</i></span>
 				</div>
-				<svg class="portrait__gauge" viewBox="0 0 122 100" aria-hidden="true" focusable="false">
+				<svg class="portrait__gauge" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
 					<circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" stroke-opacity="0.32" stroke-width="2.5" stroke-dasharray="1.4 6.2"/>
 					<circle cx="50" cy="50" r="39" fill="none" stroke="currentColor" stroke-opacity="0.16" stroke-width="3.5"/>
 					<circle cx="50" cy="50" r="39" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="184 245" transform="rotate(-90 50 50)"/>
-					<text class="portrait__gauge-cap" x="50" y="46" text-anchor="middle" fill="currentColor"><?php echo esc_html_x( 'Threat Level', 'portrait HUD gauge caption', 'the-alpha' ); ?></text>
+					<text class="portrait__gauge-cap" x="50" y="46" text-anchor="middle" fill="currentColor"><?php echo esc_html_x( 'Status', 'portrait HUD gauge caption', 'the-alpha' ); ?></text>
 					<text class="portrait__gauge-val" x="50" y="63" text-anchor="middle" fill="currentColor"><?php echo esc_html_x( 'STABLE', 'portrait HUD gauge value', 'the-alpha' ); ?></text>
-					<g fill="currentColor">
-						<rect x="100" y="64" width="3" height="10" rx="0.6"/>
-						<rect x="106" y="55" width="3" height="19" rx="0.6"/>
-						<rect x="112" y="45" width="3" height="29" rx="0.6"/>
-					</g>
 				</svg>
-				<svg class="portrait__wave" viewBox="0 0 151 40" aria-hidden="true" focusable="false">
+				<?php // Voice-print waveform, framed by an open HUD corner-bracket on the left (line-art, no box) rather than a frosted panel. ?>
+				<svg class="portrait__wave" viewBox="-22 -8 173 56" aria-hidden="true" focusable="false">
+					<path class="portrait__wave-frame" d="M-6 -3 L-13 -3 L-18 2 L-18 38 L-13 43 L-6 43" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
 					<path d="M3 17 L3 23 M8 14 L8 26 M13 16 L13 24 M18 11 L18 29 M23 8 L23 32 M28 13 L28 27 M33 5 L33 35 M38 10 L38 30 M43 15 L43 25 M48 4 L48 36 M53 11 L53 29 M58 8 L58 32 M63 2 L63 38 M68 12 L68 28 M73 6 L73 34 M78 10 L78 30 M83 16 L83 24 M88 7 L88 33 M93 13 L93 27 M98 9 L98 31 M103 3 L103 37 M108 11 L108 29 M113 15 L113 25 M118 8 L118 32 M123 12 L123 28 M128 17 L128 23 M133 13 L133 27 M138 15 L138 25 M143 10 L143 30 M148 14 L148 26" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
 				</svg>
 			</figure>
