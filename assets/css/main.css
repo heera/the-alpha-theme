@@ -147,8 +147,10 @@
     0 0 1.5px 0 rgba(214, 170, 90, 0.9),
     0 0 2.5px 0 rgba(214, 170, 90, 0.6),
     0 0 6.5px 0 rgba(207, 155, 79, 0.38);
-  /* Letterbox band + readout panel = warm cream, matching the high-key photo. */
-  --portrait-bg: #e7e2d6;
+  /* Letterbox band colour = the light photo's own background cream (sampled at
+     its corners, #f1ede1), so the top/bottom HUD bands blend seamlessly into the
+     image instead of reading as darker detached strips. */
+  --portrait-bg: #f1ede1;
   /* The photo is bright now, so the HUD reads as dark bronze "ink" (printed
      marks) rather than glow-on-dark — see the [data-theme="light"] block. */
   --portrait-hud: rgba(96, 66, 20, 0.95);
@@ -852,6 +854,9 @@ h1, h2, h3, h4 {
   white-space: nowrap;
 }
 .hero__role { white-space: nowrap; }
+/* Per-role icons are a mobile-only treatment (stacked list); the desktop roles
+   stay a single tracked line, so hide the icons here. */
+.hero__role-icon { display: none; }
 .hero__role + .hero__role::before {
   content: "·";
   margin: 0 0.62em;
@@ -3371,43 +3376,214 @@ body.drawer-open { overflow: hidden; }
   .frag,
   .post-nav { grid-template-columns: minmax(0, 1fr); }
   .about__links { grid-template-columns: minmax(0, 1fr); }
-  /* Single-column now: the portrait has no neighbouring text column to
-     `align-self: stretch` against, so the frame collapsed to its border
-     height (the desktop img is absolutely positioned, out of flow). Pull the
-     image back into normal flow so it sizes itself — it's square (768x768),
-     so width:100%/height:auto gives the figure a real height. We avoid
-     `aspect-ratio` on the figure here: iOS Safari mis-computes it on grid
-     items and the frame collapsed to zero. The ::before/::after overlays stay
-     absolute over the now-taller figure. */
+  /* Single-column now: give the frame a taller-than-square aspect ratio (the
+     photo is square) so the contained image leaves dark top/bottom bands — the
+     same header/footer zones the tall desktop frame creates, where "THE ALPHA"/
+     "VERIFIED" and the binary serial sit clear of the portrait instead of landing
+     on it. The image goes back to absolute/contain (its desktop behaviour) so it
+     centres within the taller frame and the HUD overlays line up as designed. */
+  /* Keep the card SHORT (square) but shrink the photo within it so generous HUD
+     bands open up around it — top/bottom for THE ALPHA/VERIFIED + the serial,
+     and a little on the sides — without the card growing taller. The floating
+     overlays (readout/gauge/wave) are nudged inward to track the smaller photo. */
   .portrait {
     align-self: auto;
     margin-bottom: 0;
+    aspect-ratio: 1 / 1;
   }
   .portrait img {
-    position: static;
-    height: auto;
+    box-sizing: border-box;
+    padding: 25px;
   }
+  /* Corner labels are cqw-sized (oversize on a phone container); cap to the
+     desktop size and centre them in the ~34px band. */
+  .portrait__auth,
+  .portrait__authing,
+  .portrait__verified {
+    top: 0.8rem;
+    font-size: 0.4rem;
+  }
+  .portrait__code {
+    bottom: 0.8rem;
+    font-size: 0.46rem;
+  }
+  .portrait__readout { top: 2.9rem; left: max(2.2rem, 10%); }
+  .portrait__gauge { top: 38%; right: 10%; }
+  .portrait__wave { bottom: 2.9rem; left: max(2.2rem, 10%); }
   /* Use dvh, not vh: on mobile `vh` is the *large* (address-bar-hidden)
      viewport, which pushed the hero's bottom — and the scroll hint anchored
      there — below the visible fold behind the browser UI. dvh tracks the
      actual viewport so the hint stays on-screen. vh kept as a fallback. */
-  .hero { min-height: 92vh; min-height: 92dvh; }
-  /* Mobile: the <picture> already serves a portrait-cropped composition
-     (laptop + perfume), so centre it — the crop is pre-framed and `cover` only
-     needs to trim a little off the sides to fit the viewport's exact ratio. */
-  .hero__bg img { object-position: center; }
-  /* Mobile: the photo fills the full narrow width and the text spans it, so the
-     horizontal (left-dense) veil leaves the lower text over the bright part of
-     the image. Switch to a vertical wash that deepens toward the bottom (behind
-     the headline/roles/buttons). Theme-aware via each palette's veil colour. */
+  /* Mobile: hero fills the full screen as a vertical stack — photo block pinned
+     at the top, text centred in the space beneath it, scroll hint at the bottom.
+     The next section stays fully below the fold. */
+  .hero {
+    display: flex;
+    flex-direction: column;
+    /* stretch, not the base's `center`: in a column, `center` collapses the
+       photo block (no intrinsic width — its <img> is absolute) to zero width. */
+    align-items: stretch;
+    /* Fill the viewport MINUS the sticky topbar (~70px row + the notch inset it
+       pads with), so the hero ends exactly at the fold and the scroll hint stays
+       fully on-screen instead of being pushed below it. */
+    min-height: calc(100vh - 70px);
+    min-height: calc(100dvh - 70px - env(safe-area-inset-top, 0px));
+    padding: 0;
+    overflow: hidden;
+  }
+  /* Mobile: show the WHOLE landscape desk shot, scaled to width (`contain`, not
+     `cover`, so the phone never crops the scene). The image fills 0–66.6vw of the
+     screen (882/1324 aspect) and ends on a CLEAN edge — no dissolve. A letterpress
+     seam (below) marks the join into the content panel, the same pressed-fold rule
+     that divides the page's other sections. The hero bg is dropped to transparent
+     so the panel beneath reads as the page surface (cream in light, charcoal in
+     dark). The themed selectors out-specify the desktop light-mode mask above. */
+  .hero__bg,
+  [data-theme="light"] .hero__bg,
+  [data-theme="dark"] .hero__bg { background: transparent; }
+  /* Take the photo out of the absolute full-bleed layer and make it a flow block
+     exactly as tall as the contained image (width ÷ 1.5 aspect = 66.6vw), so it
+     occupies real space at the top and the text sits right below it. */
+  .hero__bg {
+    position: relative;
+    inset: auto;
+    height: 66.6vw;
+    flex: 0 0 auto;
+  }
+  /* Dissolve the photo's bottom edge so it MERGES into the page surface (no hard
+     line). Dark uses this shared mask; light overrides it below with a gentler,
+     bottle-preserving ramp. */
+  [data-theme="light"] .hero__bg img,
+  [data-theme="dark"] .hero__bg img {
+    object-fit: contain;
+    object-position: top center;
+    -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 50vw, rgba(0,0,0,0.45) 60vw, rgba(0,0,0,0.12) 64vw, transparent 66vw);
+            mask-image: linear-gradient(to bottom, #000 0, #000 50vw, rgba(0,0,0,0.45) 60vw, rgba(0,0,0,0.12) 64vw, transparent 66vw);
+  }
+  /* Light mode mobile: match the desktop light grade exactly (grayscale 0.7 +
+     washed bright), so the hero photo reads identically across screen sizes. */
+  [data-theme="light"] .hero__bg img {
+    filter: grayscale(0.7) brightness(1.1) contrast(1.1) saturate(1.16);
+    /* Wide, gradual dissolve that reaches FULLY transparent BEFORE the block's
+       bottom (66.6vw) — so the photo melts out within the frame with no clipped
+       residual edge (the old transparent-at-67.5vw left a ~9% sliver that the
+       block cut into a hard border). This makes the bottom dissolve into the
+       cream as softly as the left side does, with no wash/smoke needed to hide a
+       seam. */
+    -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 48vw, rgba(0,0,0,0.74) 55vw, rgba(0,0,0,0.4) 60vw, rgba(0,0,0,0.14) 64vw, transparent 66vw);
+            mask-image: linear-gradient(to bottom, #000 0, #000 48vw, rgba(0,0,0,0.74) 55vw, rgba(0,0,0,0.4) 60vw, rgba(0,0,0,0.14) 64vw, transparent 66vw);
+  }
+  /* Text takes the space between photo and scroll hint, centred vertically so
+     the full-height hero stays balanced. Full-width with side padding (the hero
+     itself now has none). */
+  .hero__inner {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: none;
+    padding: 1.6rem clamp(1.4rem, 1rem + 5vw, 6rem);
+  }
+  /* Letterpress seam between the photo and the text panel — the same pressed-fold
+     rule that divides #about/#blog/#contact (recessed --rule-ink line + light
+     --rule-lip lip beneath), drawn at the top edge of .hero__inner. It sits on the
+     panel side now (cream/charcoal), where it reads clearly in both themes. The
+     ends soften slightly so it doesn't terminate on a hard pixel. */
+  .hero__inner::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    z-index: 6;
+    pointer-events: none;
+    background:
+      linear-gradient(to right, transparent 0%, var(--rule-ink) 4%, var(--rule-ink) 96%, transparent 100%) top / 100% 1px no-repeat,
+      linear-gradient(to right, transparent 0%, var(--rule-lip) 4%, var(--rule-lip) 96%, transparent 100%) bottom / 100% 1px no-repeat;
+  }
+  /* Phones have spare vertical room in the hero, so stack the roles into an icon
+     list instead of one cramped tracked line — easier to read and it fills the
+     space. Drop the inline-line constraints (nowrap / width:0 / min-width) and the
+     "·" separators; show each role's icon. */
+  .hero__roles {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.85rem;
+    width: auto;
+    min-width: 0;
+    white-space: normal;
+    font-size: clamp(0.95rem, 0.84rem + 1.1vw, 1.15rem);
+    letter-spacing: 0.01em;
+  }
+  .hero__role {
+    display: flex;
+    align-items: center;
+    gap: 0.7em;
+  }
+  .hero__role-icon {
+    display: block;
+    flex: none;
+    width: 1.45em;
+    height: 1.45em;
+    opacity: 0.9;
+  }
+  .hero__role + .hero__role::before { content: none; }
+  /* Light mode mobile: "Sheikh" (the plain title half) is forced to a near-white
+     desktop tone (#ccd1d8) that's meant to sit over the dark part of the photo.
+     Here it sits on the cream panel below the photo, so make it dark ink — warm
+     to harmonise with the gold "Heera" — so it reads cleanly. */
+  [data-theme="light"] .hero__title {
+    color: #2b2620;
+  }
+  /* Light mode mobile: the roles default to a near-white tone meant for the
+     bright part of the photo; on the cream panel they disappear. Use a warm,
+     muted dark so they read as clear secondary text under the name. */
+  [data-theme="light"] .hero__roles {
+    color: #6a5f54;
+  }
+  /* Two-part veil in light mode:
+     1. A cream lift over the LEFT third — lightens the photo's naturally-dark
+        corner (shadowed wall/desk) so it reads light like the desktop hero
+        instead of a black patch. Fades out by ~62% width, well before the
+        perfume bottles on the right, so they keep full strength.
+     2. A bottom-only fade so the photo's lower edge melts into the cream page. */
   [data-theme="light"] .hero__bg::after {
-    background: linear-gradient(180deg, rgba(228, 222, 209, 0.28) 0%, rgba(228, 222, 209, 0.2) 38%, rgba(228, 222, 209, 0.46) 100%);
+    /* Order matters: the bottom-fade is listed FIRST so it composites ON TOP of
+       the left-lift. The left-lift uses a warmer/darker cream than the page, so
+       if it sat on top it would tint the bottom-left and mismatch the page below
+       (a visible band). With the page-cream bottom-fade on top, the lower edge
+       resolves to the exact page tone (#f5f3ef) across the full width — seamless
+       — while the left-lift still shows through higher up where the bottom-fade
+       is transparent. */
+    background:
+      linear-gradient(180deg, transparent 0%, transparent 86%, rgba(245, 243, 239, 0.45) 95%, rgba(245, 243, 239, 1) 100%),
+      linear-gradient(90deg, rgba(228, 222, 209, 0.82) 0%, rgba(227, 217, 200, 0.5) 16%, rgba(224, 212, 192, 0.24) 38%, rgba(222, 209, 188, 0.08) 56%, rgba(222, 209, 188, 0) 72%);
   }
+  /* Dark mode: the old full-height wash (0.42 at top → 0.82 at bottom) was for
+     text-over-photo legibility; the text sits below now, so it only muddies the
+     whole scene. Cut it to a bottom-only fade into the page charcoal (#101216) so
+     the photo shows at full brightness and just its lower edge melts into the
+     panel — mirrors the light-mode treatment. */
   [data-theme="dark"] .hero__bg::after {
-    background: linear-gradient(180deg, rgba(16, 18, 22, 0.42) 0%, rgba(16, 18, 22, 0.38) 32%, rgba(16, 18, 22, 0.82) 100%);
+    /* Bottom-fade on top (merge into the page charcoal), then a subtle WARM
+       light-lift on the left below it — brightens the photo's near-black left
+       corner so it reads lit rather than dead, matching the light-mode left veil.
+       Low opacity: the dark photo lifts with very little. Fades out before the
+       perfume bottles on the right. */
+    background:
+      linear-gradient(180deg, transparent 0%, transparent 50%, rgba(16, 18, 22, 0.4) 74%, rgba(16, 18, 22, 0.78) 90%, rgba(16, 18, 22, 1) 100%),
+      linear-gradient(90deg, rgba(232, 224, 210, 0.18) 0%, rgba(232, 224, 210, 0.1) 16%, rgba(232, 224, 210, 0.04) 38%, rgba(232, 224, 210, 0) 60%);
   }
-  /* Keep the scroll hint on mobile; lift it clear of the iOS home indicator. */
-  .hero__scroll { bottom: calc(1.4rem + env(safe-area-inset-bottom, 0px)); }
+  /* Scroll hint flows below the content (hero is no longer full-height, so an
+     absolute bottom anchor would collide with the buttons). Centre it and leave
+     room for the iOS home indicator. */
+  .hero__scroll {
+    position: static;
+    transform: none;
+    margin: 1.4rem auto calc(1.4rem + env(safe-area-inset-bottom, 0px));
+  }
 
   .site-footer {
     grid-template-columns: 1fr;
@@ -3547,7 +3723,9 @@ body.drawer-open { overflow: hidden; }
   line-height: 1.6;
 }
 [data-theme="dark"] .lost__lede { text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6); }
-[data-theme="light"] .lost__lede { text-shadow: 0 1px 1px rgba(255, 250, 240, 0.6); }
+/* Bright/warm fog washes out the cool --ink-soft; use a strong warm dark so the
+   lede reads clearly, with a tighter light halo to lift it over darker patches. */
+[data-theme="light"] .lost__lede { color: #2a251d; text-shadow: 0 1px 1px rgba(255, 250, 240, 0.5); }
 .lost__btn {
   display: inline-flex;
   align-items: center;
@@ -3594,6 +3772,16 @@ body.drawer-open { overflow: hidden; }
 [data-theme="light"] :is(.lost-link__title, .lost-link__desc, .lost__foot-label, .lost__quote p, .lost__quote cite) {
   text-shadow: 0 1px 1px rgba(255, 252, 246, 0.5);
 }
+/* The secondary description text (--ink-soft) is too light over the bright fog —
+   darken + warm it so it reads, while staying below the near-black titles. */
+[data-theme="light"] .lost-link__desc { color: #3c342a; }
+/* The small tracked terracotta labels (--accent #9c4620) don't have enough
+   contrast over the bright fog — deepen them to a darker brick for easy reading,
+   with a light halo to lift them over any darker patch. */
+[data-theme="light"] :is(.lost__eyebrow, .lost__foot-label, .lost__quote cite) {
+  color: #7a3214;
+  text-shadow: 0 1px 1px rgba(255, 250, 240, 0.5);
+}
 [data-theme="dark"] :is(.lost-link__title, .lost-link__desc, .lost__foot-label, .lost__quote p, .lost__quote cite) {
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
 }
@@ -3634,9 +3822,87 @@ body.drawer-open { overflow: hidden; }
   color: var(--accent);
 }
 @media (max-width: 720px) {
-  .lost__links { grid-template-columns: repeat(2, 1fr); gap: 0.4rem 0; }
+  .lost__links { grid-template-columns: repeat(2, 1fr); gap: 0.2rem 0; }
   .lost__links li:nth-child(2n+1) { border-left: 0; }
-  .lost__links li:nth-child(n+3) { border-top: 1px solid color-mix(in srgb, var(--ink) 12%, transparent); padding-top: 1rem; }
+  /* Tighter divider gap above the second row (was 0.4rem row-gap + 1rem pad). */
+  .lost__links li:nth-child(n+3) { border-top: 1px solid color-mix(in srgb, var(--ink) 12%, transparent); padding-top: 0.5rem; }
+  /* Bring the descriptions back, compact. */
+  .lost-link__desc { font-size: 0.68rem; max-width: 22ch; }
+  /* Pull the whole stack UP: the 404 block and the foot use auto margins that
+     centre/push them apart in the 100vh column, leaving a big mid gap. Zero them
+     so everything stacks from the top and the menu + quote come into view. */
+  /* 404 block stays near the top; the foot (menu + quote) is pushed to the
+     BOTTOM via margin-top:auto, so the free space opens up ABOVE it. A small
+     bottom padding keeps "— Sheikh Heera" just inside the viewport.
+     Size the section to the viewport MINUS the sticky topbar (~70px + notch
+     inset) — otherwise 100vh starts below the topbar and the foot's bottom
+     spills off-screen. */
+  .lost {
+    min-height: calc(100vh - 70px);
+    min-height: calc(100dvh - 70px - env(safe-area-inset-top, 0px));
+    padding-top: 1.4rem;
+    padding-bottom: 1.6rem;
+  }
+  /* Inner grows to fill the space above the foot, and the button is centred in
+     the leftover gap (auto top/bottom margins) — so it sits midway between the
+     404 text above and the menu below, on any screen height. */
+  .lost__inner {
+    margin: 0;
+    padding-top: 0.4rem;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .lost__btn { margin-top: auto; margin-bottom: auto; }
+  .lost__foot { margin: 0; padding-top: clamp(1.4rem, 5vw, 2.6rem); }
+  /* Mobile reframe: the desktop `right` crop lands the dark trunk + "NOT THIS
+     WAY" sign dead-centre behind the headline/paragraph (busy, low-contrast).
+     Shift toward the misty path/figure so the type sits on calm fog; the sign
+     drifts to the right edge, still readable. */
+  /* The photo is portrait, so on a portrait phone `cover` fills the full height
+     with NO vertical slack — meaning `background-position-y` does nothing. To be
+     able to lift the figure + sign UP (out from behind the cards), zoom the photo
+     layer past cover (185%) to create vertical room, then push to the top. The two
+     gradient fallback layers stay `cover`. Horizontal stays a literal 40px nudge. */
+  [data-theme="light"] .lost__bg {
+    background-size: 185% auto, cover, cover;
+    /* The light photo's figure sits a touch further left than the dark one, so
+       push the content a bit more to the right to pull it fully into frame. */
+    background-position: calc(100% + 115px) 100%;
+  }
+  [data-theme="dark"] .lost__bg {
+    background-size: 185% auto, cover, cover;
+    background-position: calc(100% + 80px) 100%;
+  }
+  /* And deepen the veil's mid band (it was near-transparent at ~32%) so whatever
+     trees sit behind the text stay dimmed enough to read over. */
+  [data-theme="dark"] .lost__bg::after {
+    background: linear-gradient(180deg, rgba(8, 13, 15, 0.55) 0%, rgba(8, 13, 15, 0.4) 30%, rgba(8, 13, 15, 0.55) 55%, rgba(8, 13, 15, 0.85) 80%, rgba(8, 13, 15, 0.96) 100%);
+  }
+  [data-theme="light"] .lost__bg::after {
+    background: linear-gradient(180deg, rgba(233, 228, 216, 0.62) 0%, rgba(233, 228, 216, 0.42) 30%, rgba(236, 231, 221, 0.64) 55%, rgba(238, 234, 225, 0.9) 80%, rgba(240, 236, 228, 0.98) 100%);
+  }
+  /* Closing quote on phones: put the quote mark to the LEFT of the text (not
+     centred above it) and bump the text a touch. Keep it on one line. */
+  .lost__quote {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45em;
+  }
+  .lost__quote::before {
+    display: inline-block;
+    margin: 0;
+    font-size: 1.7rem;
+    line-height: 1;
+    align-self: flex-start;
+    transform: translateY(0.18em);
+  }
+  .lost__quote p { font-size: clamp(0.58rem, 2.7vw, 1rem); white-space: nowrap; margin: 0; }
+  /* Keep the attribution on its own line, centred under the quote. */
+  .lost__quote cite { flex-basis: 100%; margin-top: 0.6rem; }
 }
 
 @media print {
