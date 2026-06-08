@@ -3385,15 +3385,22 @@ body.drawer-open { overflow: hidden; }
   /* Keep the card SHORT (square) but shrink the photo within it so generous HUD
      bands open up around it — top/bottom for THE ALPHA/VERIFIED + the serial,
      and a little on the sides — without the card growing taller. The floating
-     overlays (readout/gauge/wave) are nudged inward to track the smaller photo. */
+     overlays (readout/gauge/wave) are nudged inward to track the smaller photo.
+     NOTE: do NOT use `aspect-ratio` on this figure — it's a grid item, and iOS
+     Safari mis-computes aspect-ratio on grid items and collapses it to zero (the
+     portrait vanishes on iPhone). Instead the static, in-flow image gives the
+     figure its height (square photo → square frame), and the figure's own padding
+     creates the 25px inset/bands. */
   .portrait {
     align-self: auto;
     margin-bottom: 0;
-    aspect-ratio: 1 / 1;
-  }
-  .portrait img {
     box-sizing: border-box;
     padding: 25px;
+  }
+  .portrait img {
+    position: static;
+    width: 100%;
+    height: auto;
   }
   /* Corner labels are cqw-sized (oversize on a phone container); cap to the
      desktop size and centre them in the ~34px band. */
