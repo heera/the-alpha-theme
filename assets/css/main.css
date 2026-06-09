@@ -2120,7 +2120,19 @@ h1, h2, h3, h4 {
   min-height: 11rem;
   position: relative;   /* anchors the accent hairline + centre node */
   border-top: 0;        /* replaced by the gradient hairline on ::before */
-  background: var(--bg-2);
+  /* Smoky bloom: a faint accent haze spilling from the centre node at the top
+     edge and dissolving downward — reads as the node's light spreading through
+     the footer rather than a hard slab below the hairline. A neutral lift sits
+     under it so the haze fades into a soft fog, not a teal stain. */
+  background:
+    radial-gradient(130% 130% at 50% -8%,
+      color-mix(in srgb, var(--accent) 9%, transparent) 0%,
+      color-mix(in srgb, var(--accent) 4%, transparent) 22%,
+      transparent 55%),
+    radial-gradient(150% 120% at 50% -20%,
+      rgba(255, 255, 255, 0.035) 0%,
+      transparent 50%),
+    var(--bg-2);
   display: grid;
   /* Two clean columns: utility info left, utility links right. */
   grid-template-columns: 1fr 1fr;
@@ -2175,6 +2187,15 @@ h1, h2, h3, h4 {
 /* Light mode: a soft halo reads as a muddy stain on the cream (a glow only
    reads as light against a dark surface), so the node becomes a crisp dot with
    just a tight glow — clean rather than smudged. */
+/* Light mode: the smoky bloom reads as a muddy stain on the cream, so drop the
+   white lift entirely and let only a whisper of accent tint the top edge. */
+[data-theme="light"] .site-footer {
+  background:
+    radial-gradient(130% 120% at 50% -8%,
+      color-mix(in srgb, var(--accent) 7%, transparent) 0%,
+      transparent 50%),
+    var(--bg-2);
+}
 [data-theme="light"] .site-footer::after {
   width: 4px;
   height: 4px;
