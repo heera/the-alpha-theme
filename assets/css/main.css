@@ -2120,22 +2120,29 @@ h1, h2, h3, h4 {
   min-height: 11rem;
   position: relative;   /* anchors the accent hairline + centre node */
   border-top: 0;        /* replaced by the gradient hairline on ::before */
-  /* Smoky bloom: a faint accent haze spilling from the centre node at the top
-     edge and dissolving downward — reads as the node's light spreading through
-     the footer rather than a hard slab below the hairline. A neutral lift sits
-     under it so the haze fades into a soft fog, not a teal stain. */
+  /* Beam: a pool of light spills from the centre node and reaches down onto the
+     centre seal — reads as the node lighting the circle. The light itself is
+     NEUTRAL (white-ish) so it doesn't tint the footer; a small accent core sits
+     right at the node so it still reads as the teal source fading into white
+     light. A faint accent side-haze keeps the brand whisper. Px-sized so the
+     pool stays focused on the centre on a wide footer. */
   background:
-    radial-gradient(130% 130% at 50% -8%,
-      color-mix(in srgb, var(--accent) 9%, transparent) 0%,
-      color-mix(in srgb, var(--accent) 4%, transparent) 22%,
+    radial-gradient(300px 150px at 50% 0%,
+      color-mix(in srgb, var(--accent) 12%, transparent) 0%,
+      transparent 70%),
+    radial-gradient(470px 240px at 50% 0%,
+      rgba(226, 232, 234, 0.11) 0%,
+      rgba(226, 232, 234, 0.045) 32%,
+      transparent 74%),
+    radial-gradient(150% 130% at 50% -8%,
+      color-mix(in srgb, var(--accent) 4%, transparent) 0%,
       transparent 55%),
-    radial-gradient(150% 120% at 50% -20%,
-      rgba(255, 255, 255, 0.035) 0%,
-      transparent 50%),
     var(--bg-2);
   display: grid;
-  /* Two clean columns: utility info left, utility links right. */
-  grid-template-columns: 1fr 1fr;
+  /* Utility info left, centred wordmark, utility links right. The auto centre
+     column anchors the brand mark directly under the top-edge node so the node
+     reads as light glinting off it. */
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
   gap: 1.5rem 2rem;
   /* Matches the sidebar colophon (.colophon-mini) exactly — same neutral grey
@@ -2219,6 +2226,44 @@ h1, h2, h3, h4 {
   text-decoration-thickness: 1px;
 }
 
+/* Centre seal — a signature emblem engraved with the daily loop
+   (CODE · SNIFF · EAT · SLEEP) around the rim. Fine accent strokes (luxury cap ×
+   HUD × watchmaker bezel × compass); a soft bloom reads as lit. */
+.site-footer__seal {
+  grid-column: 2;
+  align-self: center;
+  justify-self: center;
+  color: var(--accent);
+  pointer-events: none;
+  filter:
+    drop-shadow(0 0 4px color-mix(in srgb, var(--accent) 28%, transparent))
+    drop-shadow(0 0 12px color-mix(in srgb, var(--accent) 13%, transparent));
+}
+.site-footer__seal svg { display: block; }
+/* Rim engraving — fine mono caps following the arc paths. Weight 500 + near-full
+   opacity so the words read clearly without growing in size. */
+.site-footer__seal-text {
+  fill: currentColor;
+  fill-opacity: 0.92;
+  stroke: none;
+  font-family: var(--font-mono);
+  font-size: 7.5px;
+  font-weight: 500;
+  letter-spacing: 1.6px;
+}
+/* Light mode: terracotta at full strength (~6.2:1 on cream) — the toned-down
+   opacity reads as washed-out on the light surface, so take it to 1. */
+[data-theme="light"] .site-footer__seal-text { fill-opacity: 1; }
+/* The core ◉ carries the brightest glow — the signature point. */
+.site-footer__seal-core {
+  filter: drop-shadow(0 0 2px color-mix(in srgb, var(--accent) 85%, transparent));
+}
+/* Light mode: a glow only reads as light on a dark surface, so on the cream the
+   bloom muddies — pull it back to a whisper and let the crisp engraving carry. */
+[data-theme="light"] .site-footer__seal {
+  filter: drop-shadow(0 0 2px color-mix(in srgb, var(--accent) 16%, transparent));
+}
+
 .site-footer__col--left { justify-self: start; }
 .site-footer__col--right {
   justify-self: end;
@@ -2233,7 +2278,7 @@ h1, h2, h3, h4 {
 .site-footer__copy,
 .site-footer__sub {
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   line-height: 1.95;
@@ -2246,7 +2291,7 @@ h1, h2, h3, h4 {
   /* Match the left column's size + line-height so the two columns share one
      baseline grid — row 1 (copyright / subscribe) and row 2 (powered-by /
      terms) line up horizontally. */
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   line-height: 1.95;
@@ -3276,6 +3321,10 @@ body.drawer-open { overflow: hidden; }
 /* ----- Responsive --------------------------------------------------------- */
 @media (max-width: 1024px) {
   :root { --sidebar-w: 0px; }
+
+  /* The centre seal is a desktop flourish for the wide footer's empty middle —
+     once the layout collapses there's no empty centre to fill, so drop it. */
+  .site-footer__seal { display: none; }
 
   .topbar {
     display: flex;
