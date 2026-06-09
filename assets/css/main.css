@@ -437,10 +437,9 @@ h1, h2, h3, h4 {
   width: var(--sidebar-w);
   display: flex;
   flex-direction: column;
-  /* Bottom padding aligns the sidebar foot's last line with the footer's.
-     The footer vertically centers its content in its 11rem row, so its last
-     line lands ~0.03rem below its own padding-bottom; we trim the sidebar's
-     bottom padding by that amount (2.625 → 2.596rem) to sit on the same row. */
+  /* Foot block is bottom-anchored; its lift is tuned via .sidebar__foot's
+     margin-bottom so the socials row lands level with the footer's top
+     hairline. This bottom padding just sets the block's base offset. */
   padding: 2.4rem 1.9rem 2.596rem;
   background: var(--bg-2);
   border-right: 1px solid var(--sidebar-edge, var(--border));
@@ -600,7 +599,12 @@ h1, h2, h3, h4 {
 .nav__link.is-active { color: var(--ink); }
 .nav__link.is-active::before { height: 60%; }
 
-.sidebar__foot { margin-top: auto; margin-bottom: 1.125rem; padding-top: 1.6rem; }
+/* Bottom-anchored (margin-top:auto), so the socials row sits one foot-height
+   above the bottom. The colophon lost a line (the sponsored credit), which —
+   being bottom-anchored — dropped the whole block by that line; the extra
+   margin-bottom lifts it back so the socials row sits level with the footer's
+   top hairline again. */
+.sidebar__foot { margin-top: auto; margin-bottom: 3rem; padding-top: 1.6rem; }
 .socials {
   list-style: none;
   padding: 0;
