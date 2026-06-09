@@ -1993,22 +1993,22 @@ h1, h2, h3, h4 {
      and settles into contact's own --bg by ~60% down. Over it, the same
      theme-aware --frag-* warmth is cast from wide, horizontally-centred
      (50%) ellipses: a haze across the mid column and an ember pooling along
-     the whole bottom edge into the footer — even across the full width,
-     intensifying downward. Theme-aware via --frag-* + --bg/--bg-2, so light
+     the whole top edge from the blog seam above — even across the full width,
+     intensifying upward. Theme-aware via --frag-* + --bg/--bg-2, so light
      and dark both resolve with no per-theme rule. */
   background:
-    radial-gradient(ellipse 140% 95% at 50% 116%, var(--frag-ember) 0%, transparent var(--frag-ember-spread, 70%)),
-    radial-gradient(ellipse 160% 120% at 50% 58%, var(--frag-haze)  0%, transparent 92%),
+    radial-gradient(ellipse 140% 95% at 50% -16%, var(--frag-ember) 0%, transparent var(--frag-ember-spread, 70%)),
+    radial-gradient(ellipse 160% 120% at 50% 42%, var(--frag-haze)  0%, transparent 92%),
     linear-gradient(to bottom, var(--bg-2) 0%, var(--bg-2) 14%, var(--bg) 70%);
 }
 /* Light mode: the base wash lightens toward the bottom (bg-2 → bg), which
-   reads washed/plain. Pool a stronger warm glow up from the footer so the
-   section gains the same atmospheric depth dark mode gets from its ember. */
+   reads washed/plain. Pool a stronger warm glow down from the blog seam at
+   top so the section gains the same atmospheric depth dark mode gets. */
 [data-theme="light"] #contact {
   background:
-    radial-gradient(ellipse 150% 100% at 50% 118%, rgba(246, 234, 212, 0.45) 0%, transparent 82%),
-    radial-gradient(ellipse 130% 90% at 50% 92%, rgba(244, 230, 206, 0.22) 0%, transparent 72%),
-    radial-gradient(ellipse 160% 120% at 50% 55%, var(--frag-haze) 0%, transparent 92%),
+    radial-gradient(ellipse 150% 100% at 50% -18%, rgba(246, 234, 212, 0.45) 0%, transparent 82%),
+    radial-gradient(ellipse 130% 90% at 50% 8%, rgba(244, 230, 206, 0.22) 0%, transparent 72%),
+    radial-gradient(ellipse 160% 120% at 50% 45%, var(--frag-haze) 0%, transparent 92%),
     linear-gradient(to bottom, var(--bg-2) 0%, var(--bg-2) 20%, var(--surface) 100%);
 }
 .contact__grid {
