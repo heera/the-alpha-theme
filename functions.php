@@ -694,3 +694,4 @@ add_filter( 'body_class', 'the_alpha_body_classes' );
 
 require THE_ALPHA_DIR . '/inc/template-tags.php';
 require THE_ALPHA_DIR . '/inc/banner-image.php';
+require THE_ALPHA_DIR . '/inc/agent-readiness.php';

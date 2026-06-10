@@ -12,6 +12,36 @@ A fast, dependency-free single-page WordPress theme for a software developer & f
 - **Disqus-friendly**: works out-of-the-box with native WP comments; the official Disqus plugin overrides automatically when installed.
 - **Smoke + bakhoor atmospherics** on the About section, themed gradients painted onto section backgrounds.
 - **Smooth page-load reveal** with a custom spinner + shimmer label + cross-fade.
+- **Agent-readable** (`inc/agent-readiness.php`): publishes `/llms.txt`, serves any page as
+  markdown (via `Accept: text/markdown` or a parallel `.md` URL), and advertises the REST API +
+  `/llms.txt` through `Link` headers. See *Agent readiness* below.
+
+## Agent readiness
+
+`inc/agent-readiness.php` makes the site legible to AI agents (improves the aiscan.site grade):
+
+- `GET /llms.txt` — an [llmstxt.org](https://llmstxt.org) index (H1, summary, `##` link sections),
+  cached for an hour and busted on any post change.
+- Any post/page as clean markdown two ways:
+  - **Content negotiation** — `curl -H "Accept: text/markdown" https://heera.it/some-post/`
+  - **Parallel URL** — `https://heera.it/some-post.md` (and `/index.md` for the home/index view).
+- `Link: …; rel="api-catalog"` (REST root) and `Link: …; rel="describedby"` (→ `/llms.txt`).
+
+The `.md` URLs have their own cache key and are CDN-safe out of the box. The `Accept`-header
+negotiation, however, hits the origin **only if the upstream FastCGI/nginx page cache is told to
+bypass on that header** — otherwise a cached HTML page is served regardless of `Accept`. Add this to
+the nginx `server` block (alongside the existing `fastcgi_cache` rules):
+
+```nginx
+# Serve fresh markdown to agents that ask for it; never cache it.
+set $skip_cache 0;
+if ($http_accept ~* "text/markdown") { set $skip_cache 1; }
+fastcgi_cache_bypass $skip_cache;
+fastcgi_no_cache     $skip_cache;
+```
+
+After deploying, purge **both** Cloudflare and the nginx page cache so `/llms.txt` and the new
+headers aren't masked by stale entries.
 
 ## Tech
 
