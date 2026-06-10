@@ -591,7 +591,15 @@ function the_alpha_seo() {
 		'name'          => $person_name,
 		'alternateName' => apply_filters( 'the_alpha_person_alt_names', array( 'Heera', 'Hira', 'Sheikh Hira', 'Heera Sheikh' ) ),
 		'url'           => $site_url,
+		'jobTitle'      => apply_filters( 'the_alpha_person_job_title', 'CTO' ),
 	);
+	$works_for = apply_filters( 'the_alpha_person_works_for', 'Authlab' );
+	if ( $works_for ) {
+		$person_ld['worksFor'] = array(
+			'@type' => 'Organization',
+			'name'  => $works_for,
+		);
+	}
 	if ( $same_as ) {
 		$person_ld['sameAs'] = array_values( array_unique( $same_as ) );
 	}
