@@ -280,7 +280,7 @@ h1, h2, h3, h4 {
   justify-content: center;
   gap: 1.4rem;
   background: var(--bg);
-  transition: opacity 0.45s var(--ease), visibility 0.45s var(--ease);
+  transition: opacity 0.4s var(--ease), visibility 0.4s var(--ease);
 }
 .js .page-loader__ring {
   width: 54px;
@@ -337,9 +337,11 @@ h1, h2, h3, h4 {
   pointer-events: none;
 }
 /* Page-content reveal: until JS confirms everything is loaded (and adds
-   body.is-ready), the main content and footer sit slightly down + invisible,
-   then cross-fade up as the loader fades out — so content slides in instead
-   of popping when the overlay leaves.
+   body.is-ready), the main content and footer sit further down + invisible,
+   then glide up into view. The loader clears fast (0.4s) while the content
+   keeps fading + sliding over a longer 1s — so the loader gets out of the way
+   early and you actually SEE the content settle in, rather than the two
+   cross-fades cancelling each other behind the overlay.
    We animate .main, NOT .layout: the layout contains the position:fixed
    sidebar, and a transform on an ancestor re-anchors fixed children to that
    ancestor (the full-height layout) instead of the viewport — which made the
@@ -348,8 +350,8 @@ h1, h2, h3, h4 {
 .js .main,
 .js .site-footer {
   opacity: 0;
-  transform: translateY(8px);
-  transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
+  transform: translateY(20px);
+  transition: opacity 1s var(--ease), transform 1s var(--ease);
 }
 .js body.is-ready .main,
 .js body.is-ready .site-footer {
@@ -2273,85 +2275,78 @@ h1, h2, h3, h4 {
   filter: drop-shadow(0 0 2px color-mix(in srgb, var(--accent) 16%, transparent));
 }
 /* First-view flourish (JS adds --lit once per page load, after a dwell on the
-   footer). No motion — a pure glow swell: the seal fades in at its normal
-   resting state, the glow then rises smoothly to a bright sci-fi bloom around
-   the midpoint, and eases back down to its real resting glow. Animation is
-   one-shot and reverts to the CSS base afterwards (no fill-forwards), so the
-   seal sits at rest both before and after — the keyframes end on the resting
-   glow to avoid any snap. ease-in-out keeps the rise and fall smooth. Reduced
-   motion never reaches here (gated in JS + below). */
+   footer). The seal is always visible at its resting glow — no fade, no hidden
+   state. The glow rises smoothly from rest to a bright sci-fi bloom around the
+   midpoint, then eases back down to its real resting glow. Animation is
+   one-shot and reverts to the CSS base afterwards (no fill-forwards); since the
+   keyframes both start and end on the resting glow, there is no snap either way.
+   ease-in-out keeps the rise and fall smooth. Reduced motion / no-JS never add
+   --lit, so they simply see the resting seal. */
 @media (prefers-reduced-motion: no-preference) {
-  /* Armed = held invisible until the reveal fires, so there is no visible→
-     hidden snap (the "blink"). Only added by JS, and only here under
-     no-reduced-motion, so reduce-motion / no-JS never hide the seal. */
-  .site-footer__seal--armed { opacity: 0; }
-
   .site-footer__seal--lit {
-    animation: sealIgnite 3s ease-in-out backwards;
+    animation: sealIgnite 3.6s ease-in-out;
   }
   .site-footer__seal--lit .site-footer__seal-core {
-    animation: sealCoreFlare 3s ease-in-out backwards;
+    animation: sealCoreFlare 3.6s ease-in-out;
   }
-  /* One continuous gesture: fade up from nothing while the glow builds, swell
-     to a bright sci-fi bloom, then settle back to the real resting glow. */
+  /* The concentric rings brighten with the bloom too — their stroke flares up
+     then settles. No 0%/100% keyframes, so each ring rises from and returns to
+     its OWN resting stroke-opacity (the inline attr), keeping the layered depth
+     and avoiding any snap when the one-shot animation reverts. */
+  .site-footer__seal--lit .site-footer__seal-ring {
+    animation: sealRingFlare 3.6s ease-in-out;
+  }
+  @keyframes sealRingFlare {
+    45%, 60% { stroke-opacity: 0.95; }
+  }
+  /* One continuous gesture: swell from the resting glow up to a bright sci-fi
+     bloom, hold the peak just long enough for the eye to catch it (45–60%),
+     then ease back down to the real resting glow. Opacity stays put — the seal
+     is always visible. */
   @keyframes sealIgnite {
     0% {
-      opacity: 0;
-      filter: drop-shadow(0 0 0 transparent);
-    }
-    45% {
-      opacity: 1;
       filter:
-        drop-shadow(0 0 10px color-mix(in srgb, var(--accent) 56%, transparent))
-        drop-shadow(0 0 30px color-mix(in srgb, var(--accent) 32%, transparent));
+        drop-shadow(0 0 4px color-mix(in srgb, var(--accent) 28%, transparent))
+        drop-shadow(0 0 12px color-mix(in srgb, var(--accent) 13%, transparent));
     }
-    65% {
-      opacity: 1;
+    45%, 60% {
       filter:
-        drop-shadow(0 0 16px color-mix(in srgb, var(--accent) 88%, transparent))
-        drop-shadow(0 0 48px color-mix(in srgb, var(--accent) 52%, transparent));
+        drop-shadow(0 0 26px color-mix(in srgb, var(--accent) 100%, transparent))
+        drop-shadow(0 0 70px color-mix(in srgb, var(--accent) 64%, transparent))
+        drop-shadow(0 0 120px color-mix(in srgb, var(--accent) 34%, transparent));
     }
     100% {
-      opacity: 1;
       filter:
         drop-shadow(0 0 4px color-mix(in srgb, var(--accent) 28%, transparent))
         drop-shadow(0 0 12px color-mix(in srgb, var(--accent) 13%, transparent));
     }
   }
-  /* The core ◉ brightens in step, peaks with the bloom, then settles. */
+  /* The core ◉ brightens in step, holds at the bloom's peak, then settles. */
   @keyframes sealCoreFlare {
-    0% { filter: drop-shadow(0 0 0 transparent); }
-    65% {
+    0% { filter: drop-shadow(0 0 2px color-mix(in srgb, var(--accent) 85%, transparent)); }
+    45%, 60% {
       filter:
-        drop-shadow(0 0 9px var(--accent))
-        drop-shadow(0 0 22px color-mix(in srgb, var(--accent) 66%, transparent));
+        drop-shadow(0 0 14px var(--accent))
+        drop-shadow(0 0 34px color-mix(in srgb, var(--accent) 78%, transparent));
     }
     100% { filter: drop-shadow(0 0 2px color-mix(in srgb, var(--accent) 85%, transparent)); }
   }
-  /* Light mode resting glow is far softer — land the swell there so the seal
-     doesn't settle into a heavier shadow on the cream surface. */
+  /* Light mode resting glow is far softer — swell and settle there so the seal
+     doesn't land in a heavier shadow on the cream surface. */
   [data-theme="light"] .site-footer__seal--lit {
     animation-name: sealIgniteLight;
   }
   @keyframes sealIgniteLight {
     0% {
-      opacity: 0;
-      filter: drop-shadow(0 0 0 transparent);
+      filter: drop-shadow(0 0 2px color-mix(in srgb, var(--accent) 16%, transparent));
     }
-    45% {
-      opacity: 1;
+    45%, 60% {
       filter:
-        drop-shadow(0 0 8px color-mix(in srgb, var(--accent) 42%, transparent))
-        drop-shadow(0 0 22px color-mix(in srgb, var(--accent) 24%, transparent));
-    }
-    65% {
-      opacity: 1;
-      filter:
-        drop-shadow(0 0 11px color-mix(in srgb, var(--accent) 60%, transparent))
-        drop-shadow(0 0 30px color-mix(in srgb, var(--accent) 32%, transparent));
+        drop-shadow(0 0 16px color-mix(in srgb, var(--accent) 80%, transparent))
+        drop-shadow(0 0 44px color-mix(in srgb, var(--accent) 44%, transparent))
+        drop-shadow(0 0 80px color-mix(in srgb, var(--accent) 22%, transparent));
     }
     100% {
-      opacity: 1;
       filter: drop-shadow(0 0 2px color-mix(in srgb, var(--accent) 16%, transparent));
     }
   }

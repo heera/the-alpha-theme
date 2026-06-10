@@ -318,29 +318,23 @@
   }
 
   /* ---- Footer seal: first-view glow flourish ----------------------------
-     Once per page load, the rounded footer seal ignites — a slick reveal that
-     blooms its glow, then settles to the resting state. Fires the first time
-     the seal is dwelt on: in view, mostly on screen, for ~1s of settled
-     attention; the observer then disconnects so it plays just once this load
-     (a refresh re-arms it). Skipped for reduced-motion and no-JS. The seal is
-     always rendered at rest, so the animation is purely additive — it can
-     never leave it stuck hidden. */
+     The seal is always visible at its resting glow. The first time it's dwelt
+     on — in view, mostly on screen, for ~1s of settled attention — its glow
+     swells smoothly to a bright sci-fi bloom and eases back down to rest. The
+     observer then disconnects so it plays just once this load (a refresh
+     re-arms it). Purely additive: no fade-in, no hidden state — the seal sits
+     at rest before and after, so it can never be left invisible. Skipped for
+     reduced-motion and no-JS (both just see the resting seal). */
   var seal = document.querySelector(".site-footer__seal");
   if (seal && !reduceMotion && "IntersectionObserver" in window) {
-    // Hold it hidden from the start so the reveal is a clean fade-in — without
-    // this the seal sits visible and snaps to opacity 0 as the animation arms,
-    // which reads as a blink. It lives below the fold, so hiding it now is
-    // invisible until you scroll down. CSS gates the hide to no-reduced-motion.
-    seal.classList.add("site-footer__seal--armed");
     var sealDwell = null;
     var sealObs = new IntersectionObserver(
       function (entries) {
         entries.forEach(function (entry) {
           if (entry.isIntersecting && entry.intersectionRatio >= 0.55) {
-            // On screen — wait out a ~1s dwell before lighting it.
+            // On screen — wait out a ~1s dwell before swelling the glow.
             if (!sealDwell) {
               sealDwell = setTimeout(function () {
-                seal.classList.remove("site-footer__seal--armed");
                 seal.classList.add("site-footer__seal--lit");
                 sealObs.disconnect();
               }, 1000);

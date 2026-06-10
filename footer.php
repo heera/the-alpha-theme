@@ -54,23 +54,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<path id="sealRimW" d="M 4.1 76.5 A 53 53 0 0 1 4.1 23.5"/>
 			</defs>
 			<circle cx="50" cy="50" r="32" fill="url(#sealHaze)" stroke="none"/>
-			<circle cx="50" cy="50" r="60" stroke-width="0.7" stroke-opacity="0.18"/>
-			<circle cx="50" cy="50" r="44" stroke-width="0.7" stroke-opacity="0.22"/>
-			<circle cx="50" cy="50" r="33" stroke-width="0.7" stroke-opacity="0.3"/>
+			<circle class="site-footer__seal-ring" cx="50" cy="50" r="60" stroke-width="0.7" stroke-opacity="0.18"/>
+			<circle class="site-footer__seal-ring" cx="50" cy="50" r="44" stroke-width="0.7" stroke-opacity="0.22"/>
+			<circle class="site-footer__seal-ring" cx="50" cy="50" r="33" stroke-width="0.7" stroke-opacity="0.3"/>
 			<g stroke-width="0.6" stroke-opacity="0.2">
 				<line x1="50" y1="17" x2="50" y2="26"/>
 				<line x1="50" y1="74" x2="50" y2="83"/>
 				<line x1="17" y1="50" x2="26" y2="50"/>
 				<line x1="74" y1="50" x2="83" y2="50"/>
 			</g>
-			<circle cx="50" cy="50" r="14" stroke-width="0.7" stroke-opacity="0.42"/>
+			<circle class="site-footer__seal-ring" cx="50" cy="50" r="14" stroke-width="0.7" stroke-opacity="0.42"/>
 			<g fill="currentColor" stroke="none">
 				<circle cx="50" cy="23" r="0.9" fill-opacity="0.5"/>
 				<circle cx="66" cy="42" r="0.7" fill-opacity="0.32"/>
 				<circle cx="37" cy="61" r="0.8" fill-opacity="0.38"/>
 				<circle cx="40" cy="36" r="0.7" fill-opacity="0.3"/>
 			</g>
-			<circle cx="50" cy="50" r="6" stroke-width="0.8" stroke-opacity="0.6"/>
+			<circle class="site-footer__seal-ring" cx="50" cy="50" r="6" stroke-width="0.8" stroke-opacity="0.6"/>
 			<circle class="site-footer__seal-core" cx="50" cy="50" r="2.4" fill="currentColor" stroke="none"/>
 			<!-- Cycle arrows: a small clockwise arrow rides the rim in each gap
 			     between words, so the loop reads as a flow (Code → Sniff → Eat →
