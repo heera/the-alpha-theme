@@ -2272,6 +2272,90 @@ h1, h2, h3, h4 {
 [data-theme="light"] .site-footer__seal {
   filter: drop-shadow(0 0 2px color-mix(in srgb, var(--accent) 16%, transparent));
 }
+/* First-view flourish (JS adds --lit once per page load, after a dwell on the
+   footer). No motion — a pure glow swell: the seal fades in at its normal
+   resting state, the glow then rises smoothly to a bright sci-fi bloom around
+   the midpoint, and eases back down to its real resting glow. Animation is
+   one-shot and reverts to the CSS base afterwards (no fill-forwards), so the
+   seal sits at rest both before and after — the keyframes end on the resting
+   glow to avoid any snap. ease-in-out keeps the rise and fall smooth. Reduced
+   motion never reaches here (gated in JS + below). */
+@media (prefers-reduced-motion: no-preference) {
+  /* Armed = held invisible until the reveal fires, so there is no visible→
+     hidden snap (the "blink"). Only added by JS, and only here under
+     no-reduced-motion, so reduce-motion / no-JS never hide the seal. */
+  .site-footer__seal--armed { opacity: 0; }
+
+  .site-footer__seal--lit {
+    animation: sealIgnite 3s ease-in-out backwards;
+  }
+  .site-footer__seal--lit .site-footer__seal-core {
+    animation: sealCoreFlare 3s ease-in-out backwards;
+  }
+  /* One continuous gesture: fade up from nothing while the glow builds, swell
+     to a bright sci-fi bloom, then settle back to the real resting glow. */
+  @keyframes sealIgnite {
+    0% {
+      opacity: 0;
+      filter: drop-shadow(0 0 0 transparent);
+    }
+    45% {
+      opacity: 1;
+      filter:
+        drop-shadow(0 0 10px color-mix(in srgb, var(--accent) 56%, transparent))
+        drop-shadow(0 0 30px color-mix(in srgb, var(--accent) 32%, transparent));
+    }
+    65% {
+      opacity: 1;
+      filter:
+        drop-shadow(0 0 16px color-mix(in srgb, var(--accent) 88%, transparent))
+        drop-shadow(0 0 48px color-mix(in srgb, var(--accent) 52%, transparent));
+    }
+    100% {
+      opacity: 1;
+      filter:
+        drop-shadow(0 0 4px color-mix(in srgb, var(--accent) 28%, transparent))
+        drop-shadow(0 0 12px color-mix(in srgb, var(--accent) 13%, transparent));
+    }
+  }
+  /* The core ◉ brightens in step, peaks with the bloom, then settles. */
+  @keyframes sealCoreFlare {
+    0% { filter: drop-shadow(0 0 0 transparent); }
+    65% {
+      filter:
+        drop-shadow(0 0 9px var(--accent))
+        drop-shadow(0 0 22px color-mix(in srgb, var(--accent) 66%, transparent));
+    }
+    100% { filter: drop-shadow(0 0 2px color-mix(in srgb, var(--accent) 85%, transparent)); }
+  }
+  /* Light mode resting glow is far softer — land the swell there so the seal
+     doesn't settle into a heavier shadow on the cream surface. */
+  [data-theme="light"] .site-footer__seal--lit {
+    animation-name: sealIgniteLight;
+  }
+  @keyframes sealIgniteLight {
+    0% {
+      opacity: 0;
+      filter: drop-shadow(0 0 0 transparent);
+    }
+    45% {
+      opacity: 1;
+      filter:
+        drop-shadow(0 0 8px color-mix(in srgb, var(--accent) 42%, transparent))
+        drop-shadow(0 0 22px color-mix(in srgb, var(--accent) 24%, transparent));
+    }
+    65% {
+      opacity: 1;
+      filter:
+        drop-shadow(0 0 11px color-mix(in srgb, var(--accent) 60%, transparent))
+        drop-shadow(0 0 30px color-mix(in srgb, var(--accent) 32%, transparent));
+    }
+    100% {
+      opacity: 1;
+      filter: drop-shadow(0 0 2px color-mix(in srgb, var(--accent) 16%, transparent));
+    }
+  }
+}
 
 .site-footer__col--left { justify-self: start; }
 .site-footer__col--right {
