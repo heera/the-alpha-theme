@@ -164,6 +164,12 @@ function the_alpha_ar_llms_txt() {
 		}
 	}
 
+	// Topics — category archives, the expertise clustering agents retrieve on.
+	$topics = the_alpha_ar_topics();
+	if ( '' !== $topics ) {
+		$out .= "\n## Topics\n\n" . $topics;
+	}
+
 	// Recent posts.
 	$posts = get_posts(
 		array(
@@ -192,6 +198,46 @@ function the_alpha_ar_llms_txt() {
 	$out = rtrim( $out ) . "\n";
 	set_transient( 'the_alpha_llms_txt', $out, HOUR_IN_SECONDS );
 	return $out;
+}
+
+/**
+ * `- [Topic](archive): description` lines for the non-empty categories,
+ * heaviest first. Skips catch-all / noise buckets so the list reads as a
+ * clean expertise map. Uses each category's description when set, otherwise a
+ * post count.
+ */
+function the_alpha_ar_topics() {
+	$exclude = apply_filters(
+		'the_alpha_ar_topic_exclude',
+		array( 'uncategorized', 'miscellaneous', 'random-ideas', 'best-parctice' )
+	);
+
+	$cats = get_categories(
+		array(
+			'hide_empty' => true,
+			'orderby'    => 'count',
+			'order'      => 'DESC',
+			'number'     => 30,
+		)
+	);
+	if ( empty( $cats ) || is_wp_error( $cats ) ) {
+		return '';
+	}
+
+	$lines = '';
+	foreach ( $cats as $cat ) {
+		if ( in_array( $cat->slug, $exclude, true ) ) {
+			continue;
+		}
+		$name = the_alpha_ar_text( $cat->name );
+		$desc = the_alpha_ar_text( $cat->description );
+		if ( '' === $desc ) {
+			/* translators: %d: number of posts in the category. */
+			$desc = sprintf( _n( '%d article', '%d articles', $cat->count, 'the-alpha' ), number_format_i18n( $cat->count ) );
+		}
+		$lines .= '- [' . $name . '](' . esc_url_raw( get_category_link( $cat ) ) . '): ' . $desc . "\n";
+	}
+	return $lines;
 }
 
 /**
@@ -239,6 +285,9 @@ function the_alpha_ar_flush_llms() {
 add_action( 'save_post', 'the_alpha_ar_flush_llms' );
 add_action( 'deleted_post', 'the_alpha_ar_flush_llms' );
 add_action( 'trashed_post', 'the_alpha_ar_flush_llms' );
+add_action( 'created_term', 'the_alpha_ar_flush_llms' );
+add_action( 'edited_term', 'the_alpha_ar_flush_llms' );
+add_action( 'delete_term', 'the_alpha_ar_flush_llms' );
 
 /* -------------------------------------------------------------------------- *
  *  Markdown rendering
