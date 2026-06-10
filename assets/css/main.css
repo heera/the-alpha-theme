@@ -1540,6 +1540,11 @@ h1, h2, h3, h4 {
 }
 .about__link:hover::before,
 .about__link:focus-visible::before { content: "\25CF"; }
+/* Keep each handle on a single row: multi-word names ("Stack Overflow",
+   "X (Twitter)") would otherwise break at their internal space and split the
+   block onto two lines while single-word ones stay on one. */
+.about__links .k,
+.about__links .v { white-space: nowrap; }
 .about__links .k { color: var(--ink); font-weight: 600; }
 .about__links .v {
   color: var(--ink-soft);
@@ -3446,6 +3451,57 @@ body.drawer-open { overflow: hidden; }
     min-height: 0;
     display: block;
   }
+
+  /* Phone landscape + tablet portrait (the 2-column about grid is still active
+     down to 761px): the grid's align-items:stretch was matching the portrait to
+     the tall text column, stretching the frame into a thin sliver. Instead, pin
+     the card to the TOP and tie its height to its OWN width via the padding-
+     bottom ratio hack — a tall-ish near-square that mirrors the desktop frame's
+     proportions, so the (base) absolute/contain photo fills the width with slim
+     HUD bands top/bottom and every overlay keeps its designed position.
+     The padding-bottom hack is deliberate over `aspect-ratio`: iOS Safari
+     miscomputes aspect-ratio on grid items and collapses the figure to zero. */
+  /* Widen the portrait column from its desktop 0.6fr share: at tablet/landscape
+     widths 0.6fr left the photo so small that the fixed-size HUD panels (readout,
+     gauge) covered the face. A near-even split enlarges the photo so the face
+     reads large and the overlays sit proportionally smaller — clear of it. */
+  .about__grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); }
+  .portrait {
+    align-self: start;
+    margin-bottom: 0;
+    height: 0;
+    padding-bottom: 116%;
+  }
+}
+
+/* Landscape phone + tablet (2-column about grid): the bio is shorter than the
+   now-taller portrait, so the social links were stranded in the right column
+   with a wide void left under the image. Lift the inner wrapper to grid level
+   (display:contents) and run the links across the FULL width beneath BOTH
+   columns — so the image and text columns meet a shared footer block instead of
+   a half-empty bottom row. (Scoped above 760px: at ≤760 the grid is single-
+   column and everything already stacks.) */
+@media (min-width: 761px) and (max-width: 1024px) {
+  .about__grid {
+    align-items: start;
+    row-gap: clamp(1rem, 0.6rem + 1.5vw, 2rem);
+  }
+  .about__grid > div { display: contents; }
+  .portrait { grid-column: 1; grid-row: 1; }
+  .bio { grid-column: 2; grid-row: 1; }
+  .about__links-label {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    margin-top: 0;
+  }
+  .about__links {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    /* auto-fit so a row holds as many handles as fit at their full single-line
+       width — 3-up on wider tablets, dropping to 2-up when 3 would force the
+       longest handle ("X (Twitter): /@heerasheikh") to wrap or overflow. */
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  }
 }
 
 @media (max-width: 760px) {
@@ -3453,47 +3509,9 @@ body.drawer-open { overflow: hidden; }
   .frag,
   .post-nav { grid-template-columns: minmax(0, 1fr); }
   .about__links { grid-template-columns: minmax(0, 1fr); }
-  /* Single-column now: give the frame a taller-than-square aspect ratio (the
-     photo is square) so the contained image leaves dark top/bottom bands — the
-     same header/footer zones the tall desktop frame creates, where "THE ALPHA"/
-     "VERIFIED" and the binary serial sit clear of the portrait instead of landing
-     on it. The image goes back to absolute/contain (its desktop behaviour) so it
-     centres within the taller frame and the HUD overlays line up as designed. */
-  /* Keep the card SHORT (square) but shrink the photo within it so generous HUD
-     bands open up around it — top/bottom for THE ALPHA/VERIFIED + the serial,
-     and a little on the sides — without the card growing taller. The floating
-     overlays (readout/gauge/wave) are nudged inward to track the smaller photo.
-     NOTE: do NOT use `aspect-ratio` on this figure — it's a grid item, and iOS
-     Safari mis-computes aspect-ratio on grid items and collapses it to zero (the
-     portrait vanishes on iPhone). Instead the static, in-flow image gives the
-     figure its height (square photo → square frame), and the figure's own padding
-     creates the 25px inset/bands. */
-  .portrait {
-    align-self: auto;
-    margin-bottom: 0;
-    box-sizing: border-box;
-    padding: 25px;
-  }
-  .portrait img {
-    position: static;
-    width: 100%;
-    height: auto;
-  }
-  /* Corner labels are cqw-sized (oversize on a phone container); cap to the
-     desktop size and centre them in the ~34px band. */
-  .portrait__auth,
-  .portrait__authing,
-  .portrait__verified {
-    top: 0.8rem;
-    font-size: 0.4rem;
-  }
-  .portrait__code {
-    bottom: 0.8rem;
-    font-size: 0.46rem;
-  }
-  .portrait__readout { top: 2.9rem; left: max(2.2rem, 10%); }
-  .portrait__gauge { top: 38%; right: 10%; }
-  .portrait__wave { bottom: 2.9rem; left: max(2.2rem, 10%); }
+  /* The square-portrait treatment (static photo, top-aligned, 25px HUD bands +
+     overlay positions) now lives in the ≤1024px block above so it also covers
+     phone-landscape / tablet-portrait, where the 2-column grid is still active. */
   /* Use dvh, not vh: on mobile `vh` is the *large* (address-bar-hidden)
      viewport, which pushed the hero's bottom — and the scroll hint anchored
      there — below the visible fold behind the browser UI. dvh tracks the
