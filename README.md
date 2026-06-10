@@ -27,21 +27,34 @@ A fast, dependency-free single-page WordPress theme for a software developer & f
   - **Parallel URL** — `https://heera.it/some-post.md` (and `/index.md` for the home/index view).
 - `Link: …; rel="api-catalog"` (REST root) and `Link: …; rel="describedby"` (→ `/llms.txt`).
 
-The `.md` URLs have their own cache key and are CDN-safe out of the box. The `Accept`-header
-negotiation, however, hits the origin **only if the upstream FastCGI/nginx page cache is told to
-bypass on that header** — otherwise a cached HTML page is served regardless of `Accept`. Add this to
-the nginx `server` block (alongside the existing `fastcgi_cache` rules):
+### Cache caveat — the markdown layer needs an edge/server rule too
+
+The `.md` URLs have their own cache key and are CDN-safe out of the box, **but the production
+front-end sits behind an nginx FastCGI page cache** (`X-Cache: HIT`). That cache is keyed by URL and
+ignores the `Accept` header, so a plain `Accept: text/markdown` request to a cached page (e.g. `/`)
+is served the cached HTML and the PHP handler never runs. So the markdown layer depends on **two**
+pieces: this theme file **and** an infrastructure rule that lets markdown requests reach the origin.
+
+**What's deployed on heera.it (Cloudflare, Free plan):** a *Transform → URL Rewrite Rule* that adds
+a query string to markdown requests. The query string trips the existing
+`if ($query_string != "") { set $skip_cache 1; }` rule in the nginx config, bypassing the cache so
+PHP runs and the `Accept` handler responds.
+
+- **When incoming requests match:** `any(http.request.headers["accept"][*] contains "text/markdown")`
+- **Then:** Path → *Preserve*; Query → *Rewrite to* → Static → `md=1`
+
+(We can't append `.md` at the edge: WordPress permalinks end in `/`, so `concat(path, ".md")` yields
+a `/.md` segment that nginx's dotfile deny rule 403s. The query string sidesteps that.)
+
+**If you migrate off Cloudflare / rebuild the zone**, re-add that rule, *or* have whoever manages
+nginx add one line to the existing skip-cache block (next to `fastcgi_cache_bypass $skip_cache;`):
 
 ```nginx
-# Serve fresh markdown to agents that ask for it; never cache it.
-set $skip_cache 0;
 if ($http_accept ~* "text/markdown") { set $skip_cache 1; }
-fastcgi_cache_bypass $skip_cache;
-fastcgi_no_cache     $skip_cache;
 ```
 
-After deploying, purge **both** Cloudflare and the nginx page cache so `/llms.txt` and the new
-headers aren't masked by stale entries.
+Either approach works; you only need one. After any deploy, purge **both** Cloudflare and the nginx
+page cache so `/llms.txt` and the new headers aren't masked by stale entries.
 
 ## Tech
 
