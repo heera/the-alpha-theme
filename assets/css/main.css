@@ -2527,7 +2527,7 @@ body.single .page-title {
   .focus-toggle svg { width: 15px; height: 15px; flex-shrink: 0; }
 
   /* Active: hide the chrome and centre a single, comfortable reading column. */
-  body.reading-focus :is(.sidebar, .topbar, .scrim, .blog-aside, .breadcrumb, .post-nav) { display: none; }
+  body.reading-focus :is(.sidebar, .topbar, .scrim, .blog-aside, .breadcrumb, .post-nav, .entry__cover) { display: none; }
   /* Drop the left-nav offset on content + footer so the footer has no orphan gap. */
   body.reading-focus .main,
   body.reading-focus .site-footer { margin-left: 0; }
