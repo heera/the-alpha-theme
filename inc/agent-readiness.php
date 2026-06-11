@@ -124,6 +124,45 @@ function the_alpha_ar_link_headers() {
 }
 add_action( 'send_headers', 'the_alpha_ar_link_headers' );
 
+/**
+ * robots.txt — minimal, correct, and self-maintaining.
+ *
+ * Replaces WordPress's virtual robots body with an explicit allow-all that
+ * keeps the conventional wp-admin guard and advertises the live sitemap. The
+ * Sitemap URL is resolved dynamically (the_alpha_ar_sitemap_url) so it can
+ * never drift to a 404. We deliberately add no per-bot (GPTBot/ClaudeBot)
+ * groups: a bot obeys only its most specific matching group, so carving one
+ * out would silently decouple that bot from the `*` rules for no benefit.
+ *
+ * Runs at priority 20 so it wins over earlier filters, and only when the site
+ * is public — if crawlers are discouraged we leave WP's `Disallow: /` intact.
+ * Note: a *static* robots.txt at the web root would bypass this entirely.
+ *
+ * @param string $output The robots.txt content built so far.
+ * @param bool   $public Whether the site is set to be indexed.
+ * @return string
+ */
+function the_alpha_ar_robots_txt( $output, $public ) {
+	if ( ! $public ) {
+		return $output;
+	}
+
+	$lines = array(
+		'User-agent: *',
+		'Disallow: /wp-admin/',
+		'Allow: /wp-admin/admin-ajax.php',
+	);
+
+	$sitemap = the_alpha_ar_sitemap_url();
+	if ( $sitemap ) {
+		$lines[] = '';
+		$lines[] = 'Sitemap: ' . esc_url_raw( $sitemap );
+	}
+
+	return implode( "\n", $lines ) . "\n";
+}
+add_filter( 'robots_txt', 'the_alpha_ar_robots_txt', 20, 2 );
+
 /* -------------------------------------------------------------------------- *
  *  /llms.txt
  * -------------------------------------------------------------------------- */
