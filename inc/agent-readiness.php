@@ -127,16 +127,25 @@ add_action( 'send_headers', 'the_alpha_ar_link_headers' );
 /**
  * robots.txt — minimal, correct, and self-maintaining.
  *
- * Replaces WordPress's virtual robots body with an explicit allow-all that
- * keeps the conventional wp-admin guard and advertises the live sitemap. The
- * Sitemap URL is resolved dynamically (the_alpha_ar_sitemap_url) so it can
- * never drift to a 404. We deliberately add no per-bot (GPTBot/ClaudeBot)
- * groups: a bot obeys only its most specific matching group, so carving one
- * out would silently decouple that bot from the `*` rules for no benefit.
+ * Replaces WordPress's virtual robots body with a single explicit allow-all
+ * group that keeps the conventional wp-admin guard and advertises the live
+ * sitemap. The Sitemap URL is resolved dynamically (the_alpha_ar_sitemap_url)
+ * so it can never drift to a 404. We deliberately add no per-bot
+ * (GPTBot/ClaudeBot) groups: a bot obeys only its most specific matching
+ * group, so carving one out would silently decouple that bot from the `*`
+ * rules for no benefit.
+ *
+ * The `Content-Signal` line states usage intent under the content-signals
+ * convention (see the preamble Cloudflare et al. emit): search and AI input
+ * (RAG / grounding / citation) are welcome, training is not. We declare this
+ * ourselves so robots.txt stays a single source of truth in the repo rather
+ * than being prepended at the edge — which also keeps it to one `User-agent:
+ * *` group, avoiding the first-match ambiguity a duplicate group creates.
  *
  * Runs at priority 20 so it wins over earlier filters, and only when the site
  * is public — if crawlers are discouraged we leave WP's `Disallow: /` intact.
- * Note: a *static* robots.txt at the web root would bypass this entirely.
+ * Note: a *static* robots.txt at the web root, or an edge-managed robots.txt
+ * (e.g. Cloudflare's), would bypass this entirely.
  *
  * @param string $output The robots.txt content built so far.
  * @param bool   $public Whether the site is set to be indexed.
@@ -147,11 +156,14 @@ function the_alpha_ar_robots_txt( $output, $public ) {
 		return $output;
 	}
 
-	$lines = array(
-		'User-agent: *',
-		'Disallow: /wp-admin/',
-		'Allow: /wp-admin/admin-ajax.php',
-	);
+	$signal = apply_filters( 'the_alpha_ar_content_signal', 'search=yes, ai-input=yes, ai-train=no' );
+
+	$lines = array( 'User-agent: *' );
+	if ( is_string( $signal ) && '' !== trim( $signal ) ) {
+		$lines[] = 'Content-Signal: ' . trim( $signal );
+	}
+	$lines[] = 'Disallow: /wp-admin/';
+	$lines[] = 'Allow: /wp-admin/admin-ajax.php';
 
 	$sitemap = the_alpha_ar_sitemap_url();
 	if ( $sitemap ) {
