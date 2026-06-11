@@ -603,6 +603,15 @@ function the_alpha_seo() {
 	if ( $same_as ) {
 		$person_ld['sameAs'] = array_values( array_unique( $same_as ) );
 	}
+	// knowsAbout — declares the topics this person is authoritative on, derived
+	// from the heaviest content categories (same source as the llms.txt About
+	// block) so the expertise graph stays accurate as the blog grows.
+	if ( function_exists( 'the_alpha_ar_expertise' ) ) {
+		$knows_about = apply_filters( 'the_alpha_person_knows_about', the_alpha_ar_expertise() );
+		if ( ! empty( $knows_about ) ) {
+			$person_ld['knowsAbout'] = array_values( $knows_about );
+		}
+	}
 	echo '<script type="application/ld+json">' . wp_json_encode( $person_ld, JSON_UNESCAPED_SLASHES ) . "</script>\n";
 
 	// ---- JSON-LD: BlogPosting + BreadcrumbList (single posts) ----------

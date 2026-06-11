@@ -150,6 +150,24 @@ function the_alpha_ar_llms_txt() {
 		'' !== $tagline ? $tagline : 'A personal site'
 	);
 
+	// About — the highest-signal lines in the file. One factual sentence that
+	// states who the author is and an explicit expertise list, so a retrieval
+	// system gets entity + topical authority before it consumes any links.
+	$about = apply_filters(
+		'the_alpha_ar_about',
+		'Sheikh Heera is a software architect and CTO of Authlab, based in Sylhet, Bangladesh, with 16+ years building web applications and software systems. Outside engineering he is a dedicated fraghead who collects perfumes, with a personal collection of nearly 2,000 fragrances.'
+	);
+	if ( '' !== $about ) {
+		$out .= "\n## About\n\n" . $about . "\n";
+		$expertise = the_alpha_ar_expertise();
+		if ( ! empty( $expertise ) ) {
+			$out .= "\nExpertise:\n\n";
+			foreach ( $expertise as $topic ) {
+				$out .= '- ' . $topic . "\n";
+			}
+		}
+	}
+
 	// Pages.
 	$pages = get_pages(
 		array(
@@ -238,6 +256,40 @@ function the_alpha_ar_topics() {
 		$lines .= '- [' . $name . '](' . esc_url_raw( get_category_link( $cat ) ) . '): ' . $desc . "\n";
 	}
 	return $lines;
+}
+
+/**
+ * Curated expertise topics, most authoritative first.
+ *
+ * Shared source of truth for the Person `knowsAbout` JSON-LD and the llms.txt
+ * identity block, so the two never drift. Hand-picked rather than derived from
+ * category counts — skills are an identity claim, not a function of how many
+ * posts happen to sit in each bucket.
+ *
+ * @param int $limit Optional cap on the number of topics (0 = all).
+ * @return string[] Expertise topics in priority order.
+ */
+function the_alpha_ar_expertise( $limit = 0 ) {
+	$topics = apply_filters(
+		'the_alpha_ar_expertise',
+		array(
+			'Software Architecture',
+			'AI Engineering',
+			'Security',
+			'PHP',
+			'JavaScript',
+			'WordPress',
+			'Laravel',
+			'Vue',
+			'Fragrance',
+		)
+	);
+
+	$topics = array_values( array_filter( array_map( 'trim', (array) $topics ) ) );
+	if ( $limit > 0 ) {
+		$topics = array_slice( $topics, 0, $limit );
+	}
+	return $topics;
 }
 
 /**
