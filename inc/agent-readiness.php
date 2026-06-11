@@ -127,20 +127,25 @@ add_action( 'send_headers', 'the_alpha_ar_link_headers' );
 /**
  * robots.txt — minimal, correct, and self-maintaining.
  *
- * Replaces WordPress's virtual robots body with a single explicit allow-all
+ * Replaces WordPress's virtual robots body with an explicit allow-all `*`
  * group that keeps the conventional wp-admin guard and advertises the live
  * sitemap. The Sitemap URL is resolved dynamically (the_alpha_ar_sitemap_url)
- * so it can never drift to a 404. We deliberately add no per-bot
- * (GPTBot/ClaudeBot) groups: a bot obeys only its most specific matching
- * group, so carving one out would silently decouple that bot from the `*`
- * rules for no benefit.
+ * so it can never drift to a 404.
  *
  * The `Content-Signal` line states usage intent under the content-signals
  * convention (see the preamble Cloudflare et al. emit): search and AI input
  * (RAG / grounding / citation) are welcome, training is not. We declare this
  * ourselves so robots.txt stays a single source of truth in the repo rather
- * than being prepended at the edge — which also keeps it to one `User-agent:
- * *` group, avoiding the first-match ambiguity a duplicate group creates.
+ * than being prepended at the edge.
+ *
+ * We then add one grouped `Disallow: /` for the known model-training crawlers.
+ * This is the *legitimate* use of per-bot groups — those crawlers are being
+ * treated differently (refused), not redundantly re-allowed — and unlike the
+ * advisory Content-Signal, the major trainers (GPTBot, ClaudeBot, CCBot, …)
+ * actually honor a robots.txt Disallow, so this enforces the no-training
+ * stance. The read/cite bots (Claude-SearchBot, Claude-User, OAI-SearchBot,
+ * ChatGPT-User, PerplexityBot, …) are deliberately absent from the list, so
+ * they keep matching the allow-all `*` group and can read and cite the site.
  *
  * Runs at priority 20 so it wins over earlier filters, and only when the site
  * is public — if crawlers are discouraged we leave WP's `Disallow: /` intact.
@@ -164,6 +169,32 @@ function the_alpha_ar_robots_txt( $output, $public ) {
 	}
 	$lines[] = 'Disallow: /wp-admin/';
 	$lines[] = 'Allow: /wp-admin/admin-ajax.php';
+
+	// Refuse the known model-training crawlers outright. They honor robots.txt,
+	// so this actually stops training collection (the Content-Signal above is
+	// only advisory). Read/cite bots are intentionally NOT listed, so they keep
+	// matching the `*` group and stay free to read and cite the site.
+	$trainers = apply_filters(
+		'the_alpha_ar_blocked_ai_trainers',
+		array(
+			'Amazonbot',
+			'Applebot-Extended',
+			'Bytespider',
+			'CCBot',
+			'ClaudeBot',
+			'GPTBot',
+			'Google-Extended',
+			'meta-externalagent',
+		)
+	);
+	$trainers = array_values( array_filter( array_map( 'trim', (array) $trainers ) ) );
+	if ( ! empty( $trainers ) ) {
+		$lines[] = '';
+		foreach ( $trainers as $agent ) {
+			$lines[] = 'User-agent: ' . $agent;
+		}
+		$lines[] = 'Disallow: /';
+	}
 
 	$sitemap = the_alpha_ar_sitemap_url();
 	if ( $sitemap ) {
