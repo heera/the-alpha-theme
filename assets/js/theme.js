@@ -10,13 +10,19 @@
     "(prefers-reduced-motion: reduce)"
   ).matches;
 
-  /* ---- Page loader: fade out once everything (incl. images & fonts) is
-     ready. At the same moment we flip body.is-ready so the layout +
-     footer cross-fade up into view (CSS handles the reveal transition).
-     Falls back to a 6-second cap so a stuck request never traps the
-     user behind the overlay. */
+  /* ---- Page loader: reveal as soon as the LCP hero image has decoded — so it
+     is actually painted (no pop-in), not waiting on every below-fold image and
+     font the way window.load does. Pages without a hero (posts, archives)
+     reveal immediately. At reveal we flip body.is-ready so the layout + footer
+     cross-fade up into view (CSS handles the transition). A 3-second cap keeps
+     a stuck/oversized request from trapping the user behind the overlay.
+     (Previously gated on window.load, which delayed LCP by ~2.3s — the hero was
+     downloaded early via fetchpriority but held at opacity:0 until full load.) */
   var loader = document.querySelector(".page-loader");
+  var revealed = false;
   var revealPage = function () {
+    if (revealed) return;
+    revealed = true;
     body.classList.add("is-ready");
     if (loader) {
       loader.classList.add("is-hidden");
@@ -26,12 +32,13 @@
       }, 700);
     }
   };
-  if (document.readyState === "complete") {
-    revealPage();
+  var heroImg = document.querySelector(".hero__bg img");
+  if (heroImg && !heroImg.complete && heroImg.decode) {
+    heroImg.decode().then(revealPage).catch(revealPage);
   } else {
-    window.addEventListener("load", revealPage);
-    setTimeout(revealPage, 6000); // safety net.
+    revealPage();
   }
+  setTimeout(revealPage, 3000); // safety net.
 
   /* ---- Colour theme toggle (no-FOUC script already set the initial value) */
   var toggle = document.querySelector(".theme-toggle");
