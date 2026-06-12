@@ -50,6 +50,12 @@ function the_alpha_ar_route() {
 		the_alpha_ar_send( the_alpha_ar_llms_txt(), 'text/plain' );
 	}
 
+	// 1b. /llms-full.txt — the full-text edition (whole pages + recent posts
+	// concatenated), for agents that want the content, not just the index.
+	if ( '/llms-full.txt' === $path ) {
+		the_alpha_ar_send( the_alpha_ar_llms_full_txt(), 'text/plain' );
+	}
+
 	// 2a. Parallel markdown URL: /slug.md, /index.md (home), etc.
 	if ( '.md' === substr( $path, -3 ) ) {
 		$clean = substr( $path, 0, -3 );
@@ -235,10 +241,7 @@ function the_alpha_ar_llms_txt() {
 	// About — the highest-signal lines in the file. One factual sentence that
 	// states who the author is and an explicit expertise list, so a retrieval
 	// system gets entity + topical authority before it consumes any links.
-	$about = apply_filters(
-		'the_alpha_ar_about',
-		'Sheikh Heera is a software architect and CTO of Authlab, based in Sylhet, Bangladesh, with 16+ years building web applications and software systems. Outside engineering he is a dedicated fraghead who collects perfumes, with a personal collection of nearly 2,000 fragrances.'
-	);
+	$about = the_alpha_ar_about();
 	if ( '' !== $about ) {
 		$out .= "\n## About\n\n" . $about . "\n";
 		$expertise = the_alpha_ar_expertise();
@@ -289,6 +292,7 @@ function the_alpha_ar_llms_txt() {
 	}
 
 	$out .= "\n## Optional\n\n";
+	$out .= '- [Full text](' . esc_url_raw( home_url( '/llms-full.txt' ) ) . "): every page and recent post concatenated into one document\n";
 	$out .= '- [Feed](' . esc_url_raw( get_feed_link() ) . "): RSS of recent posts\n";
 	$sitemap = the_alpha_ar_sitemap_url();
 	if ( $sitemap ) {
@@ -297,6 +301,80 @@ function the_alpha_ar_llms_txt() {
 
 	$out = rtrim( $out ) . "\n";
 	set_transient( 'the_alpha_llms_txt', $out, HOUR_IN_SECONDS );
+	return $out;
+}
+
+/**
+ * Build the llms-full.txt body — the full-text edition.
+ *
+ * Same identity header as /llms.txt, then the complete markdown of every page
+ * (template-only pages with no prose body are skipped) followed by the most
+ * recent posts, each a self-contained document separated by a horizontal rule.
+ * This is the single-document an agent can ingest in one pass; /llms.txt stays
+ * the lightweight link index. Cached for an hour, busted on the same content
+ * hooks as /llms.txt. The post count is filterable so the file can't grow
+ * unbounded on a large blog.
+ */
+function the_alpha_ar_llms_full_txt() {
+	$cached = get_transient( 'the_alpha_llms_full_txt' );
+	if ( is_string( $cached ) && '' !== $cached ) {
+		return $cached;
+	}
+
+	$name    = the_alpha_ar_text( get_bloginfo( 'name' ) );
+	$tagline = the_alpha_ar_text( get_bloginfo( 'description' ) );
+
+	$out = '# ' . ( '' !== $name ? $name : home_url( '/' ) ) . "\n\n";
+	if ( '' !== $tagline ) {
+		$out .= '> ' . $tagline . "\n\n";
+	}
+	$out .= "Full-text edition: the author profile followed by the complete content of each page and recent article, concatenated for ingestion in a single pass. The link-only index is at /llms.txt; any one page is also available by appending `.md` to its URL.\n";
+
+	// Identity block — same About + Expertise as /llms.txt.
+	$about = the_alpha_ar_about();
+	if ( '' !== $about ) {
+		$out .= "\n## About\n\n" . $about . "\n";
+		$expertise = the_alpha_ar_expertise();
+		if ( ! empty( $expertise ) ) {
+			$out .= "\nExpertise:\n\n";
+			foreach ( $expertise as $topic ) {
+				$out .= '- ' . $topic . "\n";
+			}
+		}
+	}
+
+	// Full content of every page (About, Contact, AuthLab, fragrance, …).
+	$pages = get_pages(
+		array(
+			'sort_column' => 'menu_order,post_title',
+			'number'      => 50,
+		)
+	);
+	foreach ( (array) $pages as $page ) {
+		if ( '' === trim( (string) $page->post_content ) ) {
+			continue; // Template-driven page (e.g. front page, subscribe) — no prose body.
+		}
+		$out .= "\n---\n\n" . the_alpha_ar_post_markdown( $page->ID ) . "\n";
+	}
+
+	// Full content of recent posts, newest first.
+	$count = (int) apply_filters( 'the_alpha_ar_llms_full_posts', 50 );
+	$posts = get_posts(
+		array(
+			'post_type'        => 'post',
+			'post_status'      => 'publish',
+			'numberposts'      => $count > 0 ? $count : 50,
+			'orderby'          => 'date',
+			'order'            => 'DESC',
+			'suppress_filters' => false,
+		)
+	);
+	foreach ( $posts as $post ) {
+		$out .= "\n---\n\n" . the_alpha_ar_post_markdown( $post->ID ) . "\n";
+	}
+
+	$out = rtrim( $out ) . "\n";
+	set_transient( 'the_alpha_llms_full_txt', $out, HOUR_IN_SECONDS );
 	return $out;
 }
 
@@ -338,6 +416,21 @@ function the_alpha_ar_topics() {
 		$lines .= '- [' . $name . '](' . esc_url_raw( get_category_link( $cat ) ) . '): ' . $desc . "\n";
 	}
 	return $lines;
+}
+
+/**
+ * The one-sentence author profile — entity + topical authority in a single
+ * factual line. Shared by /llms.txt and /llms-full.txt (and exposed to any
+ * JSON-LD via the `the_alpha_ar_about` filter), so the identity claim never
+ * drifts between surfaces.
+ *
+ * @return string
+ */
+function the_alpha_ar_about() {
+	return apply_filters(
+		'the_alpha_ar_about',
+		'Sheikh Heera is a software architect and CTO of Authlab, based in Sylhet, Bangladesh, with 16+ years building web applications and software systems. Outside engineering he is a dedicated fraghead who collects perfumes, with a personal collection of nearly 2,000 fragrances.'
+	);
 }
 
 /**
@@ -415,6 +508,7 @@ function the_alpha_ar_sitemap_url() {
  */
 function the_alpha_ar_flush_llms() {
 	delete_transient( 'the_alpha_llms_txt' );
+	delete_transient( 'the_alpha_llms_full_txt' );
 }
 add_action( 'save_post', 'the_alpha_ar_flush_llms' );
 add_action( 'deleted_post', 'the_alpha_ar_flush_llms' );
