@@ -191,6 +191,68 @@ function the_alpha_assets() {
 add_action( 'wp_enqueue_scripts', 'the_alpha_assets' );
 
 /**
+ * Lazy-load the Disqus comment thread.
+ *
+ * The official Disqus plugin enqueues comment_embed.js (handle `disqus_embed`),
+ * which injects the full comment iframe on page load — dozens of third-party
+ * requests (disquscdn.com fonts, recommendations) that keep the tab spinner
+ * running for seconds even though our HTML has already painted. We neutralise
+ * the auto-loading <script> tag (src → data-disqus-src, type → text/plain so
+ * the browser neither runs nor fetches it) and let the footer loader pull it in
+ * only when #disqus_thread nears the viewport. Readers who never scroll to the
+ * comments never pay for Disqus at all. The inline `disqus_embed-js-extra`
+ * config still runs normally, so the globals are ready when the script loads.
+ */
+function the_alpha_lazy_disqus_tag( $tag, $handle ) {
+	if ( 'disqus_embed' !== $handle || is_admin() ) {
+		return $tag;
+	}
+	$tag = preg_replace( '/\ssrc=/', ' data-disqus-src=', $tag, 1 );
+	$tag = preg_replace( '/<script /', '<script type="text/plain" data-disqus-embed ', $tag, 1 );
+	return $tag;
+}
+add_filter( 'script_loader_tag', 'the_alpha_lazy_disqus_tag', 10, 2 );
+
+/**
+ * Footer loader that swaps the neutralised Disqus tag back to a real <script>
+ * once the comments scroll near the viewport (600px head-start so it feels
+ * instant). Falls back to an immediate load where IntersectionObserver is
+ * unavailable.
+ */
+function the_alpha_lazy_disqus_loader() {
+	if ( ! is_singular() ) {
+		return;
+	}
+	?>
+<script>
+(function () {
+	var thread = document.getElementById('disqus_thread');
+	var tag = document.querySelector('script[data-disqus-embed]');
+	if (!thread || !tag) { return; }
+	var done = false;
+	function load() {
+		if (done) { return; }
+		done = true;
+		var s = document.createElement('script');
+		s.src = tag.getAttribute('data-disqus-src');
+		s.async = true;
+		document.body.appendChild(s);
+	}
+	if ('IntersectionObserver' in window) {
+		var io = new IntersectionObserver(function (entries) {
+			if (entries[0].isIntersecting) { io.disconnect(); load(); }
+		}, { rootMargin: '600px 0px' });
+		io.observe(thread);
+	} else {
+		load();
+	}
+})();
+</script>
+	<?php
+}
+add_action( 'wp_footer', 'the_alpha_lazy_disqus_loader', 99 );
+
+/**
  * Add defer to our script tag.
  */
 function the_alpha_defer_script( $tag, $handle ) {
