@@ -908,6 +908,7 @@ h1, h2, h3, h4 {
   font-size: 0.62rem;
   letter-spacing: 0.3em;
   text-transform: uppercase;
+  transition: color var(--t-fast), transform var(--t-fast);
 }
 .hero__scroll span {
   width: 22px;
@@ -916,6 +917,7 @@ h1, h2, h3, h4 {
   border: 1.5px solid currentColor;
   border-radius: 12px;
   position: relative;
+  transition: box-shadow var(--t), border-color var(--t-fast);
 }
 .hero__scroll span::after {
   content: "";
@@ -955,6 +957,28 @@ h1, h2, h3, h4 {
 [data-theme="dark"] .hero__scroll {
   color: #d6dce3;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+/* Hover/focus: only the pill lights up to the accent (see the span rule
+   below); the "SCROLL" label keeps its per-theme colour. The whole cue leans
+   down a hair — echoing the scroll-down gesture (buttons lift up; this leans
+   the other way). */
+.hero__scroll:hover,
+.hero__scroll:focus-visible {
+  transform: translate(-50%, 3px);
+}
+.hero__scroll:hover span,
+.hero__scroll:focus-visible span {
+  /* Neon tube: a tight, saturated glow hugging the pill (teal in dark /
+     terracotta in light), with an inset bloom so it looks lit from within. */
+  border-color: var(--accent);
+  box-shadow:
+    0 0 1px var(--accent),
+    inset 0 0 1px var(--accent);
+}
+/* The wheel dot glows in the same neon, tight and bright. */
+.hero__scroll:hover span::after,
+.hero__scroll:focus-visible span::after {
+  box-shadow: 0 0 1px var(--accent);
 }
 
 /* ----- Buttons ------------------------------------------------------------ */
@@ -1022,11 +1046,12 @@ h1, h2, h3, h4 {
   box-shadow: var(--portrait-glow), var(--portrait-ground);
 }
 [data-theme="light"] .portrait {
-  /* No border or accent glow in light mode — only a soft grounding shadow seats
-     the card on the cream so it reads as part of the surface, not a framed box. */
-  --portrait-ground: 0 16px 34px -20px rgba(40, 31, 22, 0.28);
-  border: 0;
-  box-shadow: var(--portrait-ground);
+  /* Light mode: framed-card look — a warm terracotta-tinted hairline (≈ #e5cdc2,
+     derived from --accent so it tracks the token) instead of the neutral
+     --border, echoing dark mode's accent halo; drop the grounding shadow so the
+     dossier reads as a crisp framed box on the cream, not a card on a shadow. */
+  border-color: color-mix(in srgb, var(--accent) 20%, var(--bg));
+  box-shadow: none;
 }
 /* Per-theme photo swap: dark studio shot by default, bright high-key shot in
    light mode (the toggle is manual, so this keys off [data-theme], not the OS). */
@@ -1674,12 +1699,14 @@ h1, h2, h3, h4 {
   overflow: hidden;
   transition: background var(--t);
 }
-/* Quiet whole-card feedback: the surface steps up one tone on hover/focus.
-   Dark mode lifts toward --surface-2 (lighter); light mode warms with a
-   whisper of amber instead, since its --surface-2 reads darker (a press, not
-   a lift). See the [data-theme="light"] override below. */
+/* Quiet whole-card feedback: the surface steps up a fraction on hover/focus.
+   Dark mode lifts only partway toward --surface-2 — a full step lands on
+   --border's tone (#262a32 ≈ #232a33), washing out the edge so the card reads
+   too light and merges with its surroundings; this gentler lift stays darker
+   than the border so the card keeps its frame. Light mode warms with a whisper
+   of amber instead. See the [data-theme="light"] override below. */
 .card:hover,
-.card:focus-within { background: var(--surface-2); }
+.card:focus-within { background: color-mix(in srgb, var(--surface) 55%, var(--surface-2)); }
 .card__media { aspect-ratio: 16 / 10; overflow: hidden; background: var(--surface-2); }
 .card__media--ph {
   position: relative;
