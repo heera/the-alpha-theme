@@ -56,6 +56,27 @@
       localStorage.setItem("the-alpha-theme", next);
     } catch (e) {}
     syncToggle();
+    syncDisqus();
+  }
+
+  /* Keep the Disqus thread in sync with the colour theme. Disqus samples the
+     page background to pick its light/dark scheme ONCE, when its embed loads, so
+     toggling the theme afterwards leaves the comment iframe on the old scheme
+     until a full page reload. When Disqus is present (it's lazy-loaded on scroll,
+     so often it isn't), reset({reload:true}) rebuilds the thread, which re-runs
+     that detection against the new background. `config` re-applies the page's
+     identity (the global the plugin's embed defines). Deferred a beat so the new
+     background is painted before Disqus samples it, and debounced so a flurry of
+     toggles only triggers one reload. */
+  var disqusSyncTimer = null;
+  function syncDisqus() {
+    if (!window.DISQUS || typeof window.DISQUS.reset !== "function") return;
+    if (disqusSyncTimer) clearTimeout(disqusSyncTimer);
+    disqusSyncTimer = setTimeout(function () {
+      try {
+        window.DISQUS.reset({ reload: true, config: window.disqus_config });
+      } catch (e) {}
+    }, 350);
   }
 
   if (toggle) {
