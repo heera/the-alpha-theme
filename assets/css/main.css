@@ -3821,9 +3821,12 @@ body.drawer-open { overflow: hidden; }
 }
 
 /* ===== 404 — "Wrong turn" / lost in the woods ============================= */
-/* Drop the fixed sidebar on the 404 (desktop) so the forest fills the whole
-   viewport. Mobile keeps its off-canvas drawer + topbar, so it's left intact. */
-@media (min-width: 1025px) {
+/* Drop the fixed sidebar on the 404 so the forest fills the whole viewport. Runs
+   from the tablet breakpoint up (721px) — below that the off-canvas drawer +
+   topbar take over. Going full-bleed on tablets also gives the hero the full
+   width it needs to fit one screen there (the navigation lives in the
+   "choose the right path" links + the Back to safety button). */
+@media (min-width: 721px) {
   body.error404 .sidebar { display: none; }
   body.error404 .main,
   body.error404 .site-footer { margin-left: 0; }
@@ -3837,7 +3840,7 @@ body.drawer-open { overflow: hidden; }
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: clamp(2.5rem, 2rem + 3vw, 4.5rem) clamp(1.4rem, 1rem + 4vw, 5rem);
+  padding: clamp(0.8rem, 1.8vh, 2.8rem) clamp(1.4rem, 1rem + 4vw, 5rem);
   overflow: hidden;
 }
 /* Forest backdrop. Drop 404-dark.webp / 404-light.webp into assets/img and they
@@ -3889,7 +3892,9 @@ body.drawer-open { overflow: hidden; }
 .lost__inner {
   margin: auto 0;
   max-width: 640px;
-  padding-top: clamp(1rem, 3vw, 3rem);
+  /* vh-aware so it collapses on short viewports (keeps the page from scrolling)
+     while staying roomy on tall ones. */
+  padding-top: clamp(0.4rem, 1.6vh, 2.4rem);
 }
 .lost__eyebrow {
   font-family: var(--font-mono);
@@ -3897,13 +3902,15 @@ body.drawer-open { overflow: hidden; }
   letter-spacing: 0.34em;
   text-transform: uppercase;
   color: var(--accent);
-  margin: 0 0 clamp(0.6rem, 2vw, 1.2rem);
+  margin: 0 0 clamp(0.4rem, 1.3vh, 1.1rem);
 }
 .lost__code {
   margin: 0;
   font-family: var(--font-display), ui-sans-serif, sans-serif;
   font-weight: 800;
-  font-size: clamp(5rem, 3.5rem + 13vw, 11rem);
+  /* Cap by viewport height too, so the numeral shrinks on short screens
+     instead of forcing a scroll. */
+  font-size: min(clamp(4.5rem, 3.5rem + 11vw, 11rem), 17vh);
   line-height: 0.86;
   letter-spacing: 0.01em;
   color: var(--accent);
@@ -3922,7 +3929,7 @@ body.drawer-open { overflow: hidden; }
   align-items: center;
   justify-content: center;
   gap: clamp(0.7rem, 2vw, 1.3rem);
-  margin: clamp(0.4rem, 1.5vw, 0.9rem) 0 0;
+  margin: clamp(0.3rem, 1vh, 0.9rem) 0 0;
   font-family: var(--font-display), ui-sans-serif, sans-serif;
   font-weight: 600;
   font-size: clamp(1.05rem, 0.8rem + 1.4vw, 1.65rem);
@@ -3940,11 +3947,11 @@ body.drawer-open { overflow: hidden; }
   opacity: 0.5;
 }
 .lost__lede {
-  margin: clamp(1.2rem, 3vw, 1.8rem) auto 0;
+  margin: clamp(0.7rem, 2.2vh, 1.8rem) auto 0;
   max-width: 34rem;
   color: var(--ink-soft);
   font-size: clamp(0.95rem, 0.9rem + 0.3vw, 1.05rem);
-  line-height: 1.6;
+  line-height: 1.55;
 }
 [data-theme="dark"] .lost__lede { text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6); }
 /* Bright/warm fog washes out the cool --ink-soft; use a strong warm dark so the
@@ -3954,20 +3961,20 @@ body.drawer-open { overflow: hidden; }
   display: inline-flex;
   align-items: center;
   gap: 0.55rem;
-  margin-top: clamp(1.4rem, 3vw, 2.2rem);
+  margin-top: clamp(0.9rem, 2.2vh, 2.2rem);
 }
 
 /* Foot: label + quick links + quote, anchored to the bottom */
 .lost__foot {
   margin: auto auto 0;
   max-width: var(--maxw);
-  padding-top: clamp(1.5rem, 4vw, 3rem);
+  padding-top: clamp(0.8rem, 2.6vh, 3rem);
 }
-.lost__foot-label { justify-content: center; margin: 0 0 clamp(1rem, 2.5vw, 1.6rem); }
+.lost__foot-label { justify-content: center; margin: 0 0 clamp(0.5rem, 1.6vh, 1.6rem); }
 .lost__links {
   list-style: none;
   margin: 0;
-  padding: clamp(0.9rem, 2.5vw, 1.4rem) 0;
+  padding: clamp(0.5rem, 1.7vh, 1.4rem) 0;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   border-top: 1px solid color-mix(in srgb, var(--ink) 30%, transparent);
@@ -4016,14 +4023,14 @@ body.drawer-open { overflow: hidden; }
 
 .lost__quote {
   position: relative;
-  margin: clamp(1.6rem, 4vw, 2.6rem) auto 0;
+  margin: clamp(0.7rem, 2.4vh, 2.6rem) auto 0;
   max-width: 40rem;
 }
 .lost__quote::before {
   content: "\201C";
   display: block;
   font-family: var(--font-brand), serif;
-  font-size: 2.6rem;
+  font-size: clamp(1.8rem, 3vh, 2.6rem);
   line-height: 0.6;
   color: var(--accent);
   opacity: 0.7;
@@ -4045,6 +4052,30 @@ body.drawer-open { overflow: hidden; }
   text-transform: uppercase;
   color: var(--accent);
 }
+
+/* ----- 404 as a fixed single screen -------------------------------------- */
+/* Drop the global footer on the error page. The .lost section is already a
+   self-contained full screen (its own foot carries the path links + quote) and
+   is sized to one viewport — 100vh here, 100dvh minus the sticky topbar on
+   mobile — so with the footer gone the page is a single screen, no scroll,
+   nothing cropped. */
+body.error404 .site-footer { display: none; }
+/* .layout's default min-height:100vh is a *full* viewport, but the sticky topbar
+   sits on top of it, so the two together overflow by the topbar's height. .lost
+   already sizes itself, so let the layout just wrap it. */
+body.error404 .layout { min-height: 0; }
+/* The topbar is sticky from 1024px down (~70px tall). Across that whole range
+   .lost must target the viewport height MINUS the topbar, or the full-height
+   hero plus the topbar overflow by exactly the topbar's height. (The ≤720 block
+   re-states this alongside its other mobile tweaks; this covers the tablet band
+   721–1024 too.) */
+@media (max-width: 1024px) {
+  body.error404 .lost {
+    min-height: calc(100vh - 70px);
+    min-height: calc(100dvh - 70px - env(safe-area-inset-top, 0px));
+  }
+}
+
 @media (max-width: 720px) {
   .lost__links { grid-template-columns: repeat(2, 1fr); gap: 0.2rem 0; }
   .lost__links li:nth-child(2n+1) { border-left: 0; }
@@ -4127,6 +4158,37 @@ body.drawer-open { overflow: hidden; }
   .lost__quote p { font-size: clamp(0.58rem, 2.7vw, 1rem); white-space: nowrap; margin: 0; }
   /* Keep the attribution on its own line, centred under the quote. */
   .lost__quote cite { flex-basis: 100%; margin-top: 0.6rem; }
+}
+
+/* Short phones (iPhone SE, small Androids): the link cards are the tallest part
+   of the foot, so on a short screen drop their descriptions and tighten the
+   cards + quote — that's what keeps the whole hero on one screen without
+   scrolling. Tall phones (clearing 740px) keep the richer cards. */
+@media (max-width: 720px) and (max-height: 740px) {
+  .lost-link__desc { display: none; }
+  .lost-link { gap: 0.28rem; padding: 0.15rem 0.6rem; }
+  .lost-link__icon { width: 22px; height: 22px; }
+  .lost__links { padding: 0.45rem 0; }
+  .lost__links li:nth-child(n+3) { padding-top: 0.35rem; }
+  .lost__foot-label { margin-bottom: 0.5rem; }
+  .lost__quote cite { margin-top: 0.35rem; }
+}
+/* Very short phones — also fold the decorative eyebrow so the essentials clear. */
+@media (max-width: 720px) and (max-height: 670px) {
+  .lost__eyebrow { display: none; }
+}
+/* Ultra-short (iPhone 5/SE-1, ~568px tall): collapse the links to a single
+   compact row and shrink the numeral + lede so even ~500px of usable height
+   holds the whole hero. */
+@media (max-width: 720px) and (max-height: 600px) {
+  .lost__code { font-size: min(clamp(3.5rem, 3rem + 9vw, 11rem), 13vh); }
+  .lost__lede { font-size: 0.85rem; line-height: 1.4; }
+  .lost__links { grid-template-columns: repeat(4, 1fr); padding: 0.35rem 0; }
+  .lost__links li:nth-child(n+3) { border-top: 0; padding-top: 0; }
+  .lost__links li:nth-child(2n+1):not(:first-child) { border-left: 1px solid color-mix(in srgb, var(--ink) 18%, transparent); }
+  .lost-link { padding: 0.1rem 0.3rem; }
+  .lost-link__icon { width: 18px; height: 18px; }
+  .lost-link__title { font-size: 0.74rem; }
 }
 
 @media print {
