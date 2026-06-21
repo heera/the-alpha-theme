@@ -3808,6 +3808,12 @@ body.drawer-open { overflow: hidden; }
     transform: none;
     margin: 1.4rem auto calc(1.4rem + env(safe-area-inset-bottom, 0px));
   }
+  /* The desktop hover/focus lean is translate(-50%, 3px) — the -50% keeps the
+     absolutely-centred cue centred there. Here the cue is static (centred by
+     auto margins), so that -50% shoves it half its width to the LEFT when iOS
+     fires :hover/:focus on tap. Lean straight down instead. */
+  .hero__scroll:hover,
+  .hero__scroll:focus-visible { transform: translateY(3px); }
 
   .site-footer {
     grid-template-columns: 1fr;
