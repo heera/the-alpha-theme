@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 	<div class="wrap">
 		<header class="about__head reveal">
-			<p class="eyebrow"><?php esc_html_e( 'Software Developer, Dreamer & Fragrance Enthusiast', 'the-alpha' ); ?></p>
+			<p class="eyebrow"><?php esc_html_e( 'Software Developer, Fragrance Lover & Dreamer', 'the-alpha' ); ?></p>
 			<h2 class="section-heading about__heading"><?php esc_html_e( 'Building tech and chasing scents', 'the-alpha' ); ?></h2>
 		</header>
 
