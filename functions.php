@@ -771,6 +771,52 @@ function the_alpha_body_classes( $classes ) {
 }
 add_filter( 'body_class', 'the_alpha_body_classes' );
 
+/**
+ * Fold old standalone page URLs into the single-page front.
+ *
+ * These pages are still indexed by search engines (and get typed/shared
+ * directly), but the site now presents them on the home page instead:
+ *
+ *   - /who   → #about    (content moved into the About section)
+ *   - /touch → #contact  (content moved into the Contact section)
+ *   - /terms → #terms    (opens the Terms drawer over the home page)
+ *
+ * A permanent (301) redirect sends anyone who lands on the old URL to the
+ * matching home-page anchor.
+ *
+ * Exception: the footer's Terms/Subscribe drawer fills itself by fetching the
+ * real page over XHR (theme.js `load()` sends `X-Requested-With: fetch`). That
+ * request MUST reach the actual page, or the drawer has nothing to show — so we
+ * bail out before redirecting whenever the drawer is the one asking.
+ *
+ * Map is slug => home-page anchor. Add future retirees here.
+ */
+function the_alpha_retired_page_redirects() {
+	if ( is_admin() ) {
+		return;
+	}
+
+	// Let the drawer's own fetch through to the real page (see docblock).
+	if ( isset( $_SERVER['HTTP_X_REQUESTED_WITH'] )
+		&& 'fetch' === strtolower( sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_REQUESTED_WITH'] ) ) ) ) {
+		return;
+	}
+
+	$retired = array(
+		'who'   => '/#about',
+		'touch' => '/#contact',
+		'terms' => '/#terms',
+	);
+
+	foreach ( $retired as $slug => $anchor ) {
+		if ( is_page( $slug ) ) {
+			wp_safe_redirect( home_url( $anchor ), 301 );
+			exit;
+		}
+	}
+}
+add_action( 'template_redirect', 'the_alpha_retired_page_redirects' );
+
 require THE_ALPHA_DIR . '/inc/template-tags.php';
 require THE_ALPHA_DIR . '/inc/banner-image.php';
 require THE_ALPHA_DIR . '/inc/agent-readiness.php';
