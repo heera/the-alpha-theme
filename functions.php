@@ -784,6 +784,11 @@ add_filter( 'body_class', 'the_alpha_body_classes' );
  * A permanent (301) redirect sends anyone who lands on the old URL to the
  * matching home-page anchor.
  *
+ * Matching is by URL path, not is_page(), so /who and /touch keep redirecting
+ * even after their (now content-less) pages are deleted. /terms must keep its
+ * page — the Terms drawer reads it — but the redirect still applies to direct
+ * visits all the same.
+ *
  * Exception: the footer's Terms/Subscribe drawer fills itself by fetching the
  * real page over XHR (theme.js `load()` sends `X-Requested-With: fetch`). That
  * request MUST reach the actual page, or the drawer has nothing to show — so we
@@ -808,14 +813,19 @@ function the_alpha_retired_page_redirects() {
 		'terms' => '/#terms',
 	);
 
-	foreach ( $retired as $slug => $anchor ) {
-		if ( is_page( $slug ) ) {
-			wp_safe_redirect( home_url( $anchor ), 301 );
-			exit;
-		}
+	// Match the top-level slug from the request path: /who and /who/ both map to
+	// "who", but a nested /blog/who/ stays "blog/who" and is left alone.
+	$uri  = isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '/';
+	$slug = strtolower( trim( (string) wp_parse_url( $uri, PHP_URL_PATH ), '/' ) );
+
+	if ( isset( $retired[ $slug ] ) ) {
+		wp_safe_redirect( home_url( $retired[ $slug ] ), 301 );
+		exit;
 	}
 }
-add_action( 'template_redirect', 'the_alpha_retired_page_redirects' );
+// Priority 1: run before redirect_canonical (10) so a deleted /who redirects
+// cleanly to #about instead of WordPress guessing a 404 fallback first.
+add_action( 'template_redirect', 'the_alpha_retired_page_redirects', 1 );
 
 require THE_ALPHA_DIR . '/inc/template-tags.php';
 require THE_ALPHA_DIR . '/inc/banner-image.php';
