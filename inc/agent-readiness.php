@@ -23,6 +23,26 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/*
+ * Stand down when the Agentimus plugin is handling agent readiness.
+ *
+ * Agentimus owns the same surfaces this file does — /llms.txt, /llms-full.txt,
+ * markdown delivery (.md + `Accept: text/markdown`) and the robots.txt
+ * content-signals — and registers them on the *same* hooks and priorities
+ * (template_redirect:0, robots_txt:20), plus the /.well-known discovery layer
+ * the theme never had. Running both is a registration-order race: the plugin
+ * wins the template_redirect routes (it registers first and exits), but the
+ * theme's robots_txt filter runs last and rebuilds from scratch, silently
+ * clobbering the plugin's robots.txt. Rather than depend on load order, the
+ * theme cedes the whole feature to the plugin whenever it is active.
+ *
+ * Deactivate Agentimus and this file resumes automatically as the
+ * self-contained, no-plugin fallback it was built to be.
+ */
+if ( defined( 'AGENTIMUS_VERSION' ) ) {
+	return;
+}
+
 /**
  * Route the agent-facing endpoints early, before the normal template loads.
  *
