@@ -445,6 +445,20 @@
     sealLink.addEventListener("focusin", enter);
     sealLink.addEventListener("pointerleave", leave);
     sealLink.addEventListener("focusout", leave);
+
+    // Not a crawlable <a href> (bots would follow it to the 404). Navigate on
+    // activation instead — resolves to <origin>/wrong-turn, which 404s into the
+    // "lost in the woods" page.
+    var go = function () {
+      window.location.href = "/wrong-turn";
+    };
+    sealLink.addEventListener("click", go);
+    sealLink.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
+        e.preventDefault();
+        go();
+      }
+    });
   }
 
   /* ---- Scroll progress + back-to-top ------------------------------------- */

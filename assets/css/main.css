@@ -2330,9 +2330,6 @@ h1, h2, h3, h4 {
   inset: -20px;
   border-radius: 50%;
 }
-/* Belt-and-braces: the visited link must never recolour the seal. */
-.site-footer__seal-link:link,
-.site-footer__seal-link:visited { color: var(--accent); }
 .site-footer__seal-link:focus-visible {
   outline: 2px solid color-mix(in srgb, var(--accent) 60%, transparent);
   outline-offset: 8px;

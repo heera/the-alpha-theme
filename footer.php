@@ -37,15 +37,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 	 * rings, a compass crosshair, drifting fragrance motes and a glowing core.
 	 * Purely decorative, static — no motion.
 	 *
-	 * Quiet easter egg: the seal is wrapped in a link that points off the map — it
-	 * requests a path that doesn't exist, so the real 404 ("lost in the woods")
-	 * answers, a deliberate way in to a page nobody normally sees. The seal <div>
-	 * stays untouched and keeps its own accent colour, so the link's :visited
-	 * state can never recolour the engraving; the wrapping <a> carries the
-	 * accessible label. Hover feedback is glow + scale only — no caption.
+	 * Quiet easter egg. Deliberately NOT a real <a href> — that would be crawlable
+	 * and bots would follow it straight to the 404. Instead theme.js navigates to
+	 * /wrong-turn on click / Enter / Space (a path that doesn't exist, so the
+	 * "lost in the woods" 404 answers). role="button" + tabindex keep it
+	 * keyboard-reachable; the seal <div> keeps its own accent colour. Hovering
+	 * swaps the rim words to WRONG TURN / DON'T CLICK.
 	 */
 	?>
-	<a class="site-footer__seal-link" href="<?php echo esc_url( home_url( '/off-the-map' ) ); ?>" aria-label="<?php esc_attr_e( 'Off the map', 'the-alpha' ); ?>">
+	<a class="site-footer__seal-link" role="button" tabindex="0" aria-label="<?php esc_attr_e( 'Wrong turn', 'the-alpha' ); ?>">
 	<div class="site-footer__seal" aria-hidden="true">
 		<svg viewBox="-16 -16 132 132" width="124" height="124" fill="none" stroke="currentColor" focusable="false">
 			<defs>
