@@ -2294,6 +2294,50 @@ h1, h2, h3, h4 {
     drop-shadow(0 0 12px color-mix(in srgb, var(--accent) 13%, transparent));
 }
 .site-footer__seal svg { display: block; }
+/* The cycle arrows fade out on hover (theme.js) so the WRONG TURN / DON'T CLICK
+   message isn't crossed by arrowheads where the long phrases reach the rim gaps. */
+.site-footer__seal-arrows { transition: opacity 0.35s var(--ease); }
+/* The left/right arrows only appear on hover, flanking the message. */
+.site-footer__seal-arrows--sides { opacity: 0; }
+/* Easter-egg link wrapping the seal (footer.php). The seal sits still at its
+   steady glow; pointing at or focusing the link spins the whole emblem (theme.js
+   spins it up, then coasts it to a stop on leave). The ::before extends the hit
+   area ~20px beyond the rings so hover registers reliably even when aiming at the
+   outer ring; the focus ring keeps it keyboard-reachable. The first-view bloom
+   (--lit, below) is independent — it animates the glow (filter) while the spin
+   animates rotation (transform), so the two layer without conflict. */
+.site-footer__seal-link {
+  grid-column: 2;
+  align-self: center;
+  justify-self: center;
+  position: relative;          /* anchors the enlarged hit area (::before) */
+  display: block;
+  color: var(--accent);
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: 50%;          /* circular hit area — the box corners don't trigger */
+  -webkit-user-select: none;   /* dragging near a corner shouldn't blue-select the SVG */
+  user-select: none;
+}
+/* The visible rings reach almost to the box edge, so aiming at the outer ring
+   lands right on the hit boundary. This invisible pad extends the hit area ~20px
+   beyond the seal WITHOUT shifting layout (absolutely positioned); border-radius
+   makes it a CIRCLE so the box corners don't trigger hover — the hit shape
+   matches the round seal. */
+.site-footer__seal-link::before {
+  content: "";
+  position: absolute;
+  inset: -20px;
+  border-radius: 50%;
+}
+/* Belt-and-braces: the visited link must never recolour the seal. */
+.site-footer__seal-link:link,
+.site-footer__seal-link:visited { color: var(--accent); }
+.site-footer__seal-link:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent) 60%, transparent);
+  outline-offset: 8px;
+  border-radius: 50%;
+}
 /* Rim engraving — fine mono caps following the arc paths. Weight 500 + near-full
    opacity so the words read clearly without growing in size. */
 .site-footer__seal-text {
@@ -2304,6 +2348,10 @@ h1, h2, h3, h4 {
   font-size: 7.5px;
   font-weight: 500;
   letter-spacing: 1.6px;
+  /* Centre the glyphs on their arc so every word sits the same distance from the
+     ring. Without this, top text grows outward (CODE crowds the border) while
+     bottom text grows inward (EAT sits inset) — same radius, opposite offset. */
+  dominant-baseline: central;
 }
 /* Light mode: terracotta at full strength (~6.2:1 on cream) — the toned-down
    opacity reads as washed-out on the light surface, so take it to 1. */
@@ -2409,7 +2457,7 @@ h1, h2, h3, h4 {
 .site-footer__copy,
 .site-footer__sub {
   font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-size: 0.7rem;          /* match the sidebar colophon (.colophon-mini) */
   letter-spacing: 0.16em;
   text-transform: uppercase;
   line-height: 1.95;
@@ -2422,7 +2470,7 @@ h1, h2, h3, h4 {
   /* Match the left column's size + line-height so the two columns share one
      baseline grid — row 1 (copyright / subscribe) and row 2 (powered-by /
      terms) line up horizontally. */
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   line-height: 1.95;
@@ -3454,7 +3502,9 @@ body.drawer-open { overflow: hidden; }
   :root { --sidebar-w: 0px; }
 
   /* The centre seal is a desktop flourish for the wide footer's empty middle —
-     once the layout collapses there's no empty centre to fill, so drop it. */
+     once the layout collapses there's no empty centre to fill, so drop it (and
+     its easter-egg link wrapper, so no invisible tab stop is left behind). */
+  .site-footer__seal-link,
   .site-footer__seal { display: none; }
 
   .topbar {

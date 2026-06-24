@@ -379,6 +379,74 @@
     sealObs.observe(seal);
   }
 
+  /* ---- Footer seal: hover reveal -----------------------------------------
+     At rest the seal shows its real engraving (CODE / SNIFF / EAT / SLEEP),
+     sitting square. Pointing at or focusing it swaps the four words to the hover
+     set and turns the WHOLE seal 45°, so the pairs settle together — WRONG TURN
+     across the top, DON'T CLICK across the bottom. Leaving turns it back and
+     restores the words. The swap works for everyone; the turn is skipped under
+     reduced-motion. Independent of the first-view bloom (which animates glow). */
+  var sealLink = seal && document.querySelector(".site-footer__seal-link");
+  if (seal && sealLink) {
+    var sealWords = seal.querySelectorAll(".site-footer__seal-text textPath"); // N, E, S, W
+    var arrowsCorners = seal.querySelector(".site-footer__seal-arrows");        // four corner arrows (rest)
+    var arrowsSides = seal.querySelector(".site-footer__seal-arrows--sides");   // two side arrows (hover)
+    var restWords = ["CODE", "SNIFF", "EAT", "SLEEP"];
+    // On hover the two phrases ride the top and bottom arcs (sides cleared), so
+    // they read upright and in order. A rigid partial turn would flip whichever
+    // words land in the lower half, so the motion is a full 360° flourish that
+    // lands the seal square again — spin AND readable.
+    var hoverWords = ["WRONG TURN", "", "DON’T CLICK", ""];
+    var setSealWords = function (words) {
+      for (var i = 0; i < sealWords.length; i++) {
+        if (words[i] !== undefined) sealWords[i].textContent = words[i];
+      }
+    };
+
+    var canSpin = !reduceMotion && seal.animate;
+    var spin = null;
+    var SPIN_MS = 850;
+    var spinOnce = function () {
+      if (spin) spin.cancel();
+      spin = seal.animate(
+        [{ transform: "rotate(0deg)" }, { transform: "rotate(360deg)" }],
+        { duration: SPIN_MS, easing: "cubic-bezier(0.22, 1, 0.36, 1)" }
+      );
+      spin.onfinish = function () {
+        seal.style.transform = ""; // settle upright
+        if (spin) {
+          spin.cancel();
+          spin = null;
+        }
+      };
+    };
+    var resetSpin = function () {
+      if (spin) {
+        spin.cancel();
+        spin = null;
+      }
+      seal.style.transform = "";
+    };
+
+    var enter = function () {
+      setSealWords(hoverWords);
+      // Corner arrows out (they'd cross the long phrases), side arrows in.
+      if (arrowsCorners) arrowsCorners.style.opacity = "0";
+      if (arrowsSides) arrowsSides.style.opacity = "1";
+      if (canSpin) spinOnce();
+    };
+    var leave = function () {
+      setSealWords(restWords);
+      if (arrowsCorners) arrowsCorners.style.opacity = "";
+      if (arrowsSides) arrowsSides.style.opacity = "";
+      resetSpin();
+    };
+    sealLink.addEventListener("pointerenter", enter);
+    sealLink.addEventListener("focusin", enter);
+    sealLink.addEventListener("pointerleave", leave);
+    sealLink.addEventListener("focusout", leave);
+  }
+
   /* ---- Scroll progress + back-to-top ------------------------------------- */
   var bar = document.querySelector(".scroll-progress");
   var toTop = document.querySelector(".to-top");

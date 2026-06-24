@@ -36,8 +36,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 	 * (top/bottom upright, sides curving along the rim). Inside: concentric
 	 * rings, a compass crosshair, drifting fragrance motes and a glowing core.
 	 * Purely decorative, static — no motion.
+	 *
+	 * Quiet easter egg: the seal is wrapped in a link that points off the map — it
+	 * requests a path that doesn't exist, so the real 404 ("lost in the woods")
+	 * answers, a deliberate way in to a page nobody normally sees. The seal <div>
+	 * stays untouched and keeps its own accent colour, so the link's :visited
+	 * state can never recolour the engraving; the wrapping <a> carries the
+	 * accessible label. Hover feedback is glow + scale only — no caption.
 	 */
 	?>
+	<a class="site-footer__seal-link" href="<?php echo esc_url( home_url( '/off-the-map' ) ); ?>" aria-label="<?php esc_attr_e( 'Off the map', 'the-alpha' ); ?>">
 	<div class="site-footer__seal" aria-hidden="true">
 		<svg viewBox="-16 -16 132 132" width="124" height="124" fill="none" stroke="currentColor" focusable="false">
 			<defs>
@@ -46,7 +54,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<stop offset="100%" stop-color="currentColor" stop-opacity="0"/>
 				</radialGradient>
 				<!-- One rim arc per word. Top/bottom render upright; the side arcs
-				     curve along the rim (Sniff reads down the right, Sleep up the
+				     curve along the rim (Turn reads down the right, Click up the
 				     left), each centred on its compass point at 50% offset. -->
 				<path id="sealRimN" d="M 9.4 15.9 A 53 53 0 0 1 90.6 15.9"/>
 				<path id="sealRimS" d="M 9.4 84.1 A 53 53 0 0 0 90.6 84.1"/>
@@ -75,7 +83,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<!-- Cycle arrows: a small clockwise arrow rides the rim in each gap
 			     between words, so the loop reads as a flow (Code → Sniff → Eat →
 			     Sleep → …). Generated at the four intercardinal points. -->
-			<g stroke-width="0.8" stroke-opacity="0.4" stroke-linecap="round" stroke-linejoin="round">
+			<g class="site-footer__seal-arrows" stroke-width="0.8" stroke-opacity="0.4" stroke-linecap="round" stroke-linejoin="round">
 				<?php
 				$ar = 53;
 				foreach ( array( 45, 135, 225, 315 ) as $c ) {
@@ -99,12 +107,38 @@ if ( ! defined( 'ABSPATH' ) ) {
 				}
 				?>
 			</g>
+			<g class="site-footer__seal-arrows site-footer__seal-arrows--sides" stroke-width="0.8" stroke-opacity="0.4" stroke-linecap="round" stroke-linejoin="round">
+				<?php
+				// Left & right arrows — hidden at rest, faded in on hover to flank the
+				// WRONG TURN / DON'T CLICK message while the four corner arrows fade out.
+				foreach ( array( 90, 270 ) as $c ) {
+					$a0  = deg2rad( $c - 13 );
+					$a1  = deg2rad( $c + 13 );
+					$x0  = 50 + $ar * sin( $a0 );
+					$y0  = 50 - $ar * cos( $a0 );
+					$x1  = 50 + $ar * sin( $a1 );
+					$y1  = 50 - $ar * cos( $a1 );
+					$tx  = cos( $a1 );
+					$ty  = sin( $a1 );
+					$rx  = sin( $a1 );
+					$ry  = -cos( $a1 );
+					printf(
+						'<path d="M %.2f %.2f A %d %d 0 0 1 %.2f %.2f"/><path d="M %.2f %.2f L %.2f %.2f L %.2f %.2f"/>',
+						$x0, $y0, $ar, $ar, $x1, $y1,
+						$x1 - 3.4 * $tx + 2.4 * $rx, $y1 - 3.4 * $ty + 2.4 * $ry,
+						$x1, $y1,
+						$x1 - 3.4 * $tx - 2.4 * $rx, $y1 - 3.4 * $ty - 2.4 * $ry
+					);
+				}
+				?>
+			</g>
 			<text class="site-footer__seal-text"><textPath href="#sealRimN" startOffset="50%" text-anchor="middle">CODE</textPath></text>
 			<text class="site-footer__seal-text"><textPath href="#sealRimE" startOffset="50%" text-anchor="middle">SNIFF</textPath></text>
 			<text class="site-footer__seal-text"><textPath href="#sealRimS" startOffset="50%" text-anchor="middle">EAT</textPath></text>
 			<text class="site-footer__seal-text"><textPath href="#sealRimW" startOffset="50%" text-anchor="middle">SLEEP</textPath></text>
 		</svg>
 	</div>
+	</a>
 
 	<div class="site-footer__col site-footer__col--right">
 		<a class="site-footer__rss" href="<?php echo esc_url( home_url( '/subscribe/' ) ); ?>" data-drawer>
