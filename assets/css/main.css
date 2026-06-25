@@ -2541,7 +2541,11 @@ h1, h2, h3, h4 {
    under the title instead of floating in a centred block with a left gutter. */
 body.page .content-grid--narrow,
 body.page .content-grid--single { max-width: 900px; }
-body.page .page-head .wrap { max-width: 900px; }
+/* Only narrow the header to match the reading column on pages that actually
+   use it. The Blog listing page (page-blog.php) is a body.page too, but keeps
+   the full-width .content-grid + sidebar — so its breadcrumb header must stay
+   --maxw-wide, else the crumb floats in a centred 900px box over a wide grid. */
+body.page:has(.content-grid--narrow, .content-grid--single) .page-head .wrap { max-width: 900px; }
 body.page .content-grid--narrow .prose,
 body.page .content-grid--single .prose { max-width: none; margin-inline: 0; }
 body.page .page-title {
@@ -2549,7 +2553,9 @@ body.page .page-title {
   letter-spacing: -0.01em;
   margin: 0.5rem 0 0;
 }
-body.page .lede { max-width: none; }
+/* Fill the reading column on static pages; the Blog listing intro keeps the
+   base 60ch measure so it stays readable under the now-full-width header. */
+body.page:has(.content-grid--narrow, .content-grid--single) .lede { max-width: none; }
 /* Single posts: give the title a hero size larger than the in-content .prose h2
    (1.7rem) so the H1 leads the hierarchy. The compact --title-list size is kept
    for the blog-index listing rows; this only enlarges the actual post page. */
