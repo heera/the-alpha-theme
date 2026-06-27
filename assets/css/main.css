@@ -2785,7 +2785,13 @@ body.single .page-title {
   filter: invert(0.92) hue-rotate(180deg);
 }
 [data-theme="dark"] .prose img.no-invert,
-[data-theme="dark"] .prose img[data-no-invert] {
+[data-theme="dark"] .prose img[data-no-invert],
+/* Gutenberg adds a block's "Additional CSS class(es)" to the wrapper element
+   (e.g. figure.wp-block-image), not the <img> — so honour the opt-out when the
+   class sits on any ancestor too, otherwise per-image no-invert silently fails. */
+[data-theme="dark"] .prose .no-invert img,
+/* Galleries are photos, never light-UI screenshots — never invert them. */
+[data-theme="dark"] .prose .wp-block-gallery img {
   filter: none;
 }
 .prose blockquote {
@@ -3383,6 +3389,63 @@ body.single .page-title {
 .prose figcaption,
 .wp-caption-text { font-size: 0.82rem; color: var(--ink-dim); text-align: center; margin-top: 0.5rem; }
 .prose .wp-block-image img { border-radius: var(--radius-sm); }
+
+/* Gallery — a predictable responsive grid instead of core's flexbox (whose
+   last incomplete row stretches to full width). Desktop column count follows
+   the block's own "Columns" setting; tablets cap at 3, phones at 2. Tiles are
+   square-cropped so mixed aspect ratios line up. To fill the page give the
+   block "Full width" alignment (breakout rule below).
+
+   NOTE on specificity: core's wp-block-library boosts its own gallery rules
+   with an #id inside :not() — e.g. `figure.wp-block-image:not(#individual-image)`
+   sets the item width, and `figure.wp-block-image img { width:auto }` sizes the
+   image. Plain class selectors lose to those, so the per-item + image rules
+   below are scoped under `.prose.entry-content` AND carry an inert `:not(#i)`
+   to clear core's id-level specificity regardless of stylesheet order. Without
+   this, newly added images render at their natural (often tiny) size. */
+.entry-content .wp-block-gallery.has-nested-images {
+  display: grid;
+  grid-template-columns: repeat(var(--gal-cols, 3), 1fr);
+  gap: clamp(0.5rem, 0.3rem + 0.6vw, 1rem);
+}
+.wp-block-gallery.columns-1 { --gal-cols: 1; }
+.wp-block-gallery.columns-2 { --gal-cols: 2; }
+.wp-block-gallery.columns-3 { --gal-cols: 3; }
+.wp-block-gallery.columns-4 { --gal-cols: 4; }
+.wp-block-gallery.columns-5 { --gal-cols: 5; }
+.wp-block-gallery.columns-6 { --gal-cols: 6; }
+.prose.entry-content .wp-block-gallery.has-nested-images figure.wp-block-image:not(#i) {
+  width: auto;       /* fill the grid cell instead of core's 33%/25% width */
+  max-width: none;
+  margin: 0;
+}
+.prose.entry-content .wp-block-gallery.has-nested-images figure.wp-block-image:not(#i) img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1; /* drop this line for natural proportions */
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+}
+@media (max-width: 1024px) {
+  .entry-content .wp-block-gallery.has-nested-images { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 600px) {
+  .entry-content .wp-block-gallery.has-nested-images { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* "Full width" gallery: break out of the narrow page reading column to span the
+   whole content region (right of the sidebar), capped at --maxw-wide. Centred
+   on the same axis as the column so it stays symmetric; body has
+   overflow-x:hidden so the bleed never adds a scrollbar. Below 1024px
+   --sidebar-w is 0, so this becomes viewport-wide on its own. */
+body.page .content-grid--narrow .entry-content .wp-block-gallery.alignfull {
+  width: calc(min(var(--maxw-wide), 100vw - var(--sidebar-w)) - 2 * clamp(2rem, 1.2rem + 2vw, 4rem));
+  max-width: none;
+  margin-left: 50%;
+  transform: translateX(-50%);
+}
+
 .comment-reply-link {
   font-family: var(--font-mono);
   font-size: 0.72rem;
