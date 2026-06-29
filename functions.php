@@ -538,6 +538,15 @@ function the_alpha_seo() {
 	$title_text = html_entity_decode( $title, ENT_QUOTES, get_bloginfo( 'charset' ) );
 	$desc_text  = html_entity_decode( $desc, ENT_QUOTES, get_bloginfo( 'charset' ) );
 
+	// ---- Canonical ------------------------------------------------------
+	// WordPress core emits rel=canonical on singular views only (rel_canonical),
+	// so the homepage and archives have none — which AI/search crawlers flag as
+	// an ambiguous-duplicate risk. Fill that gap here; leave singular to core so
+	// the tag is never emitted twice.
+	if ( $url && ! is_singular() ) {
+		printf( "<link rel=\"canonical\" href=\"%s\">\n", esc_url( $url ) );
+	}
+
 	// ---- Meta description -----------------------------------------------
 	if ( $desc ) {
 		printf( "<meta name=\"description\" content=\"%s\">\n", esc_attr( $desc ) );

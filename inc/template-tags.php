@@ -153,9 +153,13 @@ function the_alpha_post_meta_single() {
 
 	echo '<div class="post-meta-single">';
 
+	// rel="author" on a link to the author archive makes the byline machine-readable
+	// for search/AI crawlers (an E-E-A-T signal), and matches the category/comment
+	// links already in this meta row — so it reads as a real byline, not just text.
 	printf(
-		'<span class="post-meta-single__item">%s<span>%s</span></span>',
+		'<span class="post-meta-single__item post-meta-single__author">%s<a class="author" rel="author" href="%s">%s</a></span>',
 		$author_icon, // safe: hand-authored inline SVG above.
+		esc_url( get_author_posts_url( (int) get_post_field( 'post_author', get_the_ID() ) ) ),
 		esc_html( get_the_author() )
 	);
 
