@@ -64,7 +64,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 				// motif: 1 9 7 7 -> 00000001 00001001 00000111 00000111.
 				$since_year = 1977;
 				?>
-				<span class="portrait__code"
+				<?php // role="img": aria-label is prohibited on a generic <span> — with the
+				      // image role the label ("Since 1977") is announced instead of the binary. ?>
+				<span class="portrait__code" role="img"
 					aria-label="<?php /* translators: %d: year. */ printf( esc_attr__( 'Since %d', 'the-alpha' ), $since_year ); ?>">
 					<?php echo esc_html( implode( '-', array_map( static function ( $d ) { return str_pad( decbin( (int) $d ), 8, '0', STR_PAD_LEFT ); }, str_split( (string) $since_year ) ) ) ); ?>
 				</span>

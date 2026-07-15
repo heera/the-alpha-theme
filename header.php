@@ -60,7 +60,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<?php if ( has_custom_logo() ) : ?>
 				<?php the_custom_logo(); ?>
 			<?php else : ?>
-				<a href="<?php echo esc_url( home_url( '/' ) ); ?>" aria-label="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>">
+				<?php /* No aria-label: it would truncate the visible text (site name +
+				         tagline) and fail WCAG 2.5.3 label-in-name — the visible text
+				         already names the link. */ ?>
+				<a href="<?php echo esc_url( home_url( '/' ) ); ?>">
 					<span class="brand__rule"><span class="brand__name"><?php bloginfo( 'name' ); ?></span></span>
 					<span class="brand__tag"><?php esc_html_e( 'aka — The Alpha', 'the-alpha' ); ?></span>
 				</a>
@@ -83,7 +86,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<div class="sidebar__foot">
 			<?php the_alpha_social_links( 'socials' ); ?>
 
-			<button class="theme-toggle" type="button" aria-label="<?php esc_attr_e( 'Switch colour theme', 'the-alpha' ); ?>" aria-pressed="false">
+			<?php /* The accessible name must CONTAIN the visible label word
+			         ("Light"/"Dark" — WCAG 2.5.3), so it flips with the theme:
+			         theme.js syncToggle() keeps it current from these data attrs.
+			         The PHP value is the pre-JS placeholder, matching the
+			         aria-pressed="false" (= dark) default below. */ ?>
+			<button class="theme-toggle" type="button"
+				aria-label="<?php esc_attr_e( 'Switch to light theme', 'the-alpha' ); ?>"
+				data-label-to-light="<?php esc_attr_e( 'Switch to light theme', 'the-alpha' ); ?>"
+				data-label-to-dark="<?php esc_attr_e( 'Switch to dark theme', 'the-alpha' ); ?>"
+				aria-pressed="false">
 				<svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
 				<svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0-13a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0V5a1 1 0 0 1 1-1zm0 15a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0v-1a1 1 0 0 1 1-1zM4 12a1 1 0 0 1 1-1h1a1 1 0 1 1 0 2H5a1 1 0 0 1-1-1zm14 0a1 1 0 0 1 1-1h1a1 1 0 1 1 0 2h-1a1 1 0 0 1-1-1zM5.6 5.6a1 1 0 0 1 1.4 0l.7.7a1 1 0 1 1-1.4 1.4l-.7-.7a1 1 0 0 1 0-1.4zm10.7 10.7a1 1 0 0 1 1.4 0l.7.7a1 1 0 1 1-1.4 1.4l-.7-.7a1 1 0 0 1 0-1.4zM18.4 5.6a1 1 0 0 1 0 1.4l-.7.7a1 1 0 1 1-1.4-1.4l.7-.7a1 1 0 0 1 1.4 0zM7.7 16.3a1 1 0 0 1 0 1.4l-.7.7a1 1 0 0 1-1.4-1.4l.7-.7a1 1 0 0 1 1.4 0z"/></svg>
 				<span class="theme-toggle__label">

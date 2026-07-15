@@ -47,6 +47,15 @@
     if (!toggle) return;
     var isLight = root.getAttribute("data-theme") === "light";
     toggle.setAttribute("aria-pressed", String(isLight));
+    /* Accessible name must contain the visible word ("Light"/"Dark") — WCAG
+       2.5.3. Localised strings come from the button's data attributes. */
+    toggle.setAttribute(
+      "aria-label",
+      (isLight
+        ? toggle.getAttribute("data-label-to-dark")
+        : toggle.getAttribute("data-label-to-light")) ||
+        (isLight ? "Switch to dark theme" : "Switch to light theme")
+    );
   }
   syncToggle();
 

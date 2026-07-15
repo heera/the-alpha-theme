@@ -159,7 +159,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 ?>
 <div class="drawer" id="site-drawer" hidden>
 	<div class="drawer__scrim" data-drawer-close></div>
-	<aside class="drawer__panel" role="dialog" aria-modal="true" aria-labelledby="drawer-title" tabindex="-1">
+	<?php /* A <div>, not <aside>: role="dialog" overrides the landmark anyway,
+	         and aside's implicit complementary role conflicts with it. */ ?>
+	<div class="drawer__panel" role="dialog" aria-modal="true" aria-labelledby="drawer-title" tabindex="-1">
 		<header class="drawer__bar">
 			<button class="drawer__close" type="button" data-drawer-close aria-label="<?php esc_attr_e( 'Close', 'the-alpha' ); ?>">
 				<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" d="M6 6l12 12M18 6 6 18"/></svg>
@@ -169,7 +171,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<h2 class="drawer__title" id="drawer-title" tabindex="-1"></h2>
 			<div class="drawer__content prose"></div>
 		</div>
-	</aside>
+	</div>
 </div>
 
 <button class="to-top" type="button" aria-label="<?php esc_attr_e( 'Back to top', 'the-alpha' ); ?>">

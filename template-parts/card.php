@@ -27,6 +27,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<?php the_alpha_post_meta(); ?>
 		<h3 class="card__title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
 		<p class="card__excerpt"><?php echo esc_html( wp_trim_words( get_the_excerpt(), 22, '&hellip;' ) ); ?></p>
-		<a class="card__more" href="<?php the_permalink(); ?>"><?php esc_html_e( 'Read', 'the-alpha' ); ?></a>
+		<?php // The visible "Read" is identical on every card; the sr-only suffix
+		      // names the destination without changing the visible label (2.5.3-safe:
+		      // the visible word stays contained in the accessible name). ?>
+		<a class="card__more" href="<?php the_permalink(); ?>"><?php esc_html_e( 'Read', 'the-alpha' ); ?><span class="screen-reader-text"> &mdash; <?php the_title(); ?></span></a>
 	</div>
 </article>
