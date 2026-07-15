@@ -2782,7 +2782,13 @@ body.single .page-title {
    colours stay correct. Add class "no-invert" to any image that should
    stay original (e.g. dark screenshots, photographs of people, branding). */
 [data-theme="dark"] .prose img {
-  filter: invert(0.92) hue-rotate(180deg);
+  filter: invert(0.95) hue-rotate(180deg);
+  /* The filter inverts the element's OWN border too — var(--border) would flip
+     to a bright ring. This light gray is chosen to SURVIVE the filter as a dim
+     line: invert(.95) maps a channel x to .95 − .9x, so #dedede lands on
+     ≈ #2b2b2b (grays are unaffected by the hue-rotate), visually matching the
+     dark theme's --border (#232a33). */
+  border-color: #dedede;
 }
 [data-theme="dark"] .prose img.no-invert,
 [data-theme="dark"] .prose img[data-no-invert],
@@ -2793,6 +2799,7 @@ body.single .page-title {
 /* Galleries are photos, never light-UI screenshots — never invert them. */
 [data-theme="dark"] .prose .wp-block-gallery img {
   filter: none;
+  border-color: var(--border);
 }
 .prose blockquote {
   border-left: 3px solid var(--accent);
