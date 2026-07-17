@@ -839,3 +839,4 @@ add_action( 'template_redirect', 'the_alpha_retired_page_redirects', 1 );
 require THE_ALPHA_DIR . '/inc/template-tags.php';
 require THE_ALPHA_DIR . '/inc/banner-image.php';
 require THE_ALPHA_DIR . '/inc/agent-readiness.php';
+require THE_ALPHA_DIR . '/inc/missed-schedule-healer.php';
