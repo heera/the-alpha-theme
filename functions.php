@@ -606,7 +606,11 @@ function the_alpha_seo() {
 		foreach ( (array) get_the_category() as $cat ) {
 			printf( "<meta property=\"article:section\" content=\"%s\">\n", esc_attr( $cat->name ) );
 		}
-		foreach ( (array) get_the_tags() as $tag ) {
+		// get_the_tags() returns false (or WP_Error) when a post has no tags,
+		// and `(array) false` is array( false ) — a lone non-object element
+		// whose ->name read triggers a notice. Only loop over a real array.
+		$post_tags = get_the_tags();
+		foreach ( is_array( $post_tags ) ? $post_tags : array() as $tag ) {
 			$tag_name = trim( (string) $tag->name );
 			if ( '' === $tag_name ) {
 				continue;
