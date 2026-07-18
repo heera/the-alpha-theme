@@ -759,6 +759,62 @@ function the_alpha_trim_head() {
 add_action( 'init', 'the_alpha_trim_head' );
 
 /**
+ * Editor: a per-image switch out of the dark-mode image filter. A toggle
+ * (not a block style — styles are mutually exclusive and would knock out
+ * Rounded) that simply adds/removes the `no-invert` class the dark-theme
+ * CSS already honours on the figure. No new attribute, so saved markup
+ * stays plain core/image.
+ */
+function the_alpha_editor_assets() {
+	wp_register_script(
+		'the-alpha-editor',
+		false,
+		array( 'wp-hooks', 'wp-compose', 'wp-element', 'wp-block-editor', 'wp-components' ),
+		THE_ALPHA_VERSION,
+		true
+	);
+	wp_enqueue_script( 'the-alpha-editor' );
+	wp_add_inline_script(
+		'the-alpha-editor',
+		<<<'JS'
+(function () {
+	if (!window.wp || !wp.hooks || !wp.compose || !wp.element || !wp.blockEditor || !wp.components) { return; }
+	var el = wp.element.createElement;
+	var CLASS = 'no-invert';
+	var classes = function (cn) { return (cn || '').split(/\s+/).filter(Boolean); };
+	wp.hooks.addFilter('editor.BlockEdit', 'the-alpha/no-invert',
+		wp.compose.createHigherOrderComponent(function (BlockEdit) {
+			return function (props) {
+				if ('core/image' !== props.name) { return el(BlockEdit, props); }
+				var list = classes(props.attributes.className);
+				var on = -1 !== list.indexOf(CLASS);
+				return el(wp.element.Fragment, null,
+					el(BlockEdit, props),
+					el(wp.blockEditor.InspectorControls, null,
+						el(wp.components.PanelBody, { title: 'Dark mode', initialOpen: true },
+							el(wp.components.ToggleControl, {
+								label: 'Keep original colors',
+								help: 'The dark theme dims bright images. This one stays exactly as uploaded.',
+								checked: on,
+								onChange: function (v) {
+									var next = list.filter(function (c) { return c !== CLASS; });
+									if (v) { next.push(CLASS); }
+									props.setAttributes({ className: next.join(' ') || undefined });
+								}
+							})
+						)
+					)
+				);
+			};
+		}, 'withNoInvert')
+	);
+})();
+JS
+	);
+}
+add_action( 'enqueue_block_editor_assets', 'the_alpha_editor_assets' );
+
+/**
  * Cleaner excerpts.
  */
 function the_alpha_excerpt_length() {
