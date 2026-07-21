@@ -287,3 +287,36 @@ function the_alpha_thumb_url( $size = 'the_alpha_card' ) {
 	}
 	return THE_ALPHA_URI . '/assets/img/placeholder.webp';
 }
+
+
+/**
+ * The Agentimus AI-readiness badge, closing the sidebar foot.
+ *
+ * The mechanics live in the theme: render only while the Agentimus plugin
+ * is active AND its scorecard sharing is on — a deactivated plugin or
+ * sharing turned off must never leave a broken image in the sidebar. The
+ * address follows the plugin's configured public-page path, and the badge
+ * links to that page only under the plugin's own embed rule (page on AND
+ * "link the badge" on); otherwise it renders as a plain image.
+ */
+function the_alpha_ai_badge() {
+	if ( ! class_exists( '\Agentimus\Settings' ) ) {
+		return;
+	}
+	$settings = new \Agentimus\Settings();
+	if ( ! $settings->get( 'share_scorecard', false ) ) {
+		return;
+	}
+
+	$path  = trim( (string) $settings->get( 'scorecard_path', 'agentimus-ai-readiness' ), '/' );
+	$badge = sprintf(
+		'<img src="%s" alt="%s" loading="lazy">',
+		esc_url( home_url( '/' . $path . '/badge.svg' ) ),
+		esc_attr__( 'AI readiness', 'the-alpha' )
+	);
+	if ( $settings->get( 'scorecard_page_enabled', true ) && $settings->get( 'scorecard_badge_link', true ) ) {
+		$badge = sprintf( '<a href="%s">%s</a>', esc_url( home_url( '/' . $path . '/' ) ), $badge );
+	}
+
+	echo '<p class="sidebar__ai-badge">' . $badge . '</p>'; // Escaped piecewise above.
+}

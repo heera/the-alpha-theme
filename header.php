@@ -108,6 +108,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<?php the_alpha_copyright( true ); ?><br>
 				<?php esc_html_e( 'Built with', 'the-alpha' ); ?> <span class="colophon-mini__heart" role="img" aria-label="<?php esc_attr_e( 'love', 'the-alpha' ); ?>">&#10084;</span> <?php esc_html_e( 'and caffeine', 'the-alpha' ); ?>
 			</p>
+
+			<?php the_alpha_ai_badge(); ?>
 		</div>
 	</aside>
 

@@ -689,6 +689,12 @@ h1, h2, h3, h4 {
   -webkit-text-fill-color: currentColor; /* override emoji colouring in WebKit */
 }
 
+.sidebar__ai-badge {
+  margin: 1.05rem 0 0;
+  display: flex;
+  justify-content: center;
+}
+
 /* Mobile top bar + toggle (hidden on desktop) */
 .topbar { display: none; }
 .nav-toggle { display: none; }
