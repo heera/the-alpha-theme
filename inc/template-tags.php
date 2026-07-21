@@ -311,7 +311,7 @@ function the_alpha_ai_badge() {
 	$path  = trim( (string) $settings->get( 'scorecard_path', 'agentimus-ai-readiness' ), '/' );
 	$badge = sprintf(
 		'<img src="%s" alt="%s" loading="lazy">',
-		esc_url( home_url( '/' . $path . '/badge.svg' ) ),
+		esc_url( home_url( '/' . $path . '/badge' ) ),
 		esc_attr__( 'AI readiness', 'the-alpha' )
 	);
 	if ( $settings->get( 'scorecard_page_enabled', true ) && $settings->get( 'scorecard_badge_link', true ) ) {
