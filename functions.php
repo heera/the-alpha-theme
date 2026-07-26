@@ -326,6 +326,18 @@ function the_alpha_customize_register( $wp_customize ) {
 		'type'        => 'checkbox',
 	) );
 
+	$wp_customize->add_setting( 'the_alpha_og_default_image', array(
+		'default'           => 0,
+		'sanitize_callback' => 'absint',
+		'transport'         => 'refresh',
+	) );
+	$wp_customize->add_control( new WP_Customize_Media_Control( $wp_customize, 'the_alpha_og_default_image', array(
+		'label'       => __( 'Default share image', 'the-alpha' ),
+		'description' => __( 'Set an image and the theme renders the social share cards, using it when a page has no image of its own (recommended 1200×630). Leave empty and the theme prints no share-card tags at all, so a plugin (e.g. Agentimus) can provide them.', 'the-alpha' ),
+		'section'     => 'the_alpha_options',
+		'mime_type'   => 'image',
+	) ) );
+
 	$wp_customize->add_setting( 'the_alpha_fb_admins', array(
 		'default'           => '',
 		'sanitize_callback' => 'the_alpha_sanitize_fb_ids',
@@ -508,28 +520,18 @@ function the_alpha_seo() {
 		$url   = home_url( '/?s=' . rawurlencode( get_search_query() ) );
 	}
 
-	// Fall back to a brand image when context-resolution didn't yield one
-	// (homepage, category/tag, search, etc.). A custom logo is only used if
-	// it's wide enough to render as a social card — small/square logos and
-	// site icons get upscaled into a blurry mess by Facebook's ~1080px-wide
-	// preview, so for everything else we serve the dedicated 1200×630 card.
-	if ( ! $img ) {
-		$logo_id = (int) get_theme_mod( 'custom_logo' );
-		if ( $logo_id ) {
-			$src = wp_get_attachment_image_src( $logo_id, 'full' );
-			if ( $src && (int) $src[1] >= 600 ) {
-				list( $img, $img_w, $img_h ) = $src;
-			}
-		}
-	}
-	if ( ! $img ) {
-		// Append the file's mtime as a version so a new card image busts
-		// any CDN/Facebook cache without needing to rename the file.
-		$og_path = get_template_directory() . '/assets/img/og-default.jpg';
-		$og_ver  = file_exists( $og_path ) ? '?v=' . filemtime( $og_path ) : '';
-		$img     = THE_ALPHA_URI . '/assets/img/og-default.jpg' . $og_ver;
-		$img_w   = 1200;
-		$img_h   = 630;
+	// The Customizer's "Default share image" is the master switch for the
+	// theme's share-card tags. Set: the theme prints the og:/fb:/twitter: card
+	// block, with this image standing in wherever a page has no image of its
+	// own. Empty: the theme prints NO card tags at all, leaving the whole card
+	// to whoever fills the gap (Agentimus's Social share cards, which stand
+	// down whenever any og: tag is already present). Canonical, the meta
+	// description and JSON-LD are not card tags — they print either way.
+	$default_id  = (int) get_theme_mod( 'the_alpha_og_default_image', 0 );
+	$default_src = $default_id ? wp_get_attachment_image_src( $default_id, 'full' ) : false;
+	$theme_cards = false !== $default_src;
+	if ( $theme_cards && ! $img ) {
+		list( $img, $img_w, $img_h ) = $default_src;
 	}
 
 	$desc  = the_alpha_seo_truncate( $desc ?: get_bloginfo( 'description' ) );
@@ -552,81 +554,83 @@ function the_alpha_seo() {
 		printf( "<meta name=\"description\" content=\"%s\">\n", esc_attr( $desc ) );
 	}
 
-	// ---- Open Graph -----------------------------------------------------
-	printf( "<meta property=\"og:site_name\" content=\"%s\">\n", esc_attr( $site_name ) );
-	printf( "<meta property=\"og:title\" content=\"%s\">\n", esc_attr( $title ) );
-	printf( "<meta property=\"og:type\" content=\"%s\">\n", esc_attr( $type ) );
-	printf( "<meta property=\"og:url\" content=\"%s\">\n", esc_url( $url ) );
-	printf( "<meta property=\"og:locale\" content=\"%s\">\n", esc_attr( $locale ) );
-	if ( $desc ) {
-		printf( "<meta property=\"og:description\" content=\"%s\">\n", esc_attr( $desc ) );
-	}
-	if ( $img ) {
-		printf( "<meta property=\"og:image\" content=\"%s\">\n", esc_url( $img ) );
-		printf( "<meta property=\"og:image:alt\" content=\"%s\">\n", esc_attr( $title ) );
-		if ( $img_w && $img_h ) {
-			printf( "<meta property=\"og:image:width\" content=\"%d\">\n", (int) $img_w );
-			printf( "<meta property=\"og:image:height\" content=\"%d\">\n", (int) $img_h );
+	if ( $theme_cards ) {
+		// ---- Open Graph -----------------------------------------------------
+		printf( "<meta property=\"og:site_name\" content=\"%s\">\n", esc_attr( $site_name ) );
+		printf( "<meta property=\"og:title\" content=\"%s\">\n", esc_attr( $title ) );
+		printf( "<meta property=\"og:type\" content=\"%s\">\n", esc_attr( $type ) );
+		printf( "<meta property=\"og:url\" content=\"%s\">\n", esc_url( $url ) );
+		printf( "<meta property=\"og:locale\" content=\"%s\">\n", esc_attr( $locale ) );
+		if ( $desc ) {
+			printf( "<meta property=\"og:description\" content=\"%s\">\n", esc_attr( $desc ) );
 		}
-	}
-
-	// Facebook ownership: links the page to a Facebook profile/app so Domain
-	// Insights work and the Sharing Debugger stops warning about a missing
-	// fb:app_id. Resolution order: Customizer field (Appearance → Customize →
-	// "The Alpha — Theme Options") → wp-config.php constant → filter.
-	// fb:admins = your numeric FB profile ID (no app needed); fb:app_id =
-	// a Meta App ID (the only value that silences the debugger's exact
-	// "fb:app_id" warning text).
-	$fb_admins = (string) get_theme_mod( 'the_alpha_fb_admins', '' );
-	if ( '' === $fb_admins && defined( 'THE_ALPHA_FB_ADMINS' ) ) {
-		$fb_admins = THE_ALPHA_FB_ADMINS;
-	}
-	$fb_admins = apply_filters( 'the_alpha_fb_admins', $fb_admins );
-	if ( $fb_admins ) {
-		printf( "<meta property=\"fb:admins\" content=\"%s\">\n", esc_attr( $fb_admins ) );
-	}
-
-	$fb_app_id = (string) get_theme_mod( 'the_alpha_fb_app_id', '' );
-	if ( '' === $fb_app_id && defined( 'THE_ALPHA_FB_APP_ID' ) ) {
-		$fb_app_id = THE_ALPHA_FB_APP_ID;
-	}
-	$fb_app_id = apply_filters( 'the_alpha_fb_app_id', $fb_app_id );
-	if ( $fb_app_id ) {
-		printf( "<meta property=\"fb:app_id\" content=\"%s\">\n", esc_attr( $fb_app_id ) );
-	}
-
-	// Article-specific OG (only for posts).
-	if ( is_singular( 'post' ) ) {
-		printf( "<meta property=\"article:published_time\" content=\"%s\">\n", esc_attr( get_the_date( DATE_W3C ) ) );
-		printf( "<meta property=\"article:modified_time\" content=\"%s\">\n", esc_attr( get_the_modified_date( DATE_W3C ) ) );
-		$author_name = get_the_author_meta( 'display_name', (int) get_post_field( 'post_author', get_the_ID() ) );
-		if ( $author_name ) {
-			printf( "<meta property=\"article:author\" content=\"%s\">\n", esc_attr( $author_name ) );
-		}
-		foreach ( (array) get_the_category() as $cat ) {
-			printf( "<meta property=\"article:section\" content=\"%s\">\n", esc_attr( $cat->name ) );
-		}
-		// get_the_tags() returns false (or WP_Error) when a post has no tags,
-		// and `(array) false` is array( false ) — a lone non-object element
-		// whose ->name read triggers a notice. Only loop over a real array.
-		$post_tags = get_the_tags();
-		foreach ( is_array( $post_tags ) ? $post_tags : array() as $tag ) {
-			$tag_name = trim( (string) $tag->name );
-			if ( '' === $tag_name ) {
-				continue;
+		if ( $img ) {
+			printf( "<meta property=\"og:image\" content=\"%s\">\n", esc_url( $img ) );
+			printf( "<meta property=\"og:image:alt\" content=\"%s\">\n", esc_attr( $title ) );
+			if ( $img_w && $img_h ) {
+				printf( "<meta property=\"og:image:width\" content=\"%d\">\n", (int) $img_w );
+				printf( "<meta property=\"og:image:height\" content=\"%d\">\n", (int) $img_h );
 			}
-			printf( "<meta property=\"article:tag\" content=\"%s\">\n", esc_attr( $tag_name ) );
 		}
-	}
 
-	// ---- Twitter Cards --------------------------------------------------
-	printf( "<meta name=\"twitter:card\" content=\"%s\">\n", $img ? 'summary_large_image' : 'summary' );
-	printf( "<meta name=\"twitter:title\" content=\"%s\">\n", esc_attr( $title ) );
-	if ( $desc ) {
-		printf( "<meta name=\"twitter:description\" content=\"%s\">\n", esc_attr( $desc ) );
-	}
-	if ( $img ) {
-		printf( "<meta name=\"twitter:image\" content=\"%s\">\n", esc_url( $img ) );
+		// Facebook ownership: links the page to a Facebook profile/app so Domain
+		// Insights work and the Sharing Debugger stops warning about a missing
+		// fb:app_id. Resolution order: Customizer field (Appearance → Customize →
+		// "The Alpha — Theme Options") → wp-config.php constant → filter.
+		// fb:admins = your numeric FB profile ID (no app needed); fb:app_id =
+		// a Meta App ID (the only value that silences the debugger's exact
+		// "fb:app_id" warning text).
+		$fb_admins = (string) get_theme_mod( 'the_alpha_fb_admins', '' );
+		if ( '' === $fb_admins && defined( 'THE_ALPHA_FB_ADMINS' ) ) {
+			$fb_admins = THE_ALPHA_FB_ADMINS;
+		}
+		$fb_admins = apply_filters( 'the_alpha_fb_admins', $fb_admins );
+		if ( $fb_admins ) {
+			printf( "<meta property=\"fb:admins\" content=\"%s\">\n", esc_attr( $fb_admins ) );
+		}
+
+		$fb_app_id = (string) get_theme_mod( 'the_alpha_fb_app_id', '' );
+		if ( '' === $fb_app_id && defined( 'THE_ALPHA_FB_APP_ID' ) ) {
+			$fb_app_id = THE_ALPHA_FB_APP_ID;
+		}
+		$fb_app_id = apply_filters( 'the_alpha_fb_app_id', $fb_app_id );
+		if ( $fb_app_id ) {
+			printf( "<meta property=\"fb:app_id\" content=\"%s\">\n", esc_attr( $fb_app_id ) );
+		}
+
+		// Article-specific OG (only for posts).
+		if ( is_singular( 'post' ) ) {
+			printf( "<meta property=\"article:published_time\" content=\"%s\">\n", esc_attr( get_the_date( DATE_W3C ) ) );
+			printf( "<meta property=\"article:modified_time\" content=\"%s\">\n", esc_attr( get_the_modified_date( DATE_W3C ) ) );
+			$author_name = get_the_author_meta( 'display_name', (int) get_post_field( 'post_author', get_the_ID() ) );
+			if ( $author_name ) {
+				printf( "<meta property=\"article:author\" content=\"%s\">\n", esc_attr( $author_name ) );
+			}
+			foreach ( (array) get_the_category() as $cat ) {
+				printf( "<meta property=\"article:section\" content=\"%s\">\n", esc_attr( $cat->name ) );
+			}
+			// get_the_tags() returns false (or WP_Error) when a post has no tags,
+			// and `(array) false` is array( false ) — a lone non-object element
+			// whose ->name read triggers a notice. Only loop over a real array.
+			$post_tags = get_the_tags();
+			foreach ( is_array( $post_tags ) ? $post_tags : array() as $tag ) {
+				$tag_name = trim( (string) $tag->name );
+				if ( '' === $tag_name ) {
+					continue;
+				}
+				printf( "<meta property=\"article:tag\" content=\"%s\">\n", esc_attr( $tag_name ) );
+			}
+		}
+
+		// ---- Twitter Cards --------------------------------------------------
+		printf( "<meta name=\"twitter:card\" content=\"%s\">\n", $img ? 'summary_large_image' : 'summary' );
+		printf( "<meta name=\"twitter:title\" content=\"%s\">\n", esc_attr( $title ) );
+		if ( $desc ) {
+			printf( "<meta name=\"twitter:description\" content=\"%s\">\n", esc_attr( $desc ) );
+		}
+		if ( $img ) {
+			printf( "<meta name=\"twitter:image\" content=\"%s\">\n", esc_url( $img ) );
+		}
 	}
 
 	// ---- JSON-LD: WebSite (sitewide, enables SiteLinks SearchBox) ------
