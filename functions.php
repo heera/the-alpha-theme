@@ -338,6 +338,18 @@ function the_alpha_customize_register( $wp_customize ) {
 		'mime_type'   => 'image',
 	) ) );
 
+	$wp_customize->add_setting( 'the_alpha_author_card_photo', array(
+		'default'           => 0,
+		'sanitize_callback' => 'absint',
+		'transport'         => 'refresh',
+	) );
+	$wp_customize->add_control( new WP_Customize_Media_Control( $wp_customize, 'the_alpha_author_card_photo', array(
+		'label'       => __( 'Author card photo', 'the-alpha' ),
+		'description' => __( 'Portrait on the author archive card. Leave empty to reuse the sidebar portrait.', 'the-alpha' ),
+		'section'     => 'the_alpha_options',
+		'mime_type'   => 'image',
+	) ) );
+
 	$wp_customize->add_setting( 'the_alpha_fb_admins', array(
 		'default'           => '',
 		'sanitize_callback' => 'the_alpha_sanitize_fb_ids',

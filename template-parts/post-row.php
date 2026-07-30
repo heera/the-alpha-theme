@@ -36,6 +36,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		if ( $ta_cat_links ) {
 			echo ' <span class="sep" aria-hidden="true">|</span> ' . wp_kses_post( $ta_cat_links );
 		}
+		echo ' <span class="sep" aria-hidden="true">|</span> <span class="post-row__readtime">' . esc_html( the_alpha_reading_time() ) . '</span>';
 		?>
 	</p>
 

@@ -2532,6 +2532,102 @@ h1, h2, h3, h4 {
   hyphens: auto;
 }
 
+/* ----- Author card (author archive masthead) ------------------------------
+   Bordered panel: gradient-ringed portrait, eyebrow + name + slim bio +
+   social row, and a post-count stat behind a hairline divider. The portrait
+   defaults to the sidebar photo; the Customizer's "Author card photo" swaps
+   in a different one. */
+.author-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(1.5rem, 1rem + 1.8vw, 2.6rem);
+  padding: clamp(1.5rem, 1.1rem + 1.6vw, 2.4rem);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--bg-2);
+}
+.author-card__media {
+  width: clamp(112px, 96px + 3vw, 148px);
+  aspect-ratio: 1;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  /* Same disc-on-gradient trick as .brand__avatar: card surface on the
+     padding-box, the accent gradient ring on the border-box. */
+  background:
+    linear-gradient(var(--bg-2), var(--bg-2)) padding-box,
+    var(--accent-grad) border-box;
+}
+.author-card__media img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.author-card__body .eyebrow { margin-bottom: 0.6rem; }
+.author-card__name { font-size: clamp(1.55rem, 1.25rem + 1vw, 2.1rem); }
+.author-card__bio {
+  margin-top: 0.8rem;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  max-width: 80ch;
+}
+.author-card__bio p { margin: 0; }
+.author-card__socials { justify-content: flex-start; margin-top: 1.1rem; }
+.author-card__socials a { width: 30px; height: 30px; border-radius: 50%; }
+.author-card__stat {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  min-width: 7.5rem;
+  padding-left: clamp(1.5rem, 1rem + 1.8vw, 2.6rem);
+  border-left: 1px solid var(--border);
+  text-align: center;
+}
+.author-card__glyph { display: block; }
+.author-card__count {
+  font-family: var(--font-mono);
+  font-size: clamp(2rem, 1.6rem + 1.2vw, 2.7rem);
+  line-height: 1;
+  color: var(--accent);
+}
+.author-card__stat-label {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+/* The fixed sidebar (visible ≥1025px) already shows the portrait and the same
+   social icons right beside this card, so on wide screens the card drops both
+   and stays typographic. A CUSTOM "Author card photo" (no --default-photo
+   modifier) is a different image, not a duplicate — it stays. Both return
+   whenever the sidebar folds into the drawer (≤1024px). */
+@media (min-width: 1025px) {
+  .author-card__socials,
+  .author-card--default-photo .author-card__media { display: none; }
+  .author-card--default-photo { grid-template-columns: minmax(0, 1fr) auto; }
+}
+@media (max-width: 760px) {
+  .author-card { grid-template-columns: 1fr; text-align: center; }
+  .author-card__media { margin-inline: auto; }
+  .author-card__bio { margin-inline: auto; }
+  .author-card__socials { justify-content: center; }
+  .author-card__stat {
+    flex-direction: row;
+    gap: 0.8rem;
+    padding-left: 0;
+    padding-top: 1.2rem;
+    border-left: 0;
+    border-top: 1px solid var(--border);
+  }
+}
+
 .content-grid {
   max-width: var(--maxw-wide);
   margin-inline: auto;
