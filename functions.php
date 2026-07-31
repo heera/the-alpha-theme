@@ -500,6 +500,16 @@ function the_alpha_seo() {
 		// the theme's About-derived line) instead of the bare tagline, so the
 		// search/share snippet conveys who I am and what I do.
 		$desc = (string) get_theme_mod( 'the_alpha_home_description', the_alpha_default_home_description() );
+	} elseif ( is_home() ) {
+		// The posts page, when it lives apart from the front page. Without this
+		// branch $url stays the homepage address, and the canonical below would
+		// claim the blog index is a duplicate of the front page.
+		$blog_id = (int) get_option( 'page_for_posts' );
+		if ( $blog_id ) {
+			$title = wp_strip_all_tags( get_the_title( $blog_id ) );
+			$url   = get_permalink( $blog_id );
+			$desc  = has_excerpt( $blog_id ) ? wp_strip_all_tags( get_the_excerpt( $blog_id ) ) : '';
+		}
 	} elseif ( is_singular() ) {
 		$title = wp_strip_all_tags( get_the_title() );
 		$url   = get_permalink();
@@ -519,6 +529,14 @@ function the_alpha_seo() {
 		$title = single_term_title( '', false );
 		$url   = get_term_link( $qo );
 		$desc  = wp_strip_all_tags( term_description() );
+		if ( ! $desc ) {
+			// No hand-written description on this term (wp-admin → the term's
+			// Description field wins when set): build an honest one, so term
+			// archives don't all fall back to the site tagline — search
+			// engines flag pages that share one meta description.
+			/* translators: 1: topic name, 2: site name. */
+			$desc = sprintf( __( 'Posts about %1$s on %2$s.', 'the-alpha' ), $title, $site_name );
+		}
 	} elseif ( is_author() ) {
 		$qid   = get_queried_object_id();
 		$title = get_the_author_meta( 'display_name', $qid );
@@ -546,7 +564,17 @@ function the_alpha_seo() {
 		list( $img, $img_w, $img_h ) = $default_src;
 	}
 
-	$desc  = the_alpha_seo_truncate( $desc ?: get_bloginfo( 'description' ) );
+	$desc = the_alpha_seo_truncate( $desc ?: $site_tagline );
+
+	// Paginated views (an archive's /page/2/, a multi-page post's second page):
+	// name the page number, so no two pages of one view share a description.
+	// Appended after truncation so the suffix always survives.
+	$the_alpha_pg = max( (int) get_query_var( 'paged' ), (int) get_query_var( 'page' ) );
+	if ( $the_alpha_pg > 1 && $desc ) {
+		/* translators: %d: page number. */
+		$desc .= ' ' . sprintf( __( 'Page %d.', 'the-alpha' ), $the_alpha_pg );
+	}
+
 	$title = (string) $title;
 	// JSON-LD wants raw text, not HTML entities, so keep a decoded copy.
 	$title_text = html_entity_decode( $title, ENT_QUOTES, get_bloginfo( 'charset' ) );
@@ -556,8 +584,10 @@ function the_alpha_seo() {
 	// WordPress core emits rel=canonical on singular views only (rel_canonical),
 	// so the homepage and archives have none — which AI/search crawlers flag as
 	// an ambiguous-duplicate risk. Fill that gap here; leave singular to core so
-	// the tag is never emitted twice.
-	if ( $url && ! is_singular() ) {
+	// the tag is never emitted twice. Page 2+ of an archive gets NO canonical:
+	// $url here is always the page-1 address, and pointing page 2 at page 1
+	// tells crawlers the page is a duplicate — no tag is the honest choice.
+	if ( $url && ! is_singular() && ! is_paged() ) {
 		printf( "<link rel=\"canonical\" href=\"%s\">\n", esc_url( $url ) );
 	}
 
@@ -759,6 +789,22 @@ function the_alpha_seo() {
 	}
 }
 add_action( 'wp_head', 'the_alpha_seo', 5 );
+
+/**
+ * Core canonicalises every page of a paginated Page template (the Blog page's
+ * /page/2/, /page/3/…) back to page 1 — wp_get_canonical_url() only knows
+ * about <!--nextpage--> pagination, not a template's own paged loop. Pointing
+ * page 2 at page 1 tells crawlers the page is a duplicate; a canonical there
+ * must be self-referential or absent, and absent is the honest choice.
+ * Returning false makes rel_canonical print nothing.
+ *
+ * @param string $canonical_url The canonical URL core resolved.
+ * @return string|false
+ */
+function the_alpha_canonical_not_on_paged( $canonical_url ) {
+	return is_paged() ? false : $canonical_url;
+}
+add_filter( 'get_canonical_url', 'the_alpha_canonical_not_on_paged' );
 
 /**
  * Performance: drop the emoji detection script/styles (not needed here).
