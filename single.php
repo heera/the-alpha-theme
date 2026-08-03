@@ -32,7 +32,19 @@ while ( have_posts() ) :
 	<article <?php post_class( 'entry' ); ?>>
 		<?php if ( $ta_has_cover ) : ?>
 			<figure class="entry__cover">
-				<?php echo wp_get_attachment_image( $ta_cover_id, 'the_alpha_banner', false, array( 'loading' => 'eager', 'fetchpriority' => 'high', 'alt' => '' ) ); ?>
+				<?php
+				// The cover is CONTENT, not decoration — a hard-coded alt="" here
+				// discarded the attachment's stored alt text for every post. Use
+				// the stored alt, and fall back to the post title so the banner
+				// is never nameless. (The listing thumbnails in card.php and
+				// post-row.php deliberately keep alt="": an image beside its own
+				// title link is the a11y-recommended decorative pattern.)
+				echo wp_get_attachment_image( $ta_cover_id, 'the_alpha_banner', false, array(
+					'loading'       => 'eager',
+					'fetchpriority' => 'high',
+					'alt'           => ( trim( (string) get_post_meta( $ta_cover_id, '_wp_attachment_image_alt', true ) ) ?: get_the_title() ),
+				) );
+				?>
 			</figure>
 		<?php endif; ?>
 

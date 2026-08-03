@@ -675,6 +675,19 @@ function the_alpha_seo() {
 		}
 	}
 
+	// ---- One voice for structured data ---------------------------------
+	// When Agentimus is active, its Schema module is the site's single
+	// JSON-LD emitter (it defers to SEO suites on its own). Two WebSites,
+	// two Persons and two BlogPostings on one page read as noise, not
+	// corroboration — so the theme stands its four blocks down and pours
+	// its unique entity knowledge (name variants, employer, socials) into
+	// the plugin's graph instead ({@see the_alpha_enrich_agentimus_graph}).
+	// The meta/OG/Twitter tags above stay the theme's. With the plugin
+	// gone, the blocks below return untouched.
+	if ( apply_filters( 'the_alpha_defer_schema', class_exists( '\\Agentimus\\Schema' ) ) ) {
+		return;
+	}
+
 	// ---- JSON-LD: WebSite (sitewide, enables SiteLinks SearchBox) ------
 	$website_ld = array(
 		'@context'        => 'https://schema.org',
@@ -789,6 +802,66 @@ function the_alpha_seo() {
 	}
 }
 add_action( 'wp_head', 'the_alpha_seo', 5 );
+
+/**
+ * The theme's entity knowledge, poured into Agentimus's JSON-LD graph — the
+ * other half of the stand-down above. The plugin knows the site's settings;
+ * the theme knows the person: the spelling/transliteration variants (Heera /
+ * Hira / Sheikh Hira / Heera Sheikh) that tie search queries to one identity,
+ * the employer, and the social profiles. Scalar knowledge only fills gaps —
+ * the plugin's own settings stay authoritative — while sameAs is a union,
+ * because every extra corroborating profile is strictly more proof.
+ *
+ * @param array $graph The plugin's assembled @graph nodes.
+ * @return array
+ */
+function the_alpha_enrich_agentimus_graph( $graph ) {
+	if ( ! is_array( $graph ) ) {
+		return $graph;
+	}
+
+	foreach ( $graph as $i => $node ) {
+		if ( ! is_array( $node ) || empty( $node['@type'] ) ) {
+			continue;
+		}
+
+		if ( 'WebSite' === $node['@type'] && empty( $node['alternateName'] ) ) {
+			$graph[ $i ]['alternateName'] = apply_filters( 'the_alpha_site_alt_names', array( 'Heera', 'Hira' ) );
+		}
+
+		// The site identity only (…#identity) — a guest author's inline Person
+		// node must never inherit the owner's name variants or employer.
+		if ( 'Person' === $node['@type'] && false !== strpos( (string) ( isset( $node['@id'] ) ? $node['@id'] : '' ), '#identity' ) ) {
+			if ( empty( $node['alternateName'] ) ) {
+				$graph[ $i ]['alternateName'] = apply_filters( 'the_alpha_person_alt_names', array( 'Heera', 'Hira', 'Sheikh Hira', 'Heera Sheikh' ) );
+			}
+
+			$works_for = apply_filters( 'the_alpha_person_works_for', 'Authlab' );
+			if ( $works_for && empty( $node['worksFor'] ) ) {
+				$graph[ $i ]['worksFor'] = array(
+					'@type' => 'Organization',
+					'name'  => $works_for,
+				);
+			}
+
+			$same_as = array();
+			foreach ( the_alpha_socials() as $s ) {
+				if ( ! empty( $s['url'] ) ) {
+					$same_as[] = $s['url'];
+				}
+			}
+			if ( $same_as ) {
+				$graph[ $i ]['sameAs'] = array_values( array_unique( array_merge(
+					isset( $node['sameAs'] ) ? (array) $node['sameAs'] : array(),
+					$same_as
+				) ) );
+			}
+		}
+	}
+
+	return $graph;
+}
+add_filter( 'agentimus_schema_graph', 'the_alpha_enrich_agentimus_graph' );
 
 /**
  * Core canonicalises every page of a paginated Page template (the Blog page's
