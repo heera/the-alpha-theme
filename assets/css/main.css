@@ -2492,11 +2492,40 @@ h1, h2, h3, h4 {
 .site-footer__seal-core {
   filter: drop-shadow(0 0 2px color-mix(in srgb, var(--accent) 85%, transparent));
 }
-/* Light mode: a glow only reads as light on a dark surface, so on the cream the
-   bloom muddies — pull it back to a whisper and let the crisp engraving carry. */
+/* Light mode is a different medium, not a different colour. The cream already
+   sits near the top of the display's range, so there is no headroom left to add
+   light WITH — the dark-mode move (bloom spilling outward from the strokes) can
+   only be drawn here as darker pixels, and the eye reads those as a smudge, not
+   as a glow. Hence the seal stops being emissive on the cream and becomes
+   printed instead — a letterpress edge: accent shadow along the top of every
+   stroke, a white hairline along the bottom, so the same overhead light that LIT
+   the seal in dark mode now reads as the seal pressed INTO the page. Same light
+   source, opposite physics. Engraved, not lit.
+
+   Nothing sits behind it: a tinted medallion standing in for dark mode's pool of
+   light was tried and read as a disc on the paper — at any strength strong
+   enough to notice, it was strong enough to see the edge of. The impression
+   carries it alone. */
 [data-theme="light"] .site-footer__seal {
-  filter: drop-shadow(0 0 2px color-mix(in srgb, var(--accent) 16%, transparent));
+  filter:
+    drop-shadow(0 0.7px 0 #fff)
+    drop-shadow(0 -0.55px 0.6px color-mix(in srgb, var(--accent) 45%, transparent));
 }
+/* The core's bloom is that same trick at small scale — 2px of blur around a
+   2.4px dot is just a fuzzy dot on paper. It anchors the centre better crisp. */
+[data-theme="light"] .site-footer__seal-core { filter: none; }
+/* The structural strokes step up on the cream. Their inline opacities are set
+   for a luminous teal on near-black, where 0.18 still registers; the same value
+   in dark ink on cream is a ghost. Each is raised on its own so the rings keep
+   their order — outer faintest, core strongest — rather than flattening into
+   one weight. */
+[data-theme="light"] .site-footer__seal-ring[stroke-opacity="0.18"] { stroke-opacity: 0.28; }
+[data-theme="light"] .site-footer__seal-ring[stroke-opacity="0.22"] { stroke-opacity: 0.34; }
+[data-theme="light"] .site-footer__seal-ring[stroke-opacity="0.3"]  { stroke-opacity: 0.45; }
+[data-theme="light"] .site-footer__seal-ring[stroke-opacity="0.42"] { stroke-opacity: 0.58; }
+[data-theme="light"] .site-footer__seal-ring[stroke-opacity="0.6"]  { stroke-opacity: 0.72; }
+[data-theme="light"] .site-footer__seal g[stroke-opacity="0.2"]     { stroke-opacity: 0.32; }
+[data-theme="light"] .site-footer__seal-arrows                      { stroke-opacity: 0.55; }
 /* First-view flourish (JS adds --lit once per page load, after a dwell on the
    footer). The seal is always visible at its resting glow — no fade, no hidden
    state. The glow rises smoothly from rest to a bright sci-fi bloom around the
@@ -2514,8 +2543,9 @@ h1, h2, h3, h4 {
   }
   /* The concentric rings brighten with the bloom too — their stroke flares up
      then settles. No 0%/100% keyframes, so each ring rises from and returns to
-     its OWN resting stroke-opacity (the inline attr), keeping the layered depth
-     and avoiding any snap when the one-shot animation reverts. */
+     its OWN resting stroke-opacity (the inline attr, or the light-mode override
+     of it above), keeping the layered depth and avoiding any snap when the
+     one-shot animation reverts. */
   .site-footer__seal--lit .site-footer__seal-ring {
     animation: sealRingFlare 3.6s ease-in-out;
   }
@@ -2684,7 +2714,10 @@ h1, h2, h3, h4 {
   position: absolute;
   inset: -0.34rem -0.4rem;
 }
-.site-footer__rss-slug { color: inherit; letter-spacing: 0.12em; }
+/* Inherits the 0.2em above on purpose — a tighter slug would make the RSS line
+   a few pixels narrower than the two under it, and these three are meant to
+   measure the same. */
+.site-footer__rss-slug { color: inherit; }
 .socials--footer { justify-content: flex-end; }
 
 /* ----- Reading views (single / archive / search / 404) -------------------- */

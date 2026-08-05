@@ -172,8 +172,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 	<div class="site-footer__col site-footer__col--right">
 		<a class="site-footer__rss" href="<?php echo esc_url( the_alpha_page_url( 'subscribe' ) ); ?>" data-drawer>
-			<?php esc_html_e( 'Subscribe to my', 'the-alpha' ); ?>
-			<span class="site-footer__rss-slug">&nbsp;/rss</span>
+			<?php
+			/*
+			 * Label and slug run together with no source line break: that break would
+			 * collapse to a second space on top of the &nbsp; and make this line a
+			 * character wider than the two below it. All three lines are 20 characters
+			 * in the same mono face at the same tracking, so they share one width —
+			 * rewording any of them means re-counting all three.
+			 */
+			esc_html_e( 'Subscribe to my', 'the-alpha' );
+			?><span class="site-footer__rss-slug">&nbsp;/rss</span>
 		</a>
 		<a class="site-footer__terms" href="<?php echo esc_url( the_alpha_page_url( 'terms' ) ); ?>" data-drawer><?php esc_html_e( 'Terms and Conditions', 'the-alpha' ); ?></a>
 		<?php
@@ -186,7 +194,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		$ta_privacy = get_privacy_policy_url();
 		if ( $ta_privacy ) :
 			?>
-			<a class="site-footer__privacy" href="<?php echo esc_url( $ta_privacy ); ?>" data-drawer><?php esc_html_e( 'Privacy Policy', 'the-alpha' ); ?></a>
+			<a class="site-footer__privacy" href="<?php echo esc_url( $ta_privacy ); ?>" data-drawer><?php esc_html_e( 'How I handle privacy', 'the-alpha' ); ?></a>
 		<?php endif; ?>
 	</div>
 </footer>
