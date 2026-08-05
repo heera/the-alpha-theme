@@ -98,39 +98,56 @@
 
 /* Light */
 [data-theme="light"] {
-  /* Warm off-white paper — refined character vs. clinical white */
-  --bg: #f5f3ef;
-  --bg-2: #eeebe3;        /* sidebar surface — a gentle step down from --bg; also the hero bottom-fog colour, so this value drives the fog brightness too (kept matched so the hero→About seam stays invisible) */
-  --surface: #faf7f1;     /* warm off-white — paper sheets on a warm desk, not stark #fff against the cream bg */
-  --surface-2: #efece4;
-  --border: #cfcdc4;      /* deep enough that ghost buttons & dividers read with intent */
-  --border-soft: #dedbd1;
-  --ink: #14171c;
-  --ink-soft: #363b42;    /* deeper so secondary text is readable, not faded */
-  --ink-dim: #686d75;
+  /* Champagne Bronze — muted metal and natural material rather than bright
+     paint on cream. The papers run warm and sit close together on purpose: on a
+     page there is no headroom above the sheet, so a panel can never be made
+     "brighter" than its background. Separation here is the job of edges, ink and
+     shadow, and the border below is warm for the same reason — a grey rule reads
+     as UI chrome, a warm one reads as printed. */
+  --bg: #F8F5F0;
+  --bg-2: #F2EEE8;        /* sidebar surface — a gentle step down from --bg; also the hero bottom-fog colour, so this value drives the fog brightness too (kept matched so the hero→About seam stays invisible) */
+  --surface: #FCFAF7;     /* card/sheet — the one surface allowed to sit above the page */
+  --surface-2: #F1EDE6;
+  --border: #DDD3C5;      /* warm, never grey */
+  --border-soft: #E9E1D6;
+  /* Charcoal rather than black: past ~14:1 more contrast stops reading as more
+     authority and starts reading as harder. */
+  --ink: #232323;
+  --ink-soft: #4F4A45;    /* body copy — 8.1:1 on --bg */
+  /* Muted. The intended tone was #867A6D, but it lands at 3.6:1 on the sidebar,
+     under the floor for the small tracked caps that use it. Same taupe, carried
+     down four steps: 5.0:1 on --bg, 4.7:1 on --bg-2. */
+  --ink-dim: #746859;
   --ink-head: var(--ink); /* light mode: dark headings on light bg don't glare */
   /* Light mode runs a fully WARM identity — the mirror of dark mode's all-cool
-     mint. Terracotta is the primary accent (links/focus/nav/buttons); it reads
-     clean as both body-size links and small all-caps labels on warm paper,
-     where the old deep teal looked jarring. Its bright sibling (amber) carries
-     the glows, the way dark mode's light mint does. */
-  /* Burnt orange. Pushed off the older, browner terracotta (#9c4620): hue
-     18.4° → 21.3° and a good deal more saturated, so it reads as orange rather
-     than brick. Contrast on --bg falls 5.7:1 → 4.8:1 — still clear of WCAG AA
-     for normal text, but that 4.5 floor is the ceiling on going any brighter,
-     since this colour carries body-size links AND small tracked all-caps
-     labels. */
-  --accent: #b04e18;        /* burnt orange — primary warm accent (~4.8:1 on cream) */
-  --accent-2: #cf9b4f;      /* amber-gold — warm gradient partner */
-  --accent-grad: linear-gradient(115deg, #b04e18 0%, #cf9b4f 100%);
+     mint. One value carries prose links, focus, nav, buttons AND small tracked
+     all-caps, so it is held to 4.5:1 or it is not the accent.
+
+     Two bronzes, assigned by what each can actually do. The deeper one sets type
+     at 5.1:1. The lighter one measures 3.68:1 — under the floor, and it stays
+     away from type because of it — so it takes the ornament instead: gradients,
+     glows, the portrait frame, where its extra light is the entire point.
+     Getting this backwards is the easy mistake; the brighter bronze looks like
+     the accent until it has to be a link. */
+  --accent: #8A6037;        /* champagne bronze — primary, 5.1:1 on --bg */
+  --accent-2: #A87442;      /* lighter bronze — ornament only, never type */
+  --accent-grad: linear-gradient(115deg, var(--accent) 0%, var(--accent-2) 100%);
   /* Eyebrows now simply echo --accent (terracotta), exactly like dark mode
      echoes its mint accent — one rule, both modes. */
   --eyebrow: var(--accent);
   /* Softer sidebar/main divider in light mode — the regular --border
      reads slightly stark as a full-height vertical line. */
   --sidebar-edge: color-mix(in srgb, var(--border) 55%, transparent);
-  --shadow: 0 1px 0 rgba(0, 0, 0, 0.03), 0 18px 42px -22px rgba(15, 23, 42, 0.30);
-  --glow: 0 0 0 1px rgba(176, 78, 24, 0.28), 0 0 28px -12px rgba(214, 170, 90, 0.5);
+  /* The shadow was tinted navy (rgba(15, 23, 42, …)) — a cool grey halo, which
+     is the one thing paper never casts. Warmed to the ink's own family, and it
+     matters more here than it did: with the papers this close together, the card
+     edge and this shadow are what separate a sheet from the page. */
+  --shadow: 0 1px 0 rgba(35, 35, 35, 0.035), 0 18px 42px -22px rgba(58, 44, 30, 0.28);
+  /* Was an amber glow; now a bronze tint you have to look for. An accent that
+     turns up everywhere has stopped being an accent. */
+  --glow:
+    0 0 0 1px color-mix(in srgb, var(--accent) 24%, transparent),
+    0 0 28px -12px color-mix(in srgb, var(--accent-2) 38%, transparent);
   /* Veil mirrors the dark mode's directional fade: dense on the left
      (continues the sidebar into the photo), opens up on the right so the
      subject can breathe instead of dissolving into the background.
@@ -142,7 +159,14 @@
   /* Light, fading out by ~80%: the hero shot's left is empty desk with no
      clutter to soften, so the veil only needs to seat the headline and hide
      the sidebar→hero seam before opening to the photo. */
-  --hero-veil: linear-gradient(90deg, rgba(228, 222, 209, 0.58) 0%, rgba(226, 214, 194, 0.22) 15%, rgba(222, 209, 188, 0.08) 36%, rgba(222, 209, 188, 0.02) 55%, rgba(222, 209, 188, 0) 70%);
+  /* Built from --bg-2 rather than from sampled sand values, so the seam that
+     this veil exists to hide keeps hiding itself when the paper changes. */
+  --hero-veil: linear-gradient(90deg,
+    color-mix(in srgb, var(--bg-2) 58%, transparent) 0%,
+    color-mix(in srgb, var(--bg-2) 22%, transparent) 15%,
+    color-mix(in srgb, var(--bg-2) 8%, transparent) 36%,
+    color-mix(in srgb, var(--bg-2) 2%, transparent) 55%,
+    transparent 70%);
   --img-filter: none; /* photos render in full colour */
   /* Light mode swaps in a dedicated high-key photo (cream backdrop, see
      .portrait__photo--light), so it needs almost no grading — just a touch of
@@ -150,9 +174,9 @@
   --portrait-filter: contrast(1.04) brightness(1);
   /* Soft amber bloom around the frame (light sibling of the terracotta accent). */
   --portrait-glow:
-    0 0 1.5px 0 rgba(214, 170, 90, 0.9),
-    0 0 2.5px 0 rgba(214, 170, 90, 0.6),
-    0 0 6.5px 0 rgba(207, 155, 79, 0.38);
+    0 0 1.5px 0 color-mix(in srgb, var(--accent-2) 85%, transparent),
+    0 0 2.5px 0 color-mix(in srgb, var(--accent-2) 55%, transparent),
+    0 0 6.5px 0 color-mix(in srgb, var(--accent-2) 34%, transparent);
   /* Letterbox band colour = the light photo's own background cream (sampled at
      its corners, #f1ede1), so the top/bottom HUD bands blend seamlessly into the
      image instead of reading as darker detached strips. */
@@ -167,11 +191,11 @@
      dissolves into the paper instead of reading as a corner glow; the longer
      --frag-ember-spread stretches its falloff (light mode only — dark falls
      back to 70% via the var fallback in the gradient). */
-  --frag-ember: rgba(255, 242, 220, 0.42);
+  --frag-ember: color-mix(in srgb, var(--surface) 44%, transparent);
   --frag-ember-spread: 82%;
-  --frag-rim: rgba(214, 180, 138, 0.1);
-  --frag-haze: rgba(247, 236, 218, 0.34);
-  --rule-ink: rgba(17, 20, 28, 0.18);
+  --frag-rim: color-mix(in srgb, var(--accent-2) 10%, transparent);
+  --frag-haze: color-mix(in srgb, var(--surface) 34%, transparent);
+  --rule-ink: rgba(35, 35, 35, 0.16);
   --rule-lip: rgba(255, 255, 255, 0.95);
   color-scheme: light;
 }
@@ -541,11 +565,31 @@ h1, h2, h3, h4 {
     var(--accent-grad) border-box;
   outline: none;
   /* Glow spreads scale with the disc — tuned at 140px, they read as a heavy
-     band at this size. */
+     band at this size.
+
+     Dark mode replaces this list wholesale; what's left is therefore the paper
+     version, and it is built the way paper works. The inset stays — light
+     bleeding inward from the bezel lands on the photo, which is dark enough to
+     receive it. The outer glow does not: it used to be a 10px amber bloom, which
+     on cream is not light but a faint brown smudge. A sheet on a desk doesn't
+     glow, it casts — so that budget goes to a small cast shadow instead.
+
+     Both were also still struck in the retired gold (rgba(214,170,90) was
+     #cf9b4f), so they had stopped following the palette entirely. */
   box-shadow:
-    inset 0 0 15px 5px rgba(214, 170, 90, .4),
-          0 0 10px 3px rgba(207, 155, 79, .25);
+    inset 0 0 15px 5px color-mix(in srgb, var(--accent-2) 42%, transparent),
+    0 2px 8px -4px rgba(35, 35, 35, .28);
   transition: box-shadow .4s ease;
+  /* The orrery's three strokes (see the pseudo-elements below), named here so
+     they inherit into ::before and ::after and can be re-struck per theme. They
+     have to be: these are percentages of the accent laid over the sidebar, and a
+     percentage does not buy the same visibility on paper that it does on
+     near-black. Compositing 18% mint over the dark sidebar lands at 1.45:1;
+     compositing 18% bronze over the cream one manages 1.26:1. The dark numbers
+     are the originals; light re-strikes them at roughly 1.6× below. */
+  --orbit-ring: color-mix(in srgb, var(--accent) 18%, transparent);
+  --orbit-dash: color-mix(in srgb, var(--accent) 34%, transparent);
+  --orbit-tick: color-mix(in srgb, var(--accent) 30%, transparent);
 }
 .brand__avatar img {
   width: 100%;
@@ -592,7 +636,7 @@ h1, h2, h3, h4 {
   border-radius: 50%;
   /* Carries a touch more accent than the inner orbit: it's the widest ring, so
      at matching strength it read as the faintest thing on screen. */
-  border: 1px dotted color-mix(in srgb, var(--accent) 34%, transparent);
+  border: 1px dotted var(--orbit-dash);
 }
 /* The inner orbit (r=66) and the planets on both. The ring is a thin band cut
    out of a radial-gradient; each planet is a dot placed at
@@ -603,11 +647,31 @@ h1, h2, h3, h4 {
    clipping, and leaving it off keeps the box out of hit-testing entirely. */
 .brand__avatar::after {
   inset: -18px;
-  background:
-    radial-gradient(circle at 87.9% 21.5%, var(--accent) 0 1.5px, transparent 2px),
-    radial-gradient(circle at 76.4% 83.8%, var(--accent) 0 1px, transparent 1.5px),
-    radial-gradient(circle at 3.3% 58.2%, var(--accent) 0 0.8px, transparent 1.3px),
-    radial-gradient(circle at 50% 50%, transparent 0 65.2px, color-mix(in srgb, var(--accent) 18%, transparent) 65.8px 66.4px, transparent 67px);
+  /* Indices, not planets. The dots were painted at full --accent on orbits drawn
+     at 18–34%: a 1px speck several times stronger than anything it touched,
+     attached to nothing — which is the signature of dust on the glass, not of a
+     body in a system. Softening them helped; anchoring them fixes it. A mark
+     that crosses a line it belongs to can't be mistaken for a stray speck.
+
+     Four of them, at the compass points, each spanning radius 63.5→75.5 so it
+     laces the inner orbit (66) to the outer (73) and reads as the armature the
+     rings hang on. The footer seal draws its crosshair exactly this way, at
+     exactly these angles — the two emblems are now speaking the same language.
+
+     N/E/S/W is also what makes this cheap: at those four angles a radial tick is
+     simply a vertical or horizontal bar, so each is one plain background layer,
+     with no mask, no rotation and no extra element. Positions are absolute
+     because this box is a fixed 154px (118px disc + 18px inset on each side) —
+     centre 77, so a 1px bar sits at 76.5 and a 12px arm starts 63.5 out. */
+  background-image:
+    linear-gradient(var(--orbit-tick), var(--orbit-tick)),   /* N */
+    linear-gradient(var(--orbit-tick), var(--orbit-tick)),   /* S */
+    linear-gradient(var(--orbit-tick), var(--orbit-tick)),   /* W */
+    linear-gradient(var(--orbit-tick), var(--orbit-tick)),   /* E */
+    radial-gradient(circle at 50% 50%, transparent 0 65.2px, var(--orbit-ring) 65.8px 66.4px, transparent 67px);
+  background-size: 1px 12px, 1px 12px, 12px 1px, 12px 1px, auto;
+  background-position: 76.5px 1.5px, 76.5px 140.5px, 1.5px 76.5px, 140.5px 76.5px, 0 0;
+  background-repeat: no-repeat;
 }
 /* Light mode: the cutout's feathered edge was authored to fade into a dark
    backing, so keep a dark medallion disc (lit from below) rather than the
@@ -616,17 +680,51 @@ h1, h2, h3, h4 {
   background:
     linear-gradient(#1a1919, #595656) padding-box,
     var(--accent-grad) border-box;
+  /* Re-struck for paper. Same three strokes, ~1.6× the alpha, which lands each
+     one a hair past where its dark-mode twin sits: ring 1.48:1 (dark 1.45),
+     ticks 2.08:1 (1.96), dashes 2.29:1 (2.17). Matching the numbers would have
+     matched the ink and lost the drawing — dark ink on light paper simply needs
+     more of itself to carry the same weight as light ink on dark. */
+  --orbit-ring: color-mix(in srgb, var(--accent) 30%, transparent);
+  --orbit-dash: color-mix(in srgb, var(--accent) 58%, transparent);
+  --orbit-tick: color-mix(in srgb, var(--accent) 52%, transparent);
 }
+/* Hover, on paper. Dark mode's version is a step you can't miss — its 1px ring
+   goes .12 → .55, better than four times brighter — and the light one was two
+   amber glows getting glowier, which on cream is nothing happening at all.
+   Rebuilt out of the two things a sheet of paper can actually do:
+
+   · the bezel thickens — a crisp 1px accent ring struck immediately outside the
+     gradient border, which is the literal analogue of dark's ring brightening;
+   · the medallion lifts — the resting cast shadow grows and drops, so the disc
+     reads as rising off the page rather than lighting up.
+
+   Plus the inset deepens, since that one does work here. */
 .brand__avatar:hover,
 .brand__avatar:focus-visible {
   box-shadow:
-    inset 0 0 25px 8px rgba(214, 170, 90, .6),
-          0 0 24px 0 rgba(207, 155, 79, .45);
+    inset 0 0 22px 7px color-mix(in srgb, var(--accent-2) 58%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--accent) 55%, transparent),
+    0 10px 22px -10px rgba(35, 35, 35, .45);
 }
 /* Dark theme: softer mint glow so the medallion separates on the near-black
-   sidebar (the gradient border itself comes from --accent-grad). */
+   sidebar (the gradient border itself comes from --accent-grad).
+
+   The inset comes first and is the reason this rule looks the way it does. The
+   base .brand__avatar lights the photo's own edge from the bezel inward — that
+   is what gives the medallion its depth — but because box-shadow is a single
+   property, every value here replaces the base list wholesale, and dark mode had
+   been quietly dropping that inner light while keeping only the outer ring.
+
+   Held to .16 rather than light mode's .4: there the inset is amber over a sepia
+   photo and the warmth belongs. Here it is mint over a neutral greyscale face,
+   and past roughly a fifth it stops reading as a lit rim and starts reading as a
+   colour cast on skin — which is exactly what the grading note above this refuses
+   to do. Tight spread for the same reason: it should hug the bezel, not wash the
+   face. */
 [data-theme="dark"] .brand__avatar {
   box-shadow:
+    inset 0 0 14px 4px rgba(94, 230, 208, .16),
     0 0 0 1px rgba(94, 230, 208, .12),
     0 0 14px 1px rgba(94, 230, 208, .28),   /* brighter ambient glow */
     0 8px 22px rgba(0, 0, 0, .55);
@@ -634,6 +732,7 @@ h1, h2, h3, h4 {
 [data-theme="dark"] .brand__avatar:hover,
 [data-theme="dark"] .brand__avatar:focus-visible {
   box-shadow:
+    inset 0 0 22px 7px rgba(94, 230, 208, .30),
     0 0 0 1px rgba(94, 230, 208, .55),    /* ring brightens on hover */
     0 0 22px 0 rgba(94, 230, 208, .28),
     0 8px 24px rgba(0, 0, 0, .55);
@@ -792,7 +891,7 @@ h1, h2, h3, h4 {
 /* #9b9b9b clears AA on the dark bg (~8:1) but only hits ~2.5:1 on the cream
    light bg. Darken just for light mode to reach AA (~4.6:1) while keeping the
    same soft, thin-weight look. */
-[data-theme="light"] .colophon-mini { color: #6b6b6b; }
+[data-theme="light"] .colophon-mini { color: var(--ink-dim); }
 /* Match the dim colophon tone, but keep a faint underline so the one link
    still signals it's clickable; the underline lifts to the accent on hover. */
 .colophon-mini a {
@@ -904,7 +1003,10 @@ h1, h2, h3, h4 {
    a warm taupe (a touch darker than the About surface) so the bottom reads as a
    soft shadow rather than a white flash. Only matters where the photo is
    transparent (the masked bottom strip); the photo covers it everywhere else. */
-[data-theme="light"] .hero__bg { background: #d8d5cb; }
+/* The flat backdrop behind the hero image — expressed as a relationship rather
+   than a value (the sidebar paper walked a few percent toward the ink), so it
+   follows the palette instead of being pinned to the cream it was picked for. */
+[data-theme="light"] .hero__bg { background: color-mix(in srgb, var(--bg-2) 93%, var(--ink)); }
 .hero__bg::after {
   content: "";
   position: absolute;
@@ -966,7 +1068,7 @@ h1, h2, h3, h4 {
 /* Light mode: reverse the gradient — lighter gold first, deeper burnt orange at
    the end (same two accent colours, shade order flipped). */
 [data-theme="light"] .hero__title .grad {
-  background-image: linear-gradient(115deg, #cf9b4f 0%, #b04e18 100%);
+  background-image: linear-gradient(115deg, var(--accent-2) 0%, var(--accent) 100%);
 }
 /* Light mode: keep the first name ("Sheikh") in the dark-mode cream (--ink from
    the dark theme) instead of near-black ink. It sits over the moody left half of
@@ -2336,12 +2438,14 @@ h1, h2, h3, h4 {
   gap: 1.5rem 2rem;
   /* Matches the sidebar colophon (.colophon-mini) exactly — same neutral grey
      and hairline weight — so the two baseline-aligned blocks read as one pair.
-     #9b9b9b clears AA (~8:1) on the dark bg; light mode darkens to #6b6b6b
-     (~4.6:1) below, since #9b9b9b only hits ~2.5:1 on the cream. */
+     #9b9b9b clears AA (~8:1) on the dark bg but only ~2.5:1 on the cream, so
+     light mode hands both blocks to --ink-dim below (4.7:1 on --bg-2). It used
+     to hand them a neutral #6b6b6b, which was the only grey left in a warm
+     palette — legible, and quietly foreign to everything around it. */
   color: #9b9b9b;
   font-weight: 100;
 }
-[data-theme="light"] .site-footer { color: #6b6b6b; }
+[data-theme="light"] .site-footer { color: var(--ink-dim); }
 /* Footer top edge — a faint accent hairline that fades out toward the sides
    and glows toward a small node at the centre (theme-aware via --accent). */
 .site-footer::before {
@@ -4606,11 +4710,12 @@ body.drawer-open { overflow: hidden; }
 /* The secondary description text (--ink-soft) is too light over the bright fog —
    darken + warm it so it reads, while staying below the near-black titles. */
 [data-theme="light"] .lost-link__desc { color: #3c342a; }
-/* The small tracked accent labels (--accent #b04e18) don't have enough
-   contrast over the bright fog — deepen them to a darker brick for easy reading,
-   with a light halo to lift them over any darker patch. */
+/* The small tracked accent labels don't have enough contrast over the bright
+   fog — deepen them for easy reading, with a light halo to lift them over any
+   darker patch. Walked toward the ink rather than set to a fixed brick, so the
+   deepening survives a change of accent. */
 [data-theme="light"] :is(.lost__eyebrow, .lost__foot-label, .lost__quote cite) {
-  color: #7a3214;
+  color: color-mix(in srgb, var(--accent) 75%, var(--ink));
   text-shadow: 0 1px 1px rgba(255, 250, 240, 0.5);
 }
 [data-theme="dark"] :is(.lost-link__title, .lost-link__desc, .lost__foot-label, .lost__quote p, .lost__quote cite) {
