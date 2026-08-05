@@ -20,7 +20,7 @@ while ( have_posts() ) :
 	<div class="wrap">
 		<p class="breadcrumb">
 			<a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'Home', 'the-alpha' ); ?></a> /
-			<a href="<?php echo esc_url( home_url( '/blog/' ) ); ?>"><?php esc_html_e( 'Blog', 'the-alpha' ); ?></a>
+			<a href="<?php echo esc_url( the_alpha_page_url( 'blog' ) ); ?>"><?php esc_html_e( 'Blog', 'the-alpha' ); ?></a>
 		</p>
 		<h1 class="page-title"><?php the_title(); ?></h1>
 		<div style="margin-top:1rem;"><?php the_alpha_post_meta_single(); ?></div>
@@ -75,28 +75,12 @@ while ( have_posts() ) :
 			</footer>
 		<?php endif; ?>
 
-		<nav class="post-nav" aria-label="<?php esc_attr_e( 'Post navigation', 'the-alpha' ); ?>">
-			<?php
-			$ta_prev = get_previous_post();
-			$ta_next = get_next_post();
-			if ( $ta_prev ) {
-				printf(
-					'<a class="prev" href="%s"><small>%s</small>%s</a>',
-					esc_url( get_permalink( $ta_prev ) ),
-					esc_html__( 'Previous', 'the-alpha' ),
-					esc_html( get_the_title( $ta_prev ) )
-				);
-			}
-			if ( $ta_next ) {
-				printf(
-					'<a class="next" href="%s"><small>%s</small>%s</a>',
-					esc_url( get_permalink( $ta_next ) ),
-					esc_html__( 'Next', 'the-alpha' ),
-					esc_html( get_the_title( $ta_next ) )
-				);
-			}
-			?>
-		</nav>
+		<?php
+		// "Continue reading" — three same-category posts, replacing the old
+		// prev/next pair. A post's chronological neighbours are rarely its most
+		// relevant follow-ups; see template-parts/related.php for the picking.
+		get_template_part( 'template-parts/related' );
+		?>
 
 		<?php
 		if ( comments_open() || get_comments_number() ) {

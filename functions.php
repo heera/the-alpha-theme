@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'THE_ALPHA_VERSION', '1.0.0' );
+define( 'THE_ALPHA_VERSION', '1.1.0' );
 define( 'THE_ALPHA_DIR', get_template_directory() );
 define( 'THE_ALPHA_URI', get_template_directory_uri() );
 
@@ -534,8 +534,24 @@ function the_alpha_seo() {
 			// Description field wins when set): build an honest one, so term
 			// archives don't all fall back to the site tagline — search
 			// engines flag pages that share one meta description.
-			/* translators: 1: topic name, 2: site name. */
-			$desc = sprintf( __( 'Posts about %1$s on %2$s.', 'the-alpha' ), $title, $site_name );
+			//
+			// Tags say "tagged", categories say "about". Several topics here
+			// exist as both a category and a tag under the same name (AI, PHP,
+			// WordPress…), and one shared sentence made those two archives
+			// exact duplicates of each other — which is the one case where a
+			// generated description is worse than none at all.
+			$desc = is_tag()
+				/* translators: 1: tag name, 2: site name. */
+				? sprintf( __( 'Posts tagged %1$s on %2$s.', 'the-alpha' ), $title, $site_name )
+				/* translators: 1: topic name, 2: site name. */
+				: sprintf( __( 'Posts about %1$s on %2$s.', 'the-alpha' ), $title, $site_name );
+		}
+
+		// Same disambiguation the <title> gets — see the_alpha_tag_document_title().
+		// Applied after the description above, which wants the bare term name.
+		if ( is_tag() ) {
+			/* translators: %s: tag name. */
+			$title = sprintf( __( 'Tagged: %s', 'the-alpha' ), $title );
 		}
 	} elseif ( is_author() ) {
 		$qid   = get_queried_object_id();
@@ -794,7 +810,7 @@ function the_alpha_seo() {
 			'@type'           => 'BreadcrumbList',
 			'itemListElement' => array(
 				array( '@type' => 'ListItem', 'position' => 1, 'name' => __( 'Home', 'the-alpha' ), 'item' => $site_url ),
-				array( '@type' => 'ListItem', 'position' => 2, 'name' => __( 'Blog', 'the-alpha' ), 'item' => home_url( '/blog/' ) ),
+				array( '@type' => 'ListItem', 'position' => 2, 'name' => __( 'Blog', 'the-alpha' ), 'item' => the_alpha_page_url( 'blog' ) ),
 				array( '@type' => 'ListItem', 'position' => 3, 'name' => $title_text, 'item' => $url ),
 			),
 		);
@@ -974,6 +990,83 @@ function the_alpha_body_classes( $classes ) {
 	return $classes;
 }
 add_filter( 'body_class', 'the_alpha_body_classes' );
+
+/**
+ * Send a retired tag archive to the category that replaced it.
+ *
+ * Tags that merely repeated a category's name have been deleted, but search
+ * engines and old links still ask for /tag/php. Left alone that is a 404 for a
+ * topic the site very much still covers, so the request goes to the category
+ * of the same name instead — the page it would have wanted.
+ *
+ * Only ever fires on a request that is already a 404 and only when a matching
+ * category exists, so it cannot shadow a live tag. The numeric-suffix retry
+ * catches the tags WordPress had renamed to avoid a slug clash with their own
+ * category (/tag/javascript-2 → /category/javascript).
+ */
+function the_alpha_retired_tag_redirects() {
+	if ( is_admin() || ! is_404() ) {
+		return;
+	}
+
+	$uri  = isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '/';
+	$path = trim( (string) wp_parse_url( $uri, PHP_URL_PATH ), '/' );
+	$base = trim( (string) get_option( 'tag_base' ), '/' );
+	$base = $base ? $base : 'tag';
+
+	if ( 0 !== strpos( $path, $base . '/' ) ) {
+		return;
+	}
+
+	$slug = sanitize_title( substr( $path, strlen( $base ) + 1 ) );
+	if ( ! $slug ) {
+		return;
+	}
+
+	$cat = get_term_by( 'slug', $slug, 'category' );
+	if ( ! $cat ) {
+		// "javascript-2" was only ever a slug WordPress invented to keep the
+		// tag out of the category's way; the topic is the same one.
+		$stripped = preg_replace( '/-\d+$/', '', $slug );
+		$cat      = ( $stripped && $stripped !== $slug ) ? get_term_by( 'slug', $stripped, 'category' ) : false;
+	}
+	if ( ! $cat ) {
+		return;
+	}
+
+	$link = get_term_link( $cat );
+	if ( is_wp_error( $link ) ) {
+		return;
+	}
+
+	wp_safe_redirect( $link, 301 );
+	exit;
+}
+// Same priority as the retired-page redirects: ahead of the 404 template.
+add_action( 'template_redirect', 'the_alpha_retired_tag_redirects', 1 );
+
+/**
+ * Say "Tagged:" in a tag archive's title, so it can't collide with a category's.
+ *
+ * WordPress titles both archives with the bare term name, and several topics
+ * here exist as both a category and a tag under the same name — so /category/ai
+ * and /tag/ai shipped a byte-identical <title>. Search engines read identical
+ * titles as one page worth keeping and one worth dropping, and they pick which.
+ *
+ * The category is the curated home for a topic, so it keeps the clean name; the
+ * tag archive names itself, exactly as its own H1 already does ("Tag: AI").
+ *
+ * @param array $parts Document title parts.
+ * @return array
+ */
+function the_alpha_tag_document_title( $parts ) {
+	if ( is_tag() && ! empty( $parts['title'] ) ) {
+		/* translators: %s: tag name. */
+		$parts['title'] = sprintf( __( 'Tagged: %s', 'the-alpha' ), $parts['title'] );
+	}
+	return $parts;
+}
+add_filter( 'document_title_parts', 'the_alpha_tag_document_title' );
 
 /**
  * Fold old standalone page URLs into the single-page front.

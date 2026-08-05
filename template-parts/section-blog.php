@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 $ta_blog = get_page_by_path( 'blog' );
-$ta_blog_url = $ta_blog ? get_permalink( $ta_blog ) : home_url( '/blog/' );
+$ta_blog_url = $ta_blog ? get_permalink( $ta_blog ) : the_alpha_page_url( 'blog' );
 
 $ta_latest = new WP_Query( array(
 	'post_type'           => 'post',

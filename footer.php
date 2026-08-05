@@ -26,6 +26,36 @@ if ( ! defined( 'ABSPATH' ) ) {
 			);
 			?>
 		</p>
+		<?php
+		/*
+		 * The site's machine-readable twins, stated plainly for human readers —
+		 * agents already discover these from the Link headers and <head> links
+		 * Agentimus emits, so the anchors are nofollow: no reason to hand search
+		 * engines a site-wide crawl path into a plain-text file they'd index as a
+		 * thin page. Empty (and silent) when the plugin isn't active.
+		 */
+		$ta_machine = the_alpha_machine_links();
+		if ( $ta_machine ) :
+			?>
+			<p class="site-footer__machine">
+				<?php
+				$ta_first = true;
+				foreach ( $ta_machine as $ta_label => $ta_url ) {
+					if ( ! $ta_first ) {
+						// Separator lives outside the anchor, so it is neither
+						// underlined nor part of the link's hit area.
+						echo '<span class="site-footer__machine-sep" aria-hidden="true">&middot;</span>';
+					}
+					$ta_first = false;
+					printf(
+						'<a href="%s" target="_blank" rel="nofollow noopener">%s</a>',
+						esc_url( $ta_url ),
+						esc_html( $ta_label )
+					);
+				}
+				?>
+			</p>
+		<?php endif; ?>
 	</div>
 
 	<?php
@@ -141,11 +171,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 	</a>
 
 	<div class="site-footer__col site-footer__col--right">
-		<a class="site-footer__rss" href="<?php echo esc_url( home_url( '/subscribe/' ) ); ?>" data-drawer>
+		<a class="site-footer__rss" href="<?php echo esc_url( the_alpha_page_url( 'subscribe' ) ); ?>" data-drawer>
 			<?php esc_html_e( 'Subscribe to my', 'the-alpha' ); ?>
 			<span class="site-footer__rss-slug">&nbsp;/rss</span>
 		</a>
-		<a class="site-footer__terms" href="<?php echo esc_url( home_url( '/terms/' ) ); ?>" data-drawer><?php esc_html_e( 'Terms and Conditions', 'the-alpha' ); ?></a>
+		<a class="site-footer__terms" href="<?php echo esc_url( the_alpha_page_url( 'terms' ) ); ?>" data-drawer><?php esc_html_e( 'Terms and Conditions', 'the-alpha' ); ?></a>
+		<?php
+		/*
+		 * Whatever page is set under Settings → Privacy, not a hard-coded slug —
+		 * core already owns that pointer, and get_privacy_policy_url() returns ''
+		 * when no page is set or the assigned one isn't published, so the line is
+		 * simply absent until there's a real page behind it.
+		 */
+		$ta_privacy = get_privacy_policy_url();
+		if ( $ta_privacy ) :
+			?>
+			<a class="site-footer__privacy" href="<?php echo esc_url( $ta_privacy ); ?>" data-drawer><?php esc_html_e( 'Privacy Policy', 'the-alpha' ); ?></a>
+		<?php endif; ?>
 	</div>
 </footer>
 

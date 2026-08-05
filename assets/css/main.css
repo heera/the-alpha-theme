@@ -114,9 +114,15 @@
      clean as both body-size links and small all-caps labels on warm paper,
      where the old deep teal looked jarring. Its bright sibling (amber) carries
      the glows, the way dark mode's light mint does. */
-  --accent: #9c4620;        /* terracotta — primary warm accent (~6.2:1 on cream) */
+  /* Burnt orange. Pushed off the older, browner terracotta (#9c4620): hue
+     18.4° → 21.3° and a good deal more saturated, so it reads as orange rather
+     than brick. Contrast on --bg falls 5.7:1 → 4.8:1 — still clear of WCAG AA
+     for normal text, but that 4.5 floor is the ceiling on going any brighter,
+     since this colour carries body-size links AND small tracked all-caps
+     labels. */
+  --accent: #b04e18;        /* burnt orange — primary warm accent (~4.8:1 on cream) */
   --accent-2: #cf9b4f;      /* amber-gold — warm gradient partner */
-  --accent-grad: linear-gradient(115deg, #9c4620 0%, #cf9b4f 100%);
+  --accent-grad: linear-gradient(115deg, #b04e18 0%, #cf9b4f 100%);
   /* Eyebrows now simply echo --accent (terracotta), exactly like dark mode
      echoes its mint accent — one rule, both modes. */
   --eyebrow: var(--accent);
@@ -124,7 +130,7 @@
      reads slightly stark as a full-height vertical line. */
   --sidebar-edge: color-mix(in srgb, var(--border) 55%, transparent);
   --shadow: 0 1px 0 rgba(0, 0, 0, 0.03), 0 18px 42px -22px rgba(15, 23, 42, 0.30);
-  --glow: 0 0 0 1px rgba(156, 70, 32, 0.28), 0 0 28px -12px rgba(214, 170, 90, 0.5);
+  --glow: 0 0 0 1px rgba(176, 78, 24, 0.28), 0 0 28px -12px rgba(214, 170, 90, 0.5);
   /* Veil mirrors the dark mode's directional fade: dense on the left
      (continues the sidebar into the photo), opens up on the right so the
      subject can breathe instead of dissolving into the background.
@@ -152,7 +158,9 @@
      image instead of reading as darker detached strips. */
   --portrait-bg: #f1ede1;
   /* The photo is bright now, so the HUD reads as dark bronze "ink" (printed
-     marks) rather than glow-on-dark — see the [data-theme="light"] block. */
+     marks) rather than glow-on-dark — see the [data-theme="light"] block.
+     Deliberately NOT --accent: tried deriving it from the accent orange and it
+     read as decoration rather than as printed dossier marks. */
   --portrait-hud: rgba(96, 66, 20, 0.95);
   /* Editorial warm-paper version — bright cream wash that brightens
      the paper bg without tinting it heavily. Ember kept light + smoky so it
@@ -460,11 +468,21 @@ h1, h2, h3, h4 {
 .brand__rule::before,
 .brand__rule::after {
   content: "";
-  width: 30px;
-  height: 1px;
-  background: var(--ink-dim);
-  opacity: 0.5;
+  width: 36px;
+  height: 7px;
+  flex-shrink: 0;
+  /* Rule + outward arrowhead. Drawn as a mask rather than a background image so
+     one box carries both shapes and the colour stays a CSS value — it follows
+     --accent into either theme instead of being baked into the asset. Toned to
+     match .brand__tag below, so the flourish and the "aka" line read as one
+     piece of brand furniture rather than two greys. */
+  background: color-mix(in srgb, var(--accent) 70%, var(--ink-dim));
+  -webkit-mask: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 7'><path d='M35 3.5H2.3M5.2 1.4 2.1 3.5l3.1 2.1' fill='none' stroke='%23fff' stroke-width='0.7' stroke-linecap='round' stroke-linejoin='round'/></svg>") center / contain no-repeat;
+  mask: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 7'><path d='M35 3.5H2.3M5.2 1.4 2.1 3.5l3.1 2.1' fill='none' stroke='%23fff' stroke-width='0.7' stroke-linecap='round' stroke-linejoin='round'/></svg>") center / contain no-repeat;
 }
+/* The mask is drawn pointing left; the trailing one is the same shape flipped,
+   so both heads face away from the name. */
+.brand__rule::after { transform: scaleX(-1); }
 .brand__name {
   /* Fraunces — same brand face as the hero title, sidebar carries the identity */
   font-family: var(--font-brand);
@@ -494,16 +512,23 @@ h1, h2, h3, h4 {
   font-size: 0.88rem;
   line-height: 1.5;
   margin: 0.45rem 0 0;
-  white-space: nowrap;
+  /* Wraps. The sidebar floor is 360px, leaving ~299px of usable width, so a
+     nowrap tagline was a hard cap on how long the site description could be —
+     one word past it and the line overflowed the panel. `balance` splits the
+     two lines evenly instead of leaving an orphan. */
+  text-wrap: balance;
 }
 /* Circular portrait medallion — exact heera.it treatment: the
    transparent cutout on a black disc, grey ring + soft inner white
    glow, blooming brighter on hover (.menu-img-circle). */
 .brand__avatar {
   display: block;
-  width: 140px;
-  height: 140px;
-  margin: 1.7rem auto 0;
+  position: relative;      /* anchors the orbit ring below */
+  width: 118px;
+  height: 118px;
+  /* 2.2rem, not 1.7: the outer orbit and its planets reach ~16px proud of the
+     disc, and the old top margin left them touching the tagline. */
+  margin: 2.2rem auto 0;
   /* Static gradient border: solid disc on the padding-box, the accent gradient
      on the border-box. Auto-themes via --accent-grad (terracotta→gold in light,
      teal→purple in dark). */
@@ -515,9 +540,11 @@ h1, h2, h3, h4 {
     linear-gradient(var(--bg-2), var(--bg-2)) padding-box,
     var(--accent-grad) border-box;
   outline: none;
+  /* Glow spreads scale with the disc — tuned at 140px, they read as a heavy
+     band at this size. */
   box-shadow:
-    inset 0 0 18px 6px rgba(214, 170, 90, .4),
-          0 0 12px 4px rgba(207, 155, 79, .25);
+    inset 0 0 15px 5px rgba(214, 170, 90, .4),
+          0 0 10px 3px rgba(207, 155, 79, .25);
   transition: box-shadow .4s ease;
 }
 .brand__avatar img {
@@ -527,6 +554,60 @@ h1, h2, h3, h4 {
   border-radius: 50%;        /* crop to circle inside the gradient border */
   object-fit: cover;         /* face crop baked into the asset */
   object-position: 50% 50%;
+  /* Graded per theme rather than baked into the asset, so one greyscale file
+     serves both. Dark mode leaves it neutral — the photo sits on near-black
+     under a mint ring, and any warmth there reads as a colour cast. */
+  /* No transition: the only thing that changes this is the theme flip, and
+     theme.js already wraps that in a View Transition crossfade. An element-level
+     filter transition would animate underneath the crossfade and double it. */
+  filter: var(--portrait-grade, none);
+}
+/* Light mode: sepia lays a warm brown over the greyscale, hue-rotate walks it
+   from sepia's default toward the accent's orange, and the saturation lift
+   stops it going flat. Tuned to sit with --accent (#b04e18) and the cream
+   surfaces rather than to look like a photo filter. */
+[data-theme="light"] {
+  --portrait-grade: sepia(0.55) saturate(1.35) hue-rotate(-12deg) contrast(1.02);
+}
+
+/* Orrery — two orbits round the medallion with planets riding them. Static:
+   no animation, so it costs nothing to paint once and never pulls the eye off
+   the page. Purely decorative, and drawn entirely with pseudo-elements so the
+   markup stays one <a> and one <img>. Radii, measured from the avatar's
+   centre: the photo ends at 59px, then a solid orbit at 66 and a dotted one at
+   73 — even 7px bands. The orbits carry their presence by being faint (18–22%
+   accent) rather than heavy, so they frame the portrait without competing with
+   it. The outer radius is the fixed point here: the portrait grows into the
+   system rather than the system growing around the portrait. */
+.brand__avatar::before,
+.brand__avatar::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+/* Outer orbit, r=73 — a real dotted border, so the dots space themselves evenly
+   round the circle instead of being hand-placed one by one. */
+.brand__avatar::before {
+  inset: -14px;
+  border-radius: 50%;
+  /* Carries a touch more accent than the inner orbit: it's the widest ring, so
+     at matching strength it read as the faintest thing on screen. */
+  border: 1px dotted color-mix(in srgb, var(--accent) 34%, transparent);
+}
+/* The inner orbit (r=66) and the planets on both. The ring is a thin band cut
+   out of a radial-gradient; each planet is a dot placed at
+   x = 50% + 50%·f·cos θ, y = 50% + 50%·f·sin θ, where f is its orbit's radius
+   over this box's half-width (77px). All three take --accent — an earlier pair
+   used --accent-2, which reads amber in light but violet in dark, and the
+   violet fought the mint ring it sat on. No border-radius: nothing here needs
+   clipping, and leaving it off keeps the box out of hit-testing entirely. */
+.brand__avatar::after {
+  inset: -18px;
+  background:
+    radial-gradient(circle at 87.9% 21.5%, var(--accent) 0 1.5px, transparent 2px),
+    radial-gradient(circle at 76.4% 83.8%, var(--accent) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 3.3% 58.2%, var(--accent) 0 0.8px, transparent 1.3px),
+    radial-gradient(circle at 50% 50%, transparent 0 65.2px, color-mix(in srgb, var(--accent) 18%, transparent) 65.8px 66.4px, transparent 67px);
 }
 /* Light mode: the cutout's feathered edge was authored to fade into a dark
    backing, so keep a dark medallion disc (lit from below) rather than the
@@ -539,8 +620,8 @@ h1, h2, h3, h4 {
 .brand__avatar:hover,
 .brand__avatar:focus-visible {
   box-shadow:
-    inset 0 0 30px 10px rgba(214, 170, 90, .6),
-          0 0 28px 0 rgba(207, 155, 79, .45);
+    inset 0 0 25px 8px rgba(214, 170, 90, .6),
+          0 0 24px 0 rgba(207, 155, 79, .45);
 }
 /* Dark theme: softer mint glow so the medallion separates on the near-black
    sidebar (the gradient border itself comes from --accent-grad). */
@@ -562,15 +643,33 @@ h1, h2, h3, h4 {
   .brand__avatar { transition: none; }
 }
 
-.nav { margin: 2.2rem 0; }
-.nav__list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0; }
+/* Extra breath above the first item: the orbit ring gave the medallion a wider
+   visual footprint than the bare disc had, so the old 2.2rem left HOME sitting
+   close under it. The free space is absorbed below by .sidebar__foot's
+   margin-top:auto, so nothing further down moves. */
+.nav { margin: 2.4rem 0 2.2rem; }
+.nav__list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  /* Top rule so the list is framed rather than cut off: every li carries a
+     border-bottom, which left a rule under the last item and none above the
+     first. Inset lip mirrors the li's outset one, keeping the letterpress
+     direction consistent (dark line, light edge below it). */
+  border-top: 1px solid var(--rule-ink);
+  box-shadow: inset 0 1px 0 var(--rule-lip);
+}
 .nav__list li {
   border-bottom: 1px solid var(--rule-ink);
   box-shadow: 0 1px 0 var(--rule-lip);
 }
 .nav__link {
   position: relative;
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
   padding: 0.85rem 0.5rem 0.85rem 1.15rem;
   font-family: var(--font-mono);
   font-size: 0.82rem;
@@ -580,6 +679,18 @@ h1, h2, h3, h4 {
   border-radius: 0;
   transition: color var(--t-fast);
 }
+/* The glyph inherits the link's colour, so it dims and lifts with the label
+   instead of needing its own hover rule. Held one step quieter at rest — the
+   word is the control, the icon is orientation. */
+.nav__icon {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+  opacity: 0.65;
+  transition: opacity var(--t-fast);
+}
+.nav__link:hover .nav__icon,
+.nav__link.is-active .nav__icon { opacity: 1; }
 .nav__link::before {
   content: "";
   position: absolute;
@@ -599,12 +710,17 @@ h1, h2, h3, h4 {
 .nav__link.is-active { color: var(--ink); }
 .nav__link.is-active::before { height: 60%; }
 
-/* Bottom-anchored (margin-top:auto), so the socials row sits one foot-height
-   above the bottom. The colophon lost a line (the sponsored credit), which —
-   being bottom-anchored — dropped the whole block by that line; the extra
-   margin-bottom lifts it back so the socials row sits level with the footer's
-   top hairline again. */
-.sidebar__foot { margin-top: auto; margin-bottom: 3rem; padding-top: 1.6rem; }
+/* Bottom-anchored (margin-top:auto), so the block hangs a fixed distance off the
+   sidebar's bottom edge. This margin is the one lever that moves it vertically —
+   growing the block from inside only pushes its TOP up, since the bottom is
+   pinned.
+   1.965rem puts .colophon-mini's LAST line ("built with…") on the same baseline
+   as the footer's last left-column row (the llms.txt links), reading across the
+   sidebar edge. Both columns run a 24.64px pitch, so the line above pairs up
+   too. The differing font sizes don't matter: half-leading + ascent lands at
+   15.82px inside the line box for both 11.2px and 9.6px text, so only this
+   offset controls the match. Re-measure if a line is added either side. */
+.sidebar__foot { margin-top: auto; margin-bottom: 1.965rem; padding-top: 1.6rem; }
 .socials {
   list-style: none;
   padding: 0;
@@ -626,7 +742,13 @@ h1, h2, h3, h4 {
 .socials a:hover { color: var(--accent); border-color: var(--accent); transform: translateY(-2px); }
 
 .theme-toggle {
-  margin: 1.3rem auto 0;
+  /* 1.67rem (26.72px), not 1.3: the gap below this button is measured to the
+     first ink of .colophon-mini, not to its box. That block's 24.64px line-height
+     over a 15px font box puts 4.82px of half-leading above the line, plus 2.7px
+     between the font's ascent and the cap height of its uppercase text — 7.52px
+     of air the box model doesn't show. Matching box-to-box left the button
+     visibly closer to the socials than to the copyright line. */
+  margin: 1.67rem auto 0;
   display: flex;
   align-items: center;
   gap: 0.55rem;
@@ -659,7 +781,11 @@ h1, h2, h3, h4 {
   font-size: 0.70rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  line-height: 1.95;
+  /* 2.2 — the same pitch the footer's left column runs, so if the two blocks
+     are ever brought back onto shared baselines they won't drift as lines are
+     added. (See .sidebar__foot: the vertical offset that produced that exact
+     alignment was traded away for a lower resting position.) */
+  line-height: 2.2;
   color: #9b9b9b;
   font-weight: 100;
 }
@@ -837,10 +963,10 @@ h1, h2, h3, h4 {
   background-clip: text;
   color: transparent;
 }
-/* Light mode: reverse the gradient — lighter gold first, darker terracotta at
+/* Light mode: reverse the gradient — lighter gold first, deeper burnt orange at
    the end (same two accent colours, shade order flipped). */
 [data-theme="light"] .hero__title .grad {
-  background-image: linear-gradient(115deg, #cf9b4f 0%, #9c4620 100%);
+  background-image: linear-gradient(115deg, #cf9b4f 0%, #b04e18 100%);
 }
 /* Light mode: keep the first name ("Sheikh") in the dark-mode cream (--ink from
    the dark theme) instead of near-black ink. It sits over the moody left half of
@@ -1075,11 +1201,14 @@ h1, h2, h3, h4 {
   border-color: color-mix(in srgb, var(--portrait-hud) 22%, transparent);
 }
 [data-theme="light"] :is(.portrait__code, .portrait__auth, .portrait__authing, .portrait__verified) {
-  /* Vivid terracotta with a warm amber glow — the light-mode counterpart to dark
-     mode's lit mint labels, so they read bright/alive rather than flat black. */
-  color: var(--accent);
+  /* The dossier's own bronze ink, not --accent: these labels sit inside the HUD
+     with the gauge, waveform and readout frame, so they take the same printed
+     mark colour. Running them on --accent split the dossier in two once the
+     accent moved to a brighter orange. Halo kept, amber glow dropped to a whisper
+     of the ink itself so it lifts off the photo without lighting up. */
+  color: var(--portrait-hud);
   text-shadow:
-    0 0 0.5em color-mix(in srgb, var(--accent-2) 60%, transparent),
+    0 0 0.5em color-mix(in srgb, var(--portrait-hud) 35%, transparent),
     0 0 1px rgba(255, 251, 244, 0.7);
 }
 [data-theme="light"] .portrait__verified svg,
@@ -1471,7 +1600,7 @@ h1, h2, h3, h4 {
    corner-bracket on the left (drawn in the SVG). The viewBox carries the left
    gutter + vertical padding, so the element only needs sizing here. */
 .portrait__wave {
-  bottom: clamp(2.2rem, 1.5rem + 3vw, 3.4rem);
+  bottom: clamp(2.8rem, 2.1rem + 3vw, 4rem);
   left: max(0.7rem, 7%);
   width: clamp(105px, 39%, 165px);
   aspect-ratio: 173 / 56;
@@ -2458,7 +2587,8 @@ h1, h2, h3, h4 {
 }
 
 .site-footer__copy,
-.site-footer__sub {
+.site-footer__sub,
+.site-footer__machine {
   font-family: var(--font-mono);
   font-size: 0.7rem;          /* match the sidebar colophon (.colophon-mini) */
   letter-spacing: 0.16em;
@@ -2470,8 +2600,67 @@ h1, h2, h3, h4 {
 }
 .site-footer__sub { color: inherit; }
 
+/* Machine-readable row — the quietest line in the column: it's a statement of
+   fact for anyone who cares to look, not a call to action. Shares the typography
+   of its siblings above so the three lines stack on one rhythm. */
+.site-footer__machine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  /* Justified to the column's own width so the row's right edge lands on the
+     same vertical as the two lines above it. The column is `justify-self:
+     start`, i.e. shrink-to-fit, so 100% here resolves to whichever line above
+     is longest — the alignment follows the copy instead of a magic number. The
+     gap stays as a floor for when the row wraps. */
+  width: 100%;
+  justify-content: space-between;
+  gap: 0 0.42rem;
+  /* Smaller and quieter than the two lines above it — this row is a statement
+     of fact for anyone who looks, not something to read on the way past. Held
+     at --ink-dim rather than mixed toward the background: it's the dimmest ink
+     token that still clears AA at this size, and these are links. */
+  font-size: 0.6rem;
+  letter-spacing: 0.13em;
+  /* No colour of its own — inherits the footer's text ink, so this row reads as
+     the same voice as the copyright and powered-by lines above it. The size
+     alone is what makes it the quieter line. */
+  /* Absolute, not the inherited unitless 2.2: that would resolve against this
+     row's smaller font and give it a 21px pitch where its two siblings run at
+     24.64px. The whole left column has to keep one rhythm, because the sidebar
+     colophon is aligned to it. */
+  line-height: calc(0.7rem * 2.2);
+}
+/* The middot is a small, thin glyph at 0.6rem — dimmed on top of that it
+   vanished between the links, and with space-between spreading them apart the
+   row needs a visible mark to read as a list. Full strength, one ink step up
+   from the links, and sized up: it's small enough that the brighter tone reads
+   as balanced rather than louder. */
+.site-footer__machine-sep {
+  /* Inherits the row's colour — same ink as the links. Visibility comes from
+     the size bump alone now, not from a brighter tone; the earlier --ink-soft
+     override made the dots read louder than the words they separate. */
+  font-size: 1.3em;
+  /* Don't let the oversized glyph set the row's height — at the inherited 2.2
+     it grew a 27px line box and knocked this row off the footer's rhythm. */
+  line-height: 1;
+}
+.site-footer__machine a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, currentColor 32%, transparent);
+  text-underline-offset: 0.22em;
+  text-decoration-thickness: 1px;
+  transition: color var(--t-fast), text-decoration-color var(--t-fast);
+}
+.site-footer__machine a:hover,
+.site-footer__machine a:focus-visible {
+  color: var(--accent);
+  text-decoration-color: var(--accent);
+}
+
 .site-footer__rss,
-.site-footer__terms {
+.site-footer__terms,
+.site-footer__privacy {
   font-family: var(--font-mono);
   /* Match the left column's size + line-height so the two columns share one
      baseline grid — row 1 (copyright / subscribe) and row 2 (powered-by /
@@ -2489,7 +2678,8 @@ h1, h2, h3, h4 {
   position: relative;
 }
 .site-footer__rss::after,
-.site-footer__terms::after {
+.site-footer__terms::after,
+.site-footer__privacy::after {
   content: "";
   position: absolute;
   inset: -0.34rem -0.4rem;
@@ -2726,7 +2916,7 @@ body.single .page-title {
   .focus-toggle svg { width: 15px; height: 15px; flex-shrink: 0; }
 
   /* Active: hide the chrome and centre a single, comfortable reading column. */
-  body.reading-focus :is(.sidebar, .topbar, .scrim, .blog-aside, .breadcrumb, .post-nav, .entry__cover) { display: none; }
+  body.reading-focus :is(.sidebar, .topbar, .scrim, .blog-aside, .breadcrumb, .related, .entry__cover) { display: none; }
   /* Drop the left-nav offset on content + footer so the footer has no orphan gap. */
   body.reading-focus .main,
   body.reading-focus .site-footer { margin-left: 0; }
@@ -3129,31 +3319,168 @@ body.single .page-title {
 }
 .tag-link:hover, .cat-link:hover { border-color: var(--accent); color: var(--accent); }
 
-.post-nav {
+/* ----- Continue reading (single post) ------------------------------------- */
+/* Sits where the old prev/next nav did: a tracked mono label, a hairline that
+   runs out to a lit dot, then up to three cards. Every accent here is taken
+   from --accent / --eyebrow, so dark mode reads mint and light mode terracotta
+   with no per-mode overrides — the card surfaces already theme themselves. */
+.related {
+  margin-top: clamp(2.4rem, 1.6rem + 2vw, 3.6rem);
+  padding-top: clamp(1.6rem, 1.1rem + 1.4vw, 2.4rem);
+  border-top: 1px solid var(--border);
+}
+.related__head {
   display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-top: 2rem;
-  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.1rem;
 }
-.post-nav a {
-  flex: 1 1 240px;
-  padding: 1rem 1.2rem;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  color: var(--ink);
+.related__title {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.28em;   /* matches .eyebrow's tracking */
+  text-transform: uppercase;
+  color: var(--eyebrow);
+  margin: 0;
 }
-.post-nav a:hover { border-color: var(--accent); }
-.post-nav small {
-  display: block;
+/* The rule fades as it travels so the dot reads as its terminus rather than a
+   second hard mark. min-width keeps a sliver of line on the narrowest phones,
+   where the label eats most of the row. */
+.related__rule {
+  position: relative;
+  flex: 1;
+  min-width: 1.5rem;
+  height: 1px;
+  margin-right: 4px;        /* room for the dot's outer half */
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--accent) 42%, transparent),
+    color-mix(in srgb, var(--accent) 14%, transparent)
+  );
+}
+.related__rule::after {
+  content: "";
+  position: absolute;
+  right: -4px;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  transform: translateY(-50%);
+  box-shadow: 0 0 12px -2px color-mix(in srgb, var(--accent) 80%, transparent);
+}
+.related__lede {
+  margin: 0.55rem 0 0;
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+}
+.related__cards {
+  margin-top: clamp(1.3rem, 0.9rem + 1vw, 1.9rem);
+  /* auto-fit, not the base .cards auto-fill: this row holds at most three
+     items, so empty tracks have to collapse — otherwise a wide article column
+     lays out a fourth track and squeezes the three cards against dead space.
+     min() caps the track floor at the column width so a card can never
+     overflow a phone. Result: 3-up on desktop, 2-up on tablet, 1-up on
+     phones, driven by the real column width rather than the viewport (the
+     sidebar disappears at 1024px, so viewport media queries would misjudge
+     it). */
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  gap: 1.25rem;
+}
+/* One or two results (a young site, or a thin archive): switch back to
+   auto-fill so the survivors stay card-sized instead of stretching to fill
+   the whole column. */
+.related__cards:not(:has(> :nth-child(3))) {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr));
+}
+/* Phones and small tablets: one full-width card per row. Two 14rem cards
+   technically fit here, but they land too narrow to read — the title clamps
+   to a fragment and the meta line runs out of room. Below 1024px the sidebar
+   is gone and the article column tracks the viewport, so a viewport query is
+   an honest proxy for the column width in this range. */
+@media (max-width: 720px) {
+  .related__cards,
+  .related__cards:not(:has(> :nth-child(3))) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Related card variant — category pill on top, reading time + date at the
+   foot. This is footer furniture under a post someone is already reading, so
+   it's built short: a shallower media crop than the listing card, and title +
+   excerpt both clamped so no card can tower over its neighbours. */
+.card--related .card__body { padding: 1rem 1.15rem 1.1rem; }
+/* 16/9 rather than the listing card's 16/10 — the same image, ~10% less
+   height. the_alpha_card is a 760×480 crop, so object-fit: cover just shaves
+   the top and bottom edges. */
+.card--related .card__media { aspect-ratio: 16 / 9; }
+.card--related .card__title {
+  font-size: 1rem;
+  margin: 0.6rem 0 0.45rem;
+  /* Two lines, then ellipsis. The stretched-link ::after isn't clipped by this
+     overflow — its containing block is .card, which is an ancestor of the
+     clipping box — so the whole card stays clickable. */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+.card--related .card__excerpt {
+  font-size: 0.86rem;
+  line-height: 1.6;
+  /* Drop the base card's `flex: 1` — a growing excerpt box and a line clamp
+     fight each other. The meta line takes over the job of holding the bottom
+     (margin-top: auto below), so card feet still align. */
+  flex: none;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+.card__cat {
+  position: relative;
+  z-index: 2;              /* above the stretched title overlay, so it stays its own link */
+  align-self: flex-start;  /* hug the term instead of spanning the card body */
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 0.32rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--accent) 38%, transparent);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  color: var(--accent);
+  transition: border-color var(--t-fast), background var(--t-fast);
+}
+/* Holds the accent on hover — the global `a:hover { color: --ink }` would
+   otherwise drain the pill to body colour at the moment it's being pointed at. */
+.card__cat:hover,
+.card__cat:focus-visible {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+}
+
+.card__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: auto;        /* holds the card's bottom edge, whatever the title ran to */
+  padding-top: 0.9rem;
   font-family: var(--font-mono);
   font-size: 0.68rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  letter-spacing: 0.03em;
   color: var(--ink-dim);
-  margin-bottom: 0.3rem;
+  /* One line, always. Mono digits + a date are wide enough to wrap a 3-up
+     card, and "8 min / read" split across two lines looks like a bug. */
+  white-space: nowrap;
 }
-.post-nav .next { text-align: right; }
+.card__meta svg { flex-shrink: 0; opacity: 0.8; }
+.card__meta .dot { opacity: 0.7; }
 
 /* Sidebar widgets */
 /* Editorial sidebar: no card boxes — tracked headings, airy list dividers. */
@@ -3856,8 +4183,7 @@ body.drawer-open { overflow: hidden; }
 
 @media (max-width: 760px) {
   .about__grid,
-  .frag,
-  .post-nav { grid-template-columns: minmax(0, 1fr); }
+  .frag { grid-template-columns: minmax(0, 1fr); }
   .about__links { grid-template-columns: minmax(0, 1fr); }
   /* The square-portrait treatment (static photo, top-aligned, 25px HUD bands +
      overlay positions) now lives in the ≤1024px block above so it also covers
@@ -4051,6 +4377,13 @@ body.drawer-open { overflow: hidden; }
   }
   .site-footer__col--left,
   .site-footer__col--right { justify-self: center; align-items: center; }
+  /* Centred columns: justifying to the column edge would stretch the row across
+     a centred block and strand the links at the far corners. Let it sit at its
+     natural width instead. */
+  .site-footer__machine {
+    width: auto;
+    justify-content: center;
+  }
   .socials--footer { justify-content: center; }
 }
 
@@ -4240,7 +4573,7 @@ body.drawer-open { overflow: hidden; }
 /* The secondary description text (--ink-soft) is too light over the bright fog —
    darken + warm it so it reads, while staying below the near-black titles. */
 [data-theme="light"] .lost-link__desc { color: #3c342a; }
-/* The small tracked terracotta labels (--accent #9c4620) don't have enough
+/* The small tracked accent labels (--accent #b04e18) don't have enough
    contrast over the bright fog — deepen them to a darker brick for easy reading,
    with a light halo to lift them over any darker patch. */
 [data-theme="light"] :is(.lost__eyebrow, .lost__foot-label, .lost__quote cite) {

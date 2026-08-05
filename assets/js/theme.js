@@ -528,33 +528,45 @@
     cycle(el, 4200);
   });
 
-  /* ---- Phone-number reveal ----------------------------------------------
-     Numbers live base64-encoded in `data-p` so the raw HTML has no `tel:`
-     prefix and no continuous digit run — cheap regex harvesters bounce.
-     JS decodes on load and writes both the visible text and the tel: href. */
-  document.querySelectorAll("a.js-tel").forEach(function (a) {
-    var enc = a.getAttribute("data-p");
-    if (!enc) return;
-    var pretty;
-    try { pretty = atob(enc); } catch (e) { return; }
-    a.setAttribute("href", "tel:" + pretty.replace(/\s+/g, ""));
-    a.setAttribute("aria-label", pretty);
-    a.textContent = pretty;
-  });
+  /* ---- Phone + email reveal ----------------------------------------------
+     Numbers and addresses live base64-encoded in `data-p` / `data-m` so the
+     raw HTML carries no `tel:` prefix, no continuous digit run and no `@` for
+     regex harvesters. JS decodes and writes the visible text and the href.
 
-  /* ---- Email reveal ------------------------------------------------------
-     Same idea as the phone reveal: addresses live base64-encoded in `data-m`
-     so the raw HTML carries no `@`/`mailto:` for harvesters to scrape. JS
-     decodes on load and writes both the visible text and the mailto: href. */
-  document.querySelectorAll("a.js-mail").forEach(function (a) {
-    var enc = a.getAttribute("data-m");
-    if (!enc) return;
-    var addr;
-    try { addr = atob(enc); } catch (e) { return; }
-    a.setAttribute("href", "mailto:" + addr);
-    a.setAttribute("aria-label", addr);
-    a.textContent = addr;
-  });
+     Takes a root so it can run again over content the drawer injects — same
+     problem the subscribe copy button solves with delegation above, except a
+     one-shot DOM transform can't be delegated, so it gets re-run instead.
+
+     This is also why contact addresses must stay encoded in the markup rather
+     than written as a plain mailto:. A literal one gets rewritten at the edge
+     by Cloudflare's Email Address Obfuscation into [email protected], and
+     CF's decoder is one-shot over the initial DOM with no way to re-run it —
+     so it would break in the drawer permanently. Encoded here, Cloudflare
+     finds nothing to rewrite and this stays in charge. */
+  function revealContacts(root) {
+    var scope = root || document;
+
+    scope.querySelectorAll("a.js-tel").forEach(function (a) {
+      var enc = a.getAttribute("data-p");
+      if (!enc) return;
+      var pretty;
+      try { pretty = atob(enc); } catch (e) { return; }
+      a.setAttribute("href", "tel:" + pretty.replace(/\s+/g, ""));
+      a.setAttribute("aria-label", pretty);
+      a.textContent = pretty;
+    });
+
+    scope.querySelectorAll("a.js-mail").forEach(function (a) {
+      var enc = a.getAttribute("data-m");
+      if (!enc) return;
+      var addr;
+      try { addr = atob(enc); } catch (e) { return; }
+      a.setAttribute("href", "mailto:" + addr);
+      a.setAttribute("aria-label", addr);
+      a.textContent = addr;
+    });
+  }
+  revealContacts(document);
 
   /* ---- Office availability live tick -------------------------------------
      The status is rendered correct server-side; this just keeps it honest if
@@ -861,6 +873,9 @@
             contentEl.classList.add("subscribe");
           }
           contentEl.innerHTML = bodyEl.innerHTML;
+          // Injected markup missed the load-time pass, so decode any encoded
+          // phone/email links this page brought with it.
+          revealContacts(contentEl);
           drawer.classList.remove("is-loading");
           panel.removeAttribute("aria-busy");
           scrollEl.scrollTop = 0;

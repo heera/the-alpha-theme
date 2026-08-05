@@ -10,6 +10,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * URL for a known page path, in the site's own trailing-slash style.
+ *
+ * Hard-coding "/blog/" is a 301 on every link when permalinks are slash-less:
+ * three such links (Blog, Subscribe, Terms) sit in the breadcrumb and footer of
+ * every page, so they alone accounted for ~250 site-wide redirects — each one a
+ * crawl the search engine spends without reaching new content. This asks the
+ * permalink structure how the site writes its URLs instead of guessing, so the
+ * links land first time whichever way the setting is flipped.
+ *
+ * @param string $path Path relative to the site root, e.g. 'blog'.
+ * @return string Absolute URL.
+ */
+function the_alpha_page_url( $path ) {
+	return home_url( user_trailingslashit( '/' . ltrim( $path, '/' ), 'page' ) );
+}
+
+/**
  * Site copyright line.
  *
  * Full (footer):  "Copyright © {start}–{current} {site name}".
@@ -153,14 +170,28 @@ function the_alpha_post_meta_single() {
 
 	echo '<div class="post-meta-single">';
 
-	// rel="author" on a link to the author archive makes the byline machine-readable
-	// for search/AI crawlers (an E-E-A-T signal), and matches the category/comment
-	// links already in this meta row — so it reads as a real byline, not just text.
+	// rel="author" keeps the byline machine-readable for search/AI crawlers (an
+	// E-E-A-T signal), but it has to point somewhere real: this site does not
+	// publish author archives, so /author/{slug} answers 404 and the old link
+	// was one broken internal link on every post. The About section on the front
+	// page is the page about the author, so that is where the byline goes — the
+	// same destination /who already redirects to. Anyone else writing here has
+	// no About section of their own, so their name renders as plain text; the
+	// BlogPosting JSON-LD still names them either way.
+	$author_name = get_the_author();
+	$person_name = apply_filters( 'the_alpha_person_name', 'Sheikh Heera' );
+	$byline      = ( 0 === strcasecmp( trim( $author_name ), trim( $person_name ) ) )
+		? sprintf(
+			'<a class="author" rel="author" href="%s">%s</a>',
+			esc_url( home_url( '/#about' ) ),
+			esc_html( $author_name )
+		)
+		: sprintf( '<span class="author">%s</span>', esc_html( $author_name ) );
+
 	printf(
-		'<span class="post-meta-single__item post-meta-single__author">%s<a class="author" rel="author" href="%s">%s</a></span>',
+		'<span class="post-meta-single__item post-meta-single__author">%s%s</span>',
 		$author_icon, // safe: hand-authored inline SVG above.
-		esc_url( get_author_posts_url( (int) get_post_field( 'post_author', get_the_ID() ) ) ),
-		esc_html( get_the_author() )
+		$byline // safe: assembled above from escaped parts.
 	);
 
 	printf(
@@ -227,6 +258,79 @@ function the_alpha_post_meta() {
 }
 
 /**
+ * The site's machine-readable files, as label => URL, for the footer row.
+ *
+ * Read from Agentimus rather than hard-coded: the plugin serves all of these,
+ * and two sit behind toggles — a static list would ship footer links that 404
+ * the moment the plugin is deactivated or an endpoint is switched off. Returns
+ * an empty array when the plugin isn't active, and the footer prints nothing.
+ *
+ * These links are for PEOPLE. Crawlers already find the same files through the
+ * `rel="describedby"` Link header, the matching <link> in <head>, and the
+ * conventional root paths — which is why the anchors carry rel="nofollow".
+ *
+ * @return array<string,string> Visible label => absolute URL.
+ */
+function the_alpha_machine_links() {
+	if ( ! defined( 'AGENTIMUS_VERSION' ) || ! class_exists( '\Agentimus\Settings' ) ) {
+		return array();
+	}
+
+	$settings = new \Agentimus\Settings();
+	$links    = array();
+
+	if ( $settings->enabled( 'enable_llms_txt' ) ) {
+		$links['llms.txt'] = home_url( '/llms.txt' );
+	}
+	if ( $settings->enabled( 'enable_llms_full' ) ) {
+		$links['llms-full.txt'] = home_url( '/llms-full.txt' );
+	}
+	// Served unconditionally while the plugin is active — no toggle to consult.
+	$links['openapi.json'] = home_url( '/.well-known/openapi.json' );
+
+	return $links;
+}
+
+/**
+ * Category pill for the related-post card — the post's primary category as a
+ * small outlined link above the title. Prints nothing for an uncategorised
+ * post, so the card closes up rather than showing an empty chip.
+ */
+function the_alpha_card_category() {
+	$cats = get_the_category();
+	if ( empty( $cats ) ) {
+		return;
+	}
+	printf(
+		'<a class="card__cat" href="%s" rel="category">%s</a>',
+		esc_url( get_category_link( $cats[0]->term_id ) ),
+		esc_html( $cats[0]->name )
+	);
+}
+
+/**
+ * Foot meta for the related-post card: reading time · date. The clock icon
+ * matches the stroke weight of the single-post meta bar's icon set.
+ */
+function the_alpha_card_meta() {
+	$clock_icon = '<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><circle cx="12" cy="12" r="8.4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 7.3V12l3.2 1.9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+	// Abbreviated on purpose, not the site-wide date_format: this line is card
+	// chrome kept to a single row, and a spelled-out month ("September 12,
+	// 2026") in mono overruns a 3-up card. The machine-readable datetime
+	// attribute below still carries the full W3C date.
+	$format = apply_filters( 'the_alpha_card_date_format', 'M j, Y' );
+
+	printf(
+		'<div class="card__meta">%s<span>%s</span><span class="dot" aria-hidden="true">&middot;</span><time datetime="%s">%s</time></div>',
+		$clock_icon, // safe: hand-authored inline SVG above.
+		esc_html( the_alpha_reading_time() ),
+		esc_attr( get_the_date( DATE_W3C ) ),
+		esc_html( get_the_date( $format ) )
+	);
+}
+
+/**
  * The four single-page sections used for the sidebar nav + scroll-spy.
  * On non-front views the links jump back to the front page anchor.
  *
@@ -242,11 +346,74 @@ function the_alpha_sections() {
 }
 
 /**
+ * Leading glyph for a primary-nav item. Same drawing conventions as the
+ * single-post meta icons: 24-unit box, no fill, 1.6 stroke in currentColor, so
+ * the icon inherits whatever the label is doing (dim at rest, accent on hover).
+ *
+ * Unknown keys get a neutral ring rather than nothing — a nav where only some
+ * rows carry a glyph reads as broken, not as a distinction.
+ *
+ * @param string $key Section slug, e.g. "home".
+ * @return string Inline SVG.
+ */
+function the_alpha_nav_icon( $key ) {
+	$shapes = array(
+		'home'    => '<path d="M3.9 10.7 12 4.3l8.1 6.4V19a1.5 1.5 0 0 1-1.5 1.5H5.4A1.5 1.5 0 0 1 3.9 19v-8.3z"/><path d="M9.7 20.5v-6.1h4.6v6.1"/>',
+		'about'   => '<circle cx="12" cy="8" r="3.6"/><path d="M4.5 19.2c1.4-3.2 4.2-5 7.5-5s6.1 1.8 7.5 5"/>',
+		'blog'    => '<rect x="4.8" y="3.4" width="14.4" height="17.2" rx="2"/><path d="M8.4 8.5h7.2M8.4 12h7.2M8.4 15.5h4.6"/>',
+		'contact' => '<rect x="3.2" y="5.4" width="17.6" height="13.2" rx="2"/><path d="m3.9 6.7 8.1 5.9 8.1-5.9"/>',
+	);
+
+	$shape = isset( $shapes[ $key ] ) ? $shapes[ $key ] : '<circle cx="12" cy="12" r="3.4"/>';
+
+	return '<svg class="nav__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' . $shape . '</svg>';
+}
+
+/**
+ * Give a menu-driven primary nav the same anchor class the fallback markup
+ * uses, so one set of .nav__link rules dresses both.
+ *
+ * @param array<string,string> $atts Anchor attributes.
+ * @return array<string,string>
+ */
+function the_alpha_nav_menu_link_class( $atts ) {
+	$atts['class'] = isset( $atts['class'] ) ? trim( $atts['class'] . ' nav__link' ) : 'nav__link';
+	return $atts;
+}
+
+/**
+ * Prefix a menu-driven primary-nav item with its icon. The section is read from
+ * the link's fragment (#about) where there is one, otherwise from the item's
+ * own title — a menu built by hand won't carry our slugs.
+ *
+ * @param string  $title Item title (already escaped by the walker).
+ * @param WP_Post $item  Menu item.
+ * @param object  $args  wp_nav_menu args.
+ * @param int     $depth Item depth.
+ * @return string
+ */
+function the_alpha_nav_menu_item_icon( $title, $item, $args, $depth ) {
+	unset( $args );
+	if ( $depth > 0 ) {
+		return $title;
+	}
+
+	$fragment = wp_parse_url( isset( $item->url ) ? (string) $item->url : '', PHP_URL_FRAGMENT );
+	$key      = $fragment ? sanitize_key( $fragment ) : sanitize_key( (string) $item->title );
+
+	return the_alpha_nav_icon( $key ) . '<span class="nav__label">' . $title . '</span>';
+}
+
+/**
  * Output the primary navigation. Uses a WP menu if one is assigned to the
  * "primary" location, otherwise falls back to the single-page section anchors.
  */
 function the_alpha_primary_nav() {
 	if ( has_nav_menu( 'primary' ) ) {
+		// Scoped to this one call so a footer or widget menu never picks them up.
+		add_filter( 'nav_menu_link_attributes', 'the_alpha_nav_menu_link_class' );
+		add_filter( 'nav_menu_item_title', 'the_alpha_nav_menu_item_icon', 10, 4 );
+
 		wp_nav_menu( array(
 			'theme_location' => 'primary',
 			'container'      => false,
@@ -254,6 +421,9 @@ function the_alpha_primary_nav() {
 			'fallback_cb'    => false,
 			'depth'          => 1,
 		) );
+
+		remove_filter( 'nav_menu_item_title', 'the_alpha_nav_menu_item_icon', 10 );
+		remove_filter( 'nav_menu_link_attributes', 'the_alpha_nav_menu_link_class' );
 		return;
 	}
 
@@ -263,9 +433,12 @@ function the_alpha_primary_nav() {
 	echo '<ul class="nav__list" role="list">';
 	foreach ( the_alpha_sections() as $slug => $label ) {
 		printf(
-			'<li><a class="nav__link" href="%1$s#%2$s" data-section="%2$s">%3$s</a></li>',
+			// The icon is aria-hidden, so the accessible name stays exactly the
+			// visible label — WCAG 2.5.3 holds.
+			'<li><a class="nav__link" href="%1$s#%2$s" data-section="%2$s">%3$s<span class="nav__label">%4$s</span></a></li>',
 			esc_url( $base ),
 			esc_attr( $slug ),
+			the_alpha_nav_icon( $slug ), // safe: hand-authored inline SVG.
 			esc_html( $label )
 		);
 	}
