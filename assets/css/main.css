@@ -210,13 +210,20 @@
   /* The seam, where two sections' leftovers meet. Its own token, because it was
      riding --frag-ember, whose strength is capped by the text those gradients
      sit beneath — and this band has no text in it at all. Same licence as the
-     wall: darken freely where nothing reads. */
-  --frag-seam: color-mix(in srgb, var(--ink) 10%, transparent);
+     wall: darken freely where nothing reads. Eased 10% -> 6% with the wall.
+     The two CROSS at the left end of every seam, and that crossing is the
+     darkest point on the page — it compounds, so both have to be read
+     together rather than tuned one at a time (1.554:1 at the old pair,
+     1.434:1 now).
+     Eased 11% -> 7% on his call (1.401:1 -> 1.294:1). "Free" is about contrast,
+     not about taste: nothing reads there, so nothing BREAKS at any strength —
+     it still has to look like a margin rather than a bar. */
+  --frag-seam: color-mix(in srgb, var(--ink) 6%, transparent);
   /* The wall: smoke pooling against the sidebar. It lives in the section's own
      left padding — clamp(1.4rem, 1rem + 4vw, 5rem), which no text occupies —
      so unlike every other darkening in this theme it costs no contrast at all,
      and can be as strong as the boundary needs. */
-  --frag-wall: color-mix(in srgb, var(--ink) 11%, transparent);
+  --frag-wall: color-mix(in srgb, var(--ink) 7%, transparent);
   --rule-ink: rgba(35, 35, 35, 0.16);
   --rule-lip: rgba(255, 255, 255, 0.95);
   color-scheme: light;
