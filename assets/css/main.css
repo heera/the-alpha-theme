@@ -87,6 +87,8 @@
      cool rim, drifting pale haze. Tones pulled close to white so the
      gradient lifts the deep bg as light rather than colour. Alphas
      kept low so the corner reads as a subtle hint, not a hotspot. */
+  --frag-wall: transparent;   /* dark separates by an emitted edge; nothing pools here */
+  --frag-seam: rgba(255, 232, 205, 0.20);   /* dark pools by adding light, as everything here does */
   --frag-ember: rgba(255, 232, 205, 0.24);
   --frag-rim: rgba(170, 220, 225, 0.10);
   --frag-haze: rgba(215, 210, 230, 0.10);
@@ -191,10 +193,30 @@
      dissolves into the paper instead of reading as a corner glow; the longer
      --frag-ember-spread stretches its falloff (light mode only — dark falls
      back to 70% via the var fallback in the gradient). */
-  --frag-ember: color-mix(in srgb, var(--surface) 44%, transparent);
+  /* Smoke that DARKENS. These were built from --surface — the lightest cream in
+     the palette — painted over --bg-2, so they measured 1.045:1 and 1.035:1 and
+     could not be seen: on paper there is no headroom above the sheet, so a
+     lightening wash is not atmosphere, it is nothing. (--frag-rim was already
+     the exception, built from --accent-2, and was accordingly the only light
+     layer with any presence.) Dark keeps its own lightening values: on
+     near-black the same idea works, and its ember lands at 2.02:1.
+     The photograph in this section was ported to paper physics long ago —
+     mix-blend-mode: multiply in light against screen in dark. These gradients
+     simply never followed it. */
+  --frag-ember: color-mix(in srgb, var(--accent-2) 5.5%, transparent);
   --frag-ember-spread: 82%;
-  --frag-rim: color-mix(in srgb, var(--accent-2) 10%, transparent);
-  --frag-haze: color-mix(in srgb, var(--surface) 34%, transparent);
+  --frag-rim: color-mix(in srgb, var(--accent-2) 4%, transparent);
+  --frag-haze: color-mix(in srgb, var(--ink) 1.5%, transparent);
+  /* The seam, where two sections' leftovers meet. Its own token, because it was
+     riding --frag-ember, whose strength is capped by the text those gradients
+     sit beneath — and this band has no text in it at all. Same licence as the
+     wall: darken freely where nothing reads. */
+  --frag-seam: color-mix(in srgb, var(--ink) 10%, transparent);
+  /* The wall: smoke pooling against the sidebar. It lives in the section's own
+     left padding — clamp(1.4rem, 1rem + 4vw, 5rem), which no text occupies —
+     so unlike every other darkening in this theme it costs no contrast at all,
+     and can be as strong as the boundary needs. */
+  --frag-wall: color-mix(in srgb, var(--ink) 11%, transparent);
   --rule-ink: rgba(35, 35, 35, 0.16);
   --rule-lip: rgba(255, 255, 255, 0.95);
   color-scheme: light;
@@ -589,7 +611,7 @@ h1, h2, h3, h4 {
      are the originals; light re-strikes them at roughly 1.6× below. */
   --orbit-ring: color-mix(in srgb, var(--accent) 18%, transparent);
   --orbit-dash: color-mix(in srgb, var(--accent) 34%, transparent);
-  --orbit-tick: color-mix(in srgb, var(--accent) 30%, transparent);
+  --orbit-tick: color-mix(in srgb, var(--accent) 42%, transparent);
 }
 .brand__avatar img {
   width: 100%;
@@ -682,12 +704,18 @@ h1, h2, h3, h4 {
     var(--accent-grad) border-box;
   /* Re-struck for paper. Same three strokes, ~1.6× the alpha, which lands each
      one a hair past where its dark-mode twin sits: ring 1.48:1 (dark 1.45),
-     ticks 2.08:1 (1.96), dashes 2.29:1 (2.17). Matching the numbers would have
+     ticks 2.75:1 (2.67), dashes 2.29:1 (2.17). Matching the numbers would have
      matched the ink and lost the drawing — dark ink on light paper simply needs
-     more of itself to carry the same weight as light ink on dark. */
+     more of itself to carry the same weight as light ink on dark.
+
+     The ticks were raised (52%->70% here, 30%->42% dark) on Heera's call: they
+     are the armature the rings hang on, so they should read as the firmest
+     stroke of the three, and at 2.06:1 they were sitting below the dashes they
+     are meant to anchor. Both themes moved together — the crosshair is the same
+     drawing in each. */
   --orbit-ring: color-mix(in srgb, var(--accent) 30%, transparent);
   --orbit-dash: color-mix(in srgb, var(--accent) 58%, transparent);
-  --orbit-tick: color-mix(in srgb, var(--accent) 52%, transparent);
+  --orbit-tick: color-mix(in srgb, var(--accent) 70%, transparent);
 }
 /* Hover, on paper. Dark mode's version is a step you can't miss — its 1px ring
    goes .12 → .55, better than four times brighter — and the light one was two
@@ -2128,6 +2156,10 @@ h1, h2, h3, h4 {
        (140% 95%), same 50% centre, same spread; only the Y is flipped across the
        seam (contact -16% → blog 116%). Ember at ~90% to give the blog bottom a
        warmer pool than contact's calmer top. Theme-aware via --frag-ember. */
+    linear-gradient(to right, var(--frag-wall) 0%, transparent 7%),
+    /* The other half of the seam pool — mirrored across the fold, the way this
+       section already mirrors contact's. */
+    radial-gradient(ellipse 150% 26% at 50% 0%, var(--frag-seam) 0%, transparent 74%),
     radial-gradient(ellipse 140% 95% at 50% 116%, color-mix(in srgb, var(--frag-ember) 90%, transparent) 0%, transparent var(--frag-ember-spread, 70%)),
     radial-gradient(ellipse 110% 105% at 0%  -8%, var(--frag-ember) 0%, transparent var(--frag-ember-spread, 70%)),
     radial-gradient(ellipse  90%  85% at 5%   12%, var(--frag-rim)   0%, transparent 80%),
@@ -2207,6 +2239,18 @@ h1, h2, h3, h4 {
    page reads as a sequence of full screens on desktop. Flex column +
    center keeps shorter content visually balanced; min-height (not
    height) lets taller content grow past one screen without clipping. */
+/* The ground in these two sections is now tinted, so the ink on it moves with
+   it — scoped here rather than site-wide, because only here did the ground
+   change. Both tokens sat ~0.2 above the 4.5 floor on bare --bg-2 (--eyebrow
+   4.77, --ink-dim 4.70), which is why NO amount of atmosphere could pass
+   beneath them untouched. On the worst case — all three gradients peaking
+   together — these hold ~4.8:1. They track the smoke: ease the --frag-* values
+   and these come back toward their originals, since the whole reason they moved
+   is the ground beneath them. */
+[data-theme="light"] :is(#about, #blog) {
+  --eyebrow: #7F5833;
+  --ink-dim: #685E50;
+}
 #about,
 #blog {
   min-height: 100dvh;
@@ -2222,6 +2266,19 @@ h1, h2, h3, h4 {
   position: relative;
   overflow: hidden;
   background:
+    /* Wall first = topmost. Horizontal only: smoke collects against a surface,
+       it does not hang off it, and an offset would read as the panel floating. */
+    linear-gradient(to right, var(--frag-wall) 0%, transparent 7%),
+    /* Seam pool. Both sections are min-height:100dvh with centred content, so a
+       short section spends its leftover half above and half below — and at this
+       join TWO half-leftovers meet, which is the empty band. Rather than shrink
+       it (that would cost the full-viewport rhythm each section is built on),
+       the atmosphere collects there: the theme already says smoke pools at a
+       join, mirroring across the blog/contact seam at 116% / -16%. This is the
+       same move for the seam above. Short (26% of height) so the stronger tone
+       stays inside the empty band and never reaches the centred text — the
+       first attempt was taller and weaker, and read as nothing at all. */
+    radial-gradient(ellipse 150% 26% at 50% 100%, var(--frag-seam) 0%, transparent 74%),
     radial-gradient(ellipse 110% 105% at 0%  108%, var(--frag-ember) 0%, transparent var(--frag-ember-spread, 70%)),
     radial-gradient(ellipse  90%  85% at 5%   88%, var(--frag-rim)   0%, transparent 80%),
     radial-gradient(ellipse 130% 110% at 18%  62%, var(--frag-haze)  0%, transparent 88%),
@@ -2289,10 +2346,26 @@ h1, h2, h3, h4 {
 /* Light mode: the base wash lightens toward the bottom (bg-2 → bg), which
    reads washed/plain. Pool a stronger warm glow down from the blog seam at
    top so the section gains the same atmospheric depth dark mode gets. */
+/* Light mode, amber at the head of the section (Heera, 2026-08-06).
+   The two pools this replaces were rgba(246,234,212,.45) and (244,230,206,.22)
+   — creams a shade off the paper they sat on, measuring 1.015:1. Invisible,
+   for the reason every other light-mode wash here was: they lightened.
+   Real amber is possible, but ONLY above the text. Any amber strong enough to
+   see drags --eyebrow (4.77:1 on bare --bg-2) and --ink-dim under the 4.5
+   floor if it washes the whole top half — #D9A85E at 55% lands them at 3.4.
+   Eased twice on his call, 0.60/0.26 -> 0.40/0.16 -> 0.24/0.09, which peaks
+   at 1.22:1. Deliberately BELOW the wall (1.401) and the seam (1.373): those
+   two are structural, marking where one region ends and another begins, while
+   this is only warmth at the head of a section. The floor to stay above is
+   1.015:1 — the cream wash this replaced, which could not be seen at all.
+   The mass sits in the empty band the section opens with and fades out
+   before the eyebrow: a tall ellipse's centre pulled off-canvas (-8%) with
+   only 44% of the height to spread in. Same rule as the wall and the seam —
+   full strength where nothing reads, nothing where something does. */
 [data-theme="light"] #contact {
   background:
-    radial-gradient(ellipse 150% 100% at 50% -18%, rgba(246, 234, 212, 0.45) 0%, transparent 82%),
-    radial-gradient(ellipse 130% 90% at 50% 8%, rgba(244, 230, 206, 0.22) 0%, transparent 72%),
+    radial-gradient(ellipse 150% 44% at 50% -8%, rgba(217, 168, 94, 0.24) 0%, transparent 76%),
+    radial-gradient(ellipse 130% 34% at 50% 2%, rgba(206, 150, 66, 0.09) 0%, transparent 70%),
     radial-gradient(ellipse 160% 120% at 50% 45%, var(--frag-haze) 0%, transparent 92%),
     linear-gradient(to bottom, var(--bg-2) 0%, var(--bg-2) 20%, var(--surface) 100%);
 }
