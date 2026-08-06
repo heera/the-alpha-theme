@@ -88,6 +88,10 @@
      gradient lifts the deep bg as light rather than colour. Alphas
      kept low so the corner reads as a subtle hint, not a hotspot. */
   --frag-wall: transparent;   /* dark separates by an emitted edge; nothing pools here */
+  /* The bakhoor corner, dark's own direction: added light, not a tint. Softer
+     than the 0.24 ember it continues from (2.02:1) — this is the far reach of
+     that source, not a second one. */
+  --frag-warm: rgba(255, 232, 205, 0.12);
   --frag-seam: rgba(255, 232, 205, 0.20);   /* dark pools by adding light, as everything here does */
   --frag-ember: rgba(255, 232, 205, 0.24);
   --frag-rim: rgba(170, 220, 225, 0.10);
@@ -218,6 +222,16 @@
      Eased 11% -> 7% on his call (1.401:1 -> 1.294:1). "Free" is about contrast,
      not about taste: nothing reads there, so nothing BREAKS at any strength —
      it still has to look like a margin rather than a bar. */
+  /* The bakhoor corner. .frag__media's own comment says the quote "anchors to
+     the bottom-right of the section, sitting inside the ember glow that
+     originates from the same corner" — true in dark, where the photograph and
+     a 24%-on-near-black ember carry it, and never true here: light's ember is
+     a 5.5% brown tint and the photo dissolves into cream. So the warmth is
+     stated outright. Safe at this strength because the only thing standing in
+     it is the pull-quote at --ink, which keeps better than 10:1.
+     Dark carries its own value for this now too — the corner reads there, but
+     the warmth stopped at the fold in both themes. */
+  --frag-warm: rgba(217, 168, 94, 0.28);
   --frag-seam: color-mix(in srgb, var(--ink) 6%, transparent);
   /* The wall: smoke pooling against the sidebar. It lives in the section's own
      left padding — clamp(1.4rem, 1rem + 4vw, 5rem), which no text occupies —
@@ -2167,6 +2181,12 @@ h1, h2, h3, h4 {
     /* The other half of the seam pool — mirrored across the fold, the way this
        section already mirrors contact's. */
     radial-gradient(ellipse 150% 26% at 50% 0%, var(--frag-seam) 0%, transparent 74%),
+    /* The bakhoor warmth carried across the fold, in BOTH themes — it stopped
+       dead at the seam in each, which announces that the two sections are
+       separate documents, the one thing this join exists not to say. Shorter
+       than its twin in #about (36% against 48%): this is the far edge of the
+       light, not its source. */
+    radial-gradient(ellipse 62% 36% at 88% 4%, var(--frag-warm) 0%, transparent 76%),
     radial-gradient(ellipse 140% 95% at 50% 116%, color-mix(in srgb, var(--frag-ember) 90%, transparent) 0%, transparent var(--frag-ember-spread, 70%)),
     radial-gradient(ellipse 110% 105% at 0%  -8%, var(--frag-ember) 0%, transparent var(--frag-ember-spread, 70%)),
     radial-gradient(ellipse  90%  85% at 5%   12%, var(--frag-rim)   0%, transparent 80%),
@@ -2286,6 +2306,9 @@ h1, h2, h3, h4 {
        stays inside the empty band and never reaches the centred text — the
        first attempt was taller and weaker, and read as nothing at all. */
     radial-gradient(ellipse 150% 26% at 50% 100%, var(--frag-seam) 0%, transparent 74%),
+    /* Sits over the photograph's own corner (bottom:-8%, right:-6%) so the two
+       read as one source rather than a glow beside a picture. */
+    radial-gradient(ellipse 62% 48% at 88% 96%, var(--frag-warm) 0%, transparent 76%),
     radial-gradient(ellipse 110% 105% at 0%  108%, var(--frag-ember) 0%, transparent var(--frag-ember-spread, 70%)),
     radial-gradient(ellipse  90%  85% at 5%   88%, var(--frag-rim)   0%, transparent 80%),
     radial-gradient(ellipse 130% 110% at 18%  62%, var(--frag-haze)  0%, transparent 88%),
