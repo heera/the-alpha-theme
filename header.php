@@ -31,7 +31,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 <header class="topbar">
 	<div class="topbar__row">
-		<a class="topbar__brand" href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php bloginfo( 'name' ); ?></a>
+		<a class="topbar__brand" href="<?php echo esc_url( home_url( '/' ) ); ?>">
+			<?php
+			// The sidebar's medallion, at topbar size (his call): on a phone the
+			// sidebar — and the face on it — never shows, so the brand row
+			// carries the same avatar as a small plain disc. Empty alt: the link
+			// text beside it already says the name, and a screen reader must not
+			// hear it twice. Eager: this is the first paint on every phone view.
+			?>
+			<img class="topbar__avatar"
+				src="<?php echo esc_url( add_query_arg( 'v', the_alpha_asset_ver( 'assets/img/avatar.webp' ), THE_ALPHA_URI . '/assets/img/avatar.webp' ) ); ?>"
+				alt="" width="118" height="118" decoding="async">
+			<?php bloginfo( 'name' ); ?>
+		</a>
 		<div class="topbar__actions">
 			<button class="topbar__search-toggle" type="button" aria-label="<?php esc_attr_e( 'Toggle search', 'the-alpha' ); ?>" aria-controls="topbar-search" aria-expanded="false">
 				<svg class="icon-search" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m20 20-3.2-3.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>

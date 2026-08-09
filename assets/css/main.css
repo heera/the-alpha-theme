@@ -4277,11 +4277,36 @@ body.drawer-open { overflow: hidden; }
     gap: 0.5rem;
   }
   .topbar__brand {
+    /* A flex row since the avatar joined the name; centred so the disc and
+       the text share a baseline-agnostic middle. */
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
     font-family: var(--font-display);
     font-weight: 700;
     font-size: 1.05rem;
     color: var(--ink);
     letter-spacing: 0.01em;
+  }
+  /* The medallion minus its orrery (his call): same asset, same gradient
+     edge and per-theme grade as the sidebar's 118px original, so the two
+     read as one identity at two sizes — the orbits stay a desktop luxury,
+     because at this size they would be noise, not ornament. Clamped to the
+     row rather than fixed: the bar's 42px controls set the ceiling, tiny
+     phones ease it down. The medallion's inner glow is dropped too — a
+     15px bloom inside a 36px disc is a smudge, not a light. */
+  .topbar__avatar {
+    width: clamp(32px, 9vw, 40px);
+    height: auto;
+    aspect-ratio: 1;
+    flex: 0 0 auto;
+    border: 1px solid transparent;
+    border-radius: 50%;
+    object-fit: cover;
+    background:
+      linear-gradient(var(--bg-2), var(--bg-2)) padding-box,
+      var(--accent-grad) border-box;
+    filter: var(--portrait-grade, none);
   }
   .topbar__search-toggle,
   .nav-toggle {
@@ -4331,10 +4356,36 @@ body.drawer-open { overflow: hidden; }
     transition: transform var(--t);
     box-shadow: 0 0 80px rgba(0, 0, 0, 0.5);
     /* Sticky topbar (~68px + safe-area inset) overlays the drawer's top edge;
-       push the sidebar's content below it so the brand block stays visible. */
-    padding-top: calc(68px + env(safe-area-inset-top, 0px) + 1.4rem);
+       push the sidebar's content below it so the brand block stays visible.
+       The extra breathing room is slimmer than the desktop sidebar's — every
+       pixel here is paid for below the colophon (see the fit block). */
+    padding-top: calc(68px + env(safe-area-inset-top, 0px) + 0.35rem);
+    /* The desktop's 2.596rem bottom padding aligns the foot with the footer
+       hairline — furniture that doesn't exist in the drawer. Trimmed so the
+       colophon is the true end of the scroll. */
+    padding-bottom: 0.9rem;
   }
   body.nav-open .sidebar { transform: none; }
+
+  /* Fit the WHOLE drawer above a phone's fold (his ask): brand, medallion,
+     nav, socials, LIGHT and the colophon, no scrolling. The desktop sidebar's
+     breathing room overshot a real iPhone's visible height by roughly a
+     footer, so every band gives a little here — the socials' lift (the
+     biggest single gap) most of all — and nothing shrinks below touch size.
+     The medallion keeps its orbits and its 118px: the orrery's bands are
+     tuned in fixed pixels, and scaling the disc without them would break the
+     even rings. Scoped to the drawer; the pinned desktop sidebar keeps its
+     air. */
+  /* The medallion's margins must clear the ORBITS, not the image: the outer
+     ring reaches ~14px past the 118px box on every side, so anything under
+     ~1rem reads as no gap at all. These leave ~15px of visible air beyond
+     the ring in both directions. */
+  .brand__avatar { margin-top: 2.3rem; }
+  .sidebar .nav { margin-top: 2.4rem; margin-bottom: 0.9rem; }
+  .sidebar__foot { padding-top: 0.9rem; margin-bottom: 1rem; }
+  .theme-toggle { margin-top: 0.9rem; }
+  .colophon-mini { margin-top: 0.7rem; }
+  .brand__desc { margin-top: 0.3rem; }
 
   .scrim {
     display: block;
