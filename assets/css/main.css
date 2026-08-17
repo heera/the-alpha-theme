@@ -539,7 +539,7 @@ h1, h2, h3, h4 {
    --bg-2 has 23 consumers (sections, hero, seams, gradients) and only these two
    were meant to change. Scoped so light mode, which has its own --bg-2, is
    untouched. */
-[data-theme="dark"] .sidebar { background: #1f232a; }
+[data-theme="dark"] .sidebar { background: #1e2229; }
 
 
 .brand { text-align: center; }
