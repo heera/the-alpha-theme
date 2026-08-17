@@ -34,10 +34,18 @@
 
 /* Dark (default) */
 [data-theme="dark"] {
-  /* Modest lift off near-black (was #0b0d10): the whole elevation ladder is
-     raised by the same offset so the steps stay even and the cool blue tint is
-     preserved — softens the "void" feel / halation without going flat-grey. */
-  --bg: #101216;
+  /* Lift off near-black, in two steps: #0b0d10 → #101216 → #191c22.
+     ⛔ The ladder below is NOT raised with it this time, deliberately. Only the
+     GROUND moved, so --bg-2 (#15181d) now sits BELOW the page instead of above
+     it — the sidebar recedes rather than lifts, and the boundary between nav and
+     reading column is finally carried by tone instead of by a hairline. That
+     inversion is the point of the change, not a side effect of it.
+     ⚠️ The cost, known and accepted: --surface (#191d23) is now within a point
+     of the ground, so anything painted with it has no fill — only its border.
+     The two places that mattered (.sidebar, .prose pre) are given a literal
+     below; the rest were left, and a future reader deciding to "fix" --surface
+     should know it was a choice. */
+  --bg: #191c22;
   --bg-2: #15181d;
   --surface: #191d23;
   --surface-2: #262a32;
@@ -64,7 +72,10 @@
      left so the black veil still shows a gradient. */
   --hero-veil:
     linear-gradient(90deg, rgba(205, 246, 240, 0.08) 0%, rgba(205, 246, 240, 0.04) 20%, rgba(205, 246, 240, 0) 48%),
-    linear-gradient(90deg, rgba(16, 18, 22, 0.68) 0%, rgba(16, 18, 22, 0.44) 22%, rgba(16, 18, 22, 0.2) 45%, rgba(16, 18, 22, 0.05) 65%, rgba(16, 18, 22, 0) 80%);
+    /* ⚠️ These five stops ARE the page colour, spelled out because a gradient
+       cannot take a token mid-stop. They must track --bg: fade the hero into
+       last season's charcoal and a seam appears down the photo. */
+    linear-gradient(90deg, rgba(25, 28, 34, 0.68) 0%, rgba(25, 28, 34, 0.44) 22%, rgba(25, 28, 34, 0.2) 45%, rgba(25, 28, 34, 0.05) 65%, rgba(25, 28, 34, 0) 80%);
   --img-filter: none; /* photos render in full colour */
   /* About portrait: slightly richer + a touch cooler so the studio photo
      sits into the cool slate without going flat. */
@@ -524,6 +535,12 @@ h1, h2, h3, h4 {
   overflow-y: auto;
   overscroll-behavior: contain;
 }
+/* ⭐ HIS CALL, 2026-08-17. Dark only, and a literal rather than a token move:
+   --bg-2 has 23 consumers (sections, hero, seams, gradients) and only these two
+   were meant to change. Scoped so light mode, which has its own --bg-2, is
+   untouched. */
+[data-theme="dark"] .sidebar { background: #1f232a; }
+
 
 .brand { text-align: center; }
 .brand__rule {
@@ -3363,6 +3380,8 @@ body.single .page-title {
   font-size: 0.86rem;
   line-height: 1.7;
 }
+[data-theme="dark"] .prose pre { background: #1f232a; }
+
 .prose pre code { background: none; border: 0; padding: 0; font-size: inherit; }
 
 /* Copy button — injected by theme.js into every <pre> inside .prose.
@@ -4632,7 +4651,7 @@ body.drawer-open { overflow: hidden; }
   }
   /* Dark mode: the old full-height wash (0.42 at top → 0.82 at bottom) was for
      text-over-photo legibility; the text sits below now, so it only muddies the
-     whole scene. Cut it to a bottom-only fade into the page charcoal (#101216) so
+     whole scene. Cut it to a bottom-only fade into the page charcoal (#191c22) so
      the photo shows at full brightness and just its lower edge melts into the
      panel — mirrors the light-mode treatment. */
   [data-theme="dark"] .hero__bg::after {
@@ -4642,7 +4661,9 @@ body.drawer-open { overflow: hidden; }
        Low opacity: the dark photo lifts with very little. Fades out before the
        perfume bottles on the right. */
     background:
-      linear-gradient(180deg, transparent 0%, transparent 50%, rgba(16, 18, 22, 0.4) 74%, rgba(16, 18, 22, 0.78) 90%, rgba(16, 18, 22, 1) 100%),
+      /* ⚠️ The 100% stop is OPAQUE page colour — track --bg or the photo ends
+         in a band of the old, darker charcoal. */
+      linear-gradient(180deg, transparent 0%, transparent 50%, rgba(25, 28, 34, 0.4) 74%, rgba(25, 28, 34, 0.78) 90%, rgba(25, 28, 34, 1) 100%),
       linear-gradient(90deg, rgba(232, 224, 210, 0.18) 0%, rgba(232, 224, 210, 0.1) 16%, rgba(232, 224, 210, 0.04) 38%, rgba(232, 224, 210, 0) 60%);
   }
   /* Scroll hint flows below the content (hero is no longer full-height, so an
