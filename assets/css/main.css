@@ -94,18 +94,28 @@
      on the photo. Same bright mint as the glow so it reads as one lit system;
      a hair more transparent so it sits quietly against the studio dark. */
   --portrait-hud: rgba(110, 208, 190, 0.7);
-  /* Fragrance ambient atmospherics — luminous warm-white wash, faint
-     cool rim, drifting pale haze. Tones pulled close to white so the
-     gradient lifts the deep bg as light rather than colour. Alphas
-     kept low so the corner reads as a subtle hint, not a hotspot. */
+  /* Fragrance ambient atmospherics — one source that adds light (the ember),
+     warm/seam tints that now state a colour of their own instead of carrying
+     the ember's cream outward, and a rim that no longer adds anything at all.
+     All kept weak, so the corner reads as a subtle hint and not a hotspot. */
   --frag-wall: transparent;   /* dark separates by an emitted edge; nothing pools here */
-  /* The bakhoor corner, dark's own direction: added light, not a tint. Softer
-     than the 0.24 ember it continues from (2.02:1) — this is the far reach of
-     that source, not a second one. */
-  --frag-warm: rgba(255, 232, 205, 0.12);
-  --frag-seam: rgba(255, 232, 205, 0.20);   /* dark pools by adding light, as everything here does */
-  --frag-ember: rgba(255, 232, 205, 0.24);
-  --frag-rim: rgba(170, 220, 225, 0.10);
+  /* The bakhoor corner. Burnt amber rather than more of the ember's cream, so
+     the far reach of the light reads as scorched wall, not as a second source.
+     On --bg-2 (#15181d) it lands near (33,29,26): warmer than the ground and
+     barely above it, which is the whole intent. */
+  --frag-warm: rgb(121 66 0 / 12%);
+  --frag-seam: rgb(86 68 47 / 20%);   /* the join takes the same smoked brown, not the ember's cream */
+  --frag-ember: rgba(255, 232, 205, 0.24);   /* the one layer still working by added light */
+  /* Opaque near-black: the full strength of this colour, which is still almost
+     nothing on its own. It measures 1.07:1 against --bg-2 — the ground sits
+     nine thousandths of a luminance above black, so there is no headroom below
+     it, the mirror of the "no headroom above the sheet" note in light mode's
+     block. What it does instead is subtract, by up to 17 levels, from the
+     ember it is painted directly beneath: the lit corner reads 1.168:1 on
+     #blog where the old mint rim read 1.456:1. So this no longer draws an edge
+     in that corner — it takes a step off the ember's own. Deliberate; raising
+     the alpha further is not available, this IS the alpha. */
+  --frag-rim: rgb(13 16 16);
   --frag-haze: rgba(215, 210, 230, 0.10);
   /* Letterpress rule: recessed dark line + light lower lip (pressed-in look) */
   --rule-ink: rgba(0, 0, 0, 0.62);
