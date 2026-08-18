@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'THE_ALPHA_VERSION', '1.2.7' );
+define( 'THE_ALPHA_VERSION', '1.2.8' );
 define( 'THE_ALPHA_DIR', get_template_directory() );
 define( 'THE_ALPHA_URI', get_template_directory_uri() );
 
