@@ -231,28 +231,27 @@
   --frag-ember: color-mix(in srgb, var(--accent-2) 5.5%, transparent);
   --frag-ember-spread: 82%;
   --frag-rim: color-mix(in srgb, var(--accent-2) 4%, transparent);
-  /* The broad field — one ellipse across the whole section. At --ink 1.5% it
-     composited to under 3 levels and read as flat paper; the band beneath the
-     contact cards was the complaint that started this. Caramel at 10% lands
-     near (233,225,216): about 9 levels of shade, warmth 17 red-minus-blue
-     against a paper whose own is 10.
-     ⚠️ Unlike the seam and the wall, this one is NOT confined to margins that
-     hold no text — it crosses the sidebar edge and every line of body copy in
-     the section, which is why it is held so far below them. Text only GAINS
-     contrast under it (dark ink on slightly shaded cream), so what limits this
-     value is taste, not legibility. */
-  --frag-haze: rgb(150 112 70 / 10%);
+  /* The broad field. Left at --ink 1.5%, where it composites to under 3 levels
+     and reads as flat paper — which IS how the band beneath the contact cards
+     reads. A caramel at 10% was tried there and reverted on his call.
+     ⚠️ Why it was reverted is worth keeping: this ellipse is 130% 110%, wide
+     enough that any value strong enough to register under the cards also lands
+     4-9 levels on the strip beside the sidebar. Strength cannot separate the
+     two — only geometry can (giving this layer its own background-size and
+     position, so its box starts after the section's left padding). Don't just
+     raise this expecting the middle to fill; measure the left edge after. */
+  --frag-haze: color-mix(in srgb, var(--ink) 1.5%, transparent);
   /* The seam, where two sections' leftovers meet. Its own token, because it was
      riding --frag-ember, whose strength is capped by the text those gradients
      sit beneath — and this band has no text in it at all. Same licence as the
-     wall: darken freely where nothing reads. Eased 10% -> 6% with the wall.
-     The two CROSS at the left end of every seam, and that crossing is the
-     darkest point on the page — it compounds, so both have to be read
-     together rather than tuned one at a time (1.554:1 at the old pair,
-     1.434:1 now).
-     Eased 11% -> 7% on his call (1.401:1 -> 1.294:1). "Free" is about contrast,
-     not about taste: nothing reads there, so nothing BREAKS at any strength —
-     it still has to look like a margin rather than a bar. */
+     wall once had: darken freely where nothing reads. Eased 10% -> 6% with the
+     wall, then 11% -> 7% on his call (1.401:1 -> 1.294:1).
+     ⚠️ That history describes a pair that no longer exists. The two used to
+     CROSS at the left end of every seam, and that crossing was the darkest
+     point on the page, so neither could be tuned alone. The wall is transparent
+     now, so this token stands by itself and compounds with nothing. "Free" was
+     always about contrast, not taste: nothing reads there, so nothing BREAKS at
+     any strength — it still has to look like a margin rather than a bar. */
   /* The bakhoor corner. .frag__media's own comment says the quote "anchors to
      the bottom-right of the section, sitting inside the ember glow that
      originates from the same corner" — true in dark, where the photograph and
@@ -272,11 +271,20 @@
      light-mode mirror of what the dark rim taught: the shade was never the
      thing to reach for, the colour of the shade was. */
   --frag-seam: rgb(198 140 70 / 16%);
-  /* The wall: smoke pooling against the sidebar. It lives in the section's own
-     left padding — clamp(1.4rem, 1rem + 4vw, 5rem), which no text occupies —
-     so unlike every other darkening in this theme it costs no contrast at all,
-     and can be as strong as the boundary needs. */
-  --frag-wall: color-mix(in srgb, var(--ink) 7%, transparent);
+  /* ⭐ HIS CALL, 2026-08-19: gone, and light now matches dark, where this has
+     always been transparent. It was smoke pooling against the sidebar, living
+     in the section's left padding where no text sits, which is why it was
+     allowed to be strong — 7% ink, measured at 14 levels at x=0 and fading out
+     by x=76 (the `transparent 7%` stop on a 1080px section).
+     Removed on its own merits, not because something replaced it: against the
+     paper this band read as a bar rather than as a margin. Worth being exact,
+     since the sidebar changed in the same session — .sidebar's #f4eee3 is
+     iso-luminant with --bg-2 and separates by hue alone, so it did NOT take
+     over the wall's job. Nothing did. The boundary is now the --sidebar-edge
+     hairline plus a change of paper temperature, and that was judged enough.
+     ⚠️ Nothing else fills that strip. Restoring a value here brings the whole
+     76px gradient back at once; it does not fade in. */
+  --frag-wall: transparent;
   --rule-ink: rgba(35, 35, 35, 0.16);
   --rule-lip: rgba(255, 255, 255, 0.95);
   color-scheme: light;
@@ -568,6 +576,20 @@ h1, h2, h3, h4 {
    were meant to change. Scoped so light mode, which has its own --bg-2, is
    untouched. */
 [data-theme="dark"] .sidebar { background: #1e2229; }
+/* ⭐ HIS CALL, 2026-08-19. Light's half of the same move, and a literal for the
+   same reason: --bg-2 also carries the hero fog and every #about/#blog ground,
+   and only the sidebar and the footer were meant to change.
+   Note what this value does NOT do: #f4eee3 is the same LIGHTNESS as --bg-2
+   (L 0.8593 against 0.8585 — 1.001:1, indistinguishable), so it does not step
+   the rail down the way dark's #1e2229 does. It separates by hue instead —
+   warmth 17 red-minus-blue against --bg-2's 10 — while sitting below the page
+   itself (1.062:1 against --bg). A sandier paper beside a cooler one, not a
+   darker panel. Anyone reaching for contrast here should know there is none to
+   speak of, and that this is deliberate.
+   The footer takes the same literal in its own light rule below — the two are
+   one surface at the bottom-left corner and must move together or a seam
+   appears at the fold. */
+[data-theme="light"] .sidebar { background: #f4eee3; }
 
 
 .brand { text-align: center; }
@@ -2645,7 +2667,9 @@ h1, h2, h3, h4 {
     radial-gradient(130% 120% at 50% -8%,
       color-mix(in srgb, var(--accent) 7%, transparent) 0%,
       transparent 50%),
-    var(--bg-2);
+    /* Paired with [data-theme="light"] .sidebar — same literal, same reason.
+       These two meet at the bottom-left corner, so they move together. */
+    #f4eee3;
 }
 [data-theme="light"] .site-footer::after {
   width: 4px;
