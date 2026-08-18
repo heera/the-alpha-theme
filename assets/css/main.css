@@ -117,6 +117,10 @@
      the alpha further is not available, this IS the alpha. */
   --frag-rim: rgb(13 16 16);
   --frag-haze: rgba(215, 210, 230, 0.10);
+  /* Dark's hero already lands on --bg-2 via .hero::after, and #about's ground
+     IS --bg-2, so the join needs no help. transparent makes the #about top-fade
+     layer inert here rather than requiring a second selector. */
+  --hero-fog: transparent;
   /* Letterpress rule: recessed dark line + light lower lip (pressed-in look) */
   --rule-ink: rgba(0, 0, 0, 0.62);
   --rule-lip: rgba(255, 255, 255, 0.09);
@@ -165,6 +169,10 @@
   /* Softer sidebar/main divider in light mode — the regular --border
      reads slightly stark as a full-height vertical line. */
   --sidebar-edge: color-mix(in srgb, var(--border) 55%, transparent);
+  /* The hero's bottom fog, and the first inches of #about under the fold — one
+     value, because the two meet at the letterpress seam and any drift between
+     them reads as a temperature change exactly where the eye crosses. */
+  --hero-fog: color-mix(in srgb, #f4eee3 86%, var(--accent-2));
   /* The shadow was tinted navy (rgba(15, 23, 42, …)) — a cool grey halo, which
      is the one thing paper never casts. Warmed to the ink's own family, and it
      matters more here than it did: with the papers this close together, the card
@@ -1122,7 +1130,18 @@ h1, h2, h3, h4 {
 /* The flat backdrop behind the hero image — expressed as a relationship rather
    than a value (the sidebar paper walked a few percent toward the ink), so it
    follows the palette instead of being pinned to the cream it was picked for. */
-[data-theme="light"] .hero__bg { background: color-mix(in srgb, var(--bg-2) 93%, var(--ink)); }
+/* ⭐ HIS CALL, 2026-08-19. Was --bg-2 walked 7% toward --ink, which resolved to
+   (228,224,218) — warmth 10, identical to the cream it came from, and against a
+   sidebar at 17 it read as white smoke. Now walked toward --accent-2 instead:
+   the ornament bronze, which this palette already reserves for gradients, glows
+   and the portrait frame precisely because it is too light for type (3.47:1).
+   A fog IS ornament, so it belongs to that family rather than to the ink.
+   Resolves to (233,221,204), warmth 29.
+   ⚠️ This shows only where the photo is transparent — the masked bottom strip —
+   and it is the whole fog in light, because [data-theme="light"] .hero::after
+   is deliberately `none` (a cream wash there re-introduced a white bar).
+   It is a TOKEN because #about repeats it below the fold; see --hero-fog. */
+[data-theme="light"] .hero__bg { background: var(--hero-fog); }
 .hero__bg::after {
   content: "";
   position: absolute;
@@ -1911,6 +1930,13 @@ h1, h2, h3, h4 {
   line-height: 1;
   transform: translateY(-1px);
 }
+/* ⭐ HIS CALL, 2026-08-19. Scoped literal, not a --surface-2 move: that token
+   also carries .card__media, .card:focus-within and .prose code, and only these
+   cards were meant to change. #f6f0e5 is warmth 17 against --surface-2's 11 —
+   the same temperature as the sidebar's #f4eee3, a shade lighter, so the cards
+   read as the rail's paper lifted onto the section rather than as a fourth
+   cream. Text keeps 7.72:1 (--ink-soft) and the accent bullet 4.86:1. */
+[data-theme="light"] .about__link { background: #f6f0e5; }
 .about__link:hover,
 .about__link:focus-visible {
   border-color: var(--accent);
@@ -2360,6 +2386,13 @@ h1, h2, h3, h4 {
   position: relative;
   overflow: hidden;
   background:
+    /* The hero's fog continued past the fold. The photo above dissolves into
+       --hero-fog, and #about's ground is --bg-2, which is 19 points cooler —
+       so without this the letterpress seam doubles as a temperature edge. Short
+       enough (18%) to stay inside the empty band above the centred content.
+       Inert in dark, where --hero-fog is transparent and .hero::after already
+       lands the photo on --bg-2 itself. */
+    linear-gradient(to bottom, var(--hero-fog) 0%, transparent 18%),
     /* Wall first = topmost. Horizontal only: smoke collects against a surface,
        it does not hang off it, and an offset would read as the panel floating. */
     linear-gradient(to right, var(--frag-wall) 0%, transparent 7%),
