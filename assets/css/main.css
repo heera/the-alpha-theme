@@ -231,7 +231,17 @@
   --frag-ember: color-mix(in srgb, var(--accent-2) 5.5%, transparent);
   --frag-ember-spread: 82%;
   --frag-rim: color-mix(in srgb, var(--accent-2) 4%, transparent);
-  --frag-haze: color-mix(in srgb, var(--ink) 1.5%, transparent);
+  /* The broad field — one ellipse across the whole section. At --ink 1.5% it
+     composited to under 3 levels and read as flat paper; the band beneath the
+     contact cards was the complaint that started this. Caramel at 10% lands
+     near (233,225,216): about 9 levels of shade, warmth 17 red-minus-blue
+     against a paper whose own is 10.
+     ⚠️ Unlike the seam and the wall, this one is NOT confined to margins that
+     hold no text — it crosses the sidebar edge and every line of body copy in
+     the section, which is why it is held so far below them. Text only GAINS
+     contrast under it (dark ink on slightly shaded cream), so what limits this
+     value is taste, not legibility. */
+  --frag-haze: rgb(150 112 70 / 10%);
   /* The seam, where two sections' leftovers meet. Its own token, because it was
      riding --frag-ember, whose strength is capped by the text those gradients
      sit beneath — and this band has no text in it at all. Same licence as the
@@ -253,7 +263,15 @@
      Dark carries its own value for this now too — the corner reads there, but
      the warmth stopped at the fold in both themes. */
   --frag-warm: rgba(217, 168, 94, 0.28);
-  --frag-seam: color-mix(in srgb, var(--ink) 6%, transparent);
+  /* Caramel now, not neutral ink. The shade is unchanged — the band measures
+     1.310:1 against the paper where 6% ink measured 1.307:1, three thousandths
+     — but the hue is: warmth goes 21 -> 37 red-minus-blue, on a paper whose
+     own warmth is 10. Chroma is what carries a cast on cream, and a dark brown
+     has too little of it to tint at these alphas; it only removes light. An
+     espresso at 22% was tried and came out darker AND less warm, which is the
+     light-mode mirror of what the dark rim taught: the shade was never the
+     thing to reach for, the colour of the shade was. */
+  --frag-seam: rgb(198 140 70 / 16%);
   /* The wall: smoke pooling against the sidebar. It lives in the section's own
      left padding — clamp(1.4rem, 1rem + 4vw, 5rem), which no text occupies —
      so unlike every other darkening in this theme it costs no contrast at all,
