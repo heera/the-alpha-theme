@@ -2321,12 +2321,26 @@ h1, h2, h3, h4 {
    field as a box). Switch techniques — use the binary art as a LUMINANCE mask
    (bright digits punch through, black field dropped) over a solid --accent
    fill, so digits render as on-brand teal marks. A second mask layer carries
-   the same right-fade; the two are intersected so both constraints apply. */
+   the same right-fade; the two are intersected so both constraints apply.
+   ⚠️ The technique switch has a cost that is easy to miss: it also flips the
+   texture's SIGN. Dark mode screens the digits LIGHTER than the ground (+11.1
+   measured against the local ground) — glints, which recede and read as
+   atmosphere. This route paints them DARKER than the paper — ink, which is the
+   same signal as body text, so the eye starts to READ the ones and zeros
+   instead of feeling them, right where the section lede sits on top of them.
+   ⭐ HIS CALL, 2026-08-19: 0.22 → 0.11, which takes the ink depth from 15.1 to
+   10.2 and lands it beside dark's presence. Two other routes were built and
+   measured first, both dead ends worth not repeating: flipping the polarity to
+   a white watermark (cream is already at 224 luminance — only ~31 units of
+   headroom above it, so it vanished), and pushing the mask right to clear the
+   prose column at the same time (also vanished; it was two changes at once).
+   If the digits behind the paragraph ever need more room, the lever is the
+   second mask layer's 35% stop, NOT this opacity — move one at a time. */
 [data-theme="light"] #blog::after {
   background-image: none;
   background-color: var(--accent);
   mix-blend-mode: normal;
-  opacity: 0.22;
+  opacity: 0.11;
   -webkit-mask-image: var(--binary), linear-gradient(90deg, transparent 35%, #000 100%);
           mask-image: var(--binary), linear-gradient(90deg, transparent 35%, #000 100%);
   -webkit-mask-size: 360px, 100% 100%;
