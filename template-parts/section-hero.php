@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	</div>
 
 	<div class="hero__inner">
-		<p class="hero__hi"><?php esc_html_e( 'Hello, I build & I write', 'the-alpha' ); ?></p>
+		<p class="hero__hi"><?php esc_html_e( 'Hello, I build, I write & I dream', 'the-alpha' ); ?></p>
 		<div class="hero__head">
 			<h1 class="hero__title">
 				<?php
