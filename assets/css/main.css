@@ -1321,11 +1321,24 @@ h1, h2, h3, h4 {
 [data-theme="light"] .hero__scroll span::after {
   background: var(--accent);
 }
-/* Dark mode: lift the scroll pill + label off the dark photo (was --ink-soft,
-   which read dim at the bottom of the hero). */
+/* Dark mode: the light-mode cue is a letterpress — dark ink with a cream
+   highlight below, pressed into the paper. Dark mode gets the same gesture
+   inverted: a dark rim ABOVE the glyph and a faint light rim BELOW, so the
+   label reads cut into the photo rather than floating on it (the old
+   `0 1px 3px rgba(0,0,0,.5)` was a plain legibility drop shadow, which lifted
+   the cue off the surface — the opposite read).
+   ⭐ HIS CALL, 2026-08-19, picked against a crisp-emboss variant shown beside
+   it in the live hero. The cost, known and accepted: the ink steps down from
+   #d6dce3 to #aab3bd, because a deboss needs the glyph darker than the
+   highlight that sells it. At 0.62rem the effect is quiet by design. */
 [data-theme="dark"] .hero__scroll {
-  color: #d6dce3;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  color: #aab3bd;
+  text-shadow: 0 -1px 1px rgba(0, 0, 0, 0.85), 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+/* The pill takes the same pressed geometry as the label — inset shadow up top,
+   light rim along the bottom edge — so cue and mouse read as one mark. */
+[data-theme="dark"] .hero__scroll span {
+  box-shadow: inset 0 -1px 1px rgba(0, 0, 0, 0.6), 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 /* Hover/focus: only the pill lights up to the accent (see the span rule
    below); the "SCROLL" label keeps its per-theme colour. The whole cue leans
