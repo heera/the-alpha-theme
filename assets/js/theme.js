@@ -640,21 +640,26 @@
   }
 
   document.querySelectorAll(".prose pre").forEach(function (pre) {
-    if (pre.querySelector(".copy-btn")) return;
+    if (pre.parentElement && pre.parentElement.classList.contains("code-wrap")) return;
+
+    /* The button is a SIBLING of <pre>, never a child. Plugins that re-render
+       code blocks (SyntaxHighlighter) re-serialise the <pre>'s contents; a
+       button living inside it gets escaped and printed as a line of code. */
+    var wrap = document.createElement("div");
+    wrap.className = "code-wrap";
+    pre.parentNode.insertBefore(wrap, pre);
+    wrap.appendChild(pre);
+
     var btn = document.createElement("button");
     btn.type = "button";
     btn.className = "copy-btn";
     btn.setAttribute("aria-label", "Copy code to clipboard");
     btn.innerHTML = copyIcon + "<span>Copy</span>";
-    pre.appendChild(btn);
+    wrap.appendChild(btn);
 
     btn.addEventListener("click", function (e) {
       e.preventDefault();
-      // Get pre's text excluding the button itself.
-      var clone = pre.cloneNode(true);
-      var inner = clone.querySelector(".copy-btn");
-      if (inner) inner.remove();
-      var text = clone.textContent.replace(/\s+$/, "");
+      var text = pre.textContent.replace(/\s+$/, "");
 
       var done = function (ok) {
         btn.innerHTML = (ok ? checkIcon : copyIcon) +
