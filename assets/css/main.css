@@ -4784,12 +4784,18 @@ body.drawer-open { overflow: hidden; }
     background:
       /* Bottom: the amber rides the stretch where the photo's own mask is
          already dissolving (it starts at 48vw of a 66.6vw block ≈ 72%), so the
-         warmth lands in the falloff rather than on the wood. Final stop stays
-         OPAQUE page cream so the lower edge still resolves with no band. */
-      linear-gradient(180deg, transparent 0%, transparent 70%,
-        color-mix(in srgb, var(--hero-fog) 28%, transparent) 84%,
-        color-mix(in srgb, var(--hero-fog) 62%, transparent) 93%,
-        rgba(245, 243, 239, 1) 100%),
+         warmth lands in the falloff rather than on the wood.
+         It ends TRANSPARENT, not on opaque page cream. The mask already reaches
+         fully transparent at 66vw inside a 66.6vw block, so the photo is gone
+         before the edge and the page shows through on its own — an opaque stop
+         here is the "white bar" the desktop note at .hero::after warns about,
+         and measured as one: it washed the fade to 203,195,183 by 90% where
+         this reaches 186,180,171. Verified seamless (1.7 levels to the page).
+         Do NOT give the 100% stop a colour: at 55% amber it banded by 16.8. */
+      linear-gradient(180deg, transparent 0%, transparent 74%,
+        color-mix(in srgb, var(--hero-fog) 22%, transparent) 88%,
+        color-mix(in srgb, var(--hero-fog) 34%, transparent) 96%,
+        transparent 100%),
       /* Left only — the right edge keeps the photo's own dark falloff. */
       linear-gradient(90deg,
         color-mix(in srgb, var(--hero-fog) 58%, transparent) 0%,
