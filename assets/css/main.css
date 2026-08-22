@@ -1093,6 +1093,13 @@ h1, h2, h3, h4 {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  /* One dissolve for BOTH themes: the photo fades out over its last quarter and
+     reveals .hero__bg's ground beneath — amber (--hero-fog) in light, charcoal
+     (--bg) in dark. Only the ground differs, so the curve lives here once. */
+  -webkit-mask-image: linear-gradient(
+    to bottom, #000 74%, rgba(0, 0, 0, 0.6) 88%, rgba(0, 0, 0, 0.22) 96%, transparent 100%);
+          mask-image: linear-gradient(
+    to bottom, #000 74%, rgba(0, 0, 0, 0.6) 88%, rgba(0, 0, 0, 0.22) 96%, transparent 100%);
   /* Anchor to the right so the perfume bottle at the frame's edge is never
      cropped by `cover` on wide screens; the empty left desk (cropped instead)
      sits under the headline veil anyway. */
@@ -1110,17 +1117,6 @@ h1, h2, h3, h4 {
    left-to-right fade without needing the photo washed out. */
 [data-theme="light"] .hero__bg img {
   filter: grayscale(0.7) brightness(1.1) contrast(1.1) saturate(1.16);
-  /* Dissolve the photo's bottom edge to transparent instead of overlaying a
-     cream gradient on top of it — a translucent cream-over-dark-photo ramp
-     mixes into a muddy grey band (the old "foggy bloom"). A mask is pure alpha,
-     so the photo simply fades out and reveals the bg beneath (set just below to
-     a warm taupe, so there's no bright paper pop and no flat cap — the photo
-     feathers into a soft shadow tone). The eased stops give a gentle dissolve
-     with no hard edge. */
-  -webkit-mask-image: linear-gradient(
-    to bottom, #000 74%, rgba(0, 0, 0, 0.6) 88%, rgba(0, 0, 0, 0.22) 96%, transparent 100%);
-          mask-image: linear-gradient(
-    to bottom, #000 74%, rgba(0, 0, 0, 0.6) 88%, rgba(0, 0, 0, 0.22) 96%, transparent 100%);
 }
 /* The dissolved photo reveals .hero__bg's background. Default --bg is bright
    paper (#f5f3ef) which pops as a "deep white bar" against the photo; set it to
@@ -1148,6 +1144,21 @@ h1, h2, h3, h4 {
   inset: 0;
   background: var(--hero-veil);
 }
+/* ============================================================================
+   EXPERIMENT 2026-08-22 — light-mode hero veil OFF (DESKTOP).
+   Revert = delete this one rule; --hero-veil above is untouched.
+   Measured: the veil only halves the sidebar→hero seam (85 levels with it,
+   196 without) — it never reached cream over a dark photo, so it pays a haze
+   across the photo's left third for a seam it does not actually hide. White
+   title legibility IMPROVES without it (8.44:1 → 12.19:1 vs #fff).
+   ========================================================================= */
+[data-theme="light"] .hero__bg::after { background: none; }
+/* EXPERIMENT 2026-08-22 — dark-mode hero side veil OFF (DESKTOP).
+   --hero-veil in dark is TWO 90deg layers (mint tint + charcoal ramp) — both
+   are side washes, so this removes the sides only. Dark's bottom fade lives on
+   .hero::after (a 123px gradient to --bg-2) and is untouched.
+   Revert = delete this one rule. */
+[data-theme="dark"] .hero__bg::after { background: none; }
 /* Bottom fade — dissolve the hero photo into the About section's surface
    (--bg-2) so the two sections merge instead of ending on a hard photo edge.
    The letterpress seam (#about::before) then reads as a subtle pressed fold
@@ -2419,7 +2430,12 @@ h1, h2, h3, h4 {
        enough (18%) to stay inside the empty band above the centred content.
        Inert in dark, where --hero-fog is transparent and .hero::after already
        lands the photo on --bg-2 itself. */
-    linear-gradient(to bottom, var(--hero-fog) 0%, transparent 18%),
+    /* EXPERIMENT 2026-08-22 — via --about-top-fog so the mobile block can switch
+       this layer off. The comment above assumes the photo sits DIRECTLY above
+       #about — true on desktop (photo = hero), false on mobile, where the photo
+       is a 260px block 514px up with the hero's text between. There it has no
+       dissolve to continue and reads as a stray warm band. */
+    linear-gradient(to bottom, var(--about-top-fog, var(--hero-fog)) 0%, transparent 18%),
     /* Wall first = topmost. Horizontal only: smoke collects against a surface,
        it does not hang off it, and an offset would read as the panel floating. */
     linear-gradient(to right, var(--frag-wall) 0%, transparent 7%),
@@ -4655,6 +4671,10 @@ body.drawer-open { overflow: hidden; }
   .hero__bg,
   [data-theme="light"] .hero__bg,
   [data-theme="dark"] .hero__bg { background: transparent; }
+  /* EXPERIMENT 2026-08-22 — no hero photo directly above #about here, so its
+     top fog has nothing to continue. Revert = delete this one rule. */
+  #about { --about-top-fog: transparent; }
+
   /* Take the photo out of the absolute full-bleed layer and make it a flow block
      exactly as tall as the contained image (width ÷ 1.5 aspect = 66.6vw), so it
      occupies real space at the top and the text sits right below it. */
@@ -4664,28 +4684,24 @@ body.drawer-open { overflow: hidden; }
     height: 66.6vw;
     flex: 0 0 auto;
   }
-  /* Dissolve the photo's bottom edge so it MERGES into the page surface (no hard
-     line). Dark uses this shared mask; light overrides it below with a gentler,
-     bottle-preserving ramp. */
-  [data-theme="light"] .hero__bg img,
-  [data-theme="dark"] .hero__bg img {
+  /* The photo becomes a contained block at the top of the flow, and dissolves
+     over its lower half so it melts into whatever sits behind it — the amber
+     --hero-fog carried on .hero in light, the page charcoal in dark. ONE curve
+     for both themes: only the ground differs.
+     It starts letting go at 34vw of a 66.6vw block and reaches fully
+     transparent at 66vw, BEFORE the block's edge, so no clipped sliver is left
+     for the border to cut. An earlier 48vw start gave only ~70px of fade and
+     the ground arrived rather than eased in. */
+  .hero__bg img {
     object-fit: contain;
     object-position: top center;
-    -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 50vw, rgba(0,0,0,0.45) 60vw, rgba(0,0,0,0.12) 64vw, transparent 66vw);
-            mask-image: linear-gradient(to bottom, #000 0, #000 50vw, rgba(0,0,0,0.45) 60vw, rgba(0,0,0,0.12) 64vw, transparent 66vw);
+    -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 34vw, rgba(0,0,0,0.88) 43vw, rgba(0,0,0,0.66) 50vw, rgba(0,0,0,0.4) 56vw, rgba(0,0,0,0.18) 61vw, rgba(0,0,0,0.06) 64vw, transparent 66vw);
+            mask-image: linear-gradient(to bottom, #000 0, #000 34vw, rgba(0,0,0,0.88) 43vw, rgba(0,0,0,0.66) 50vw, rgba(0,0,0,0.4) 56vw, rgba(0,0,0,0.18) 61vw, rgba(0,0,0,0.06) 64vw, transparent 66vw);
   }
   /* Light mode mobile: match the desktop light grade exactly (grayscale 0.7 +
      washed bright), so the hero photo reads identically across screen sizes. */
   [data-theme="light"] .hero__bg img {
     filter: grayscale(0.7) brightness(1.1) contrast(1.1) saturate(1.16);
-    /* Wide, gradual dissolve that reaches FULLY transparent BEFORE the block's
-       bottom (66.6vw) — so the photo melts out within the frame with no clipped
-       residual edge (the old transparent-at-67.5vw left a ~9% sliver that the
-       block cut into a hard border). This makes the bottom dissolve into the
-       cream as softly as the left side does, with no wash/smoke needed to hide a
-       seam. */
-    -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 48vw, rgba(0,0,0,0.74) 55vw, rgba(0,0,0,0.4) 60vw, rgba(0,0,0,0.14) 64vw, transparent 66vw);
-            mask-image: linear-gradient(to bottom, #000 0, #000 48vw, rgba(0,0,0,0.74) 55vw, rgba(0,0,0,0.4) 60vw, rgba(0,0,0,0.14) 64vw, transparent 66vw);
   }
   /* Text takes the space between photo and scroll hint, centred vertically so
      the full-height hero stays balanced. Full-width with side padding (the hero
@@ -4757,70 +4773,80 @@ body.drawer-open { overflow: hidden; }
   [data-theme="light"] .hero__roles {
     color: #6a5f54;
   }
-  /* Two-part veil in light mode:
-     1. A cream lift over the LEFT third — lightens the photo's naturally-dark
-        corner (shadowed wall/desk) so it reads light like the desktop hero
-        instead of a black patch. Fades out by ~62% width, well before the
-        perfume bottles on the right, so they keep full strength.
-     2. A bottom-only fade so the photo's lower edge melts into the cream page. */
-  [data-theme="light"] .hero__bg::after {
-    /* Desktop puts the photo on --hero-fog (a warm amber ground) and lays only a
-       soft 58% veil over the LEFT, so the warmth you see there lives in the
-       falloff, not in the veil. Mobile drops that ground (.hero__bg is
-       transparent above), so an earlier fix compensated with a much heavier 0.82
-       near-GREY wash on the left only — measured rgb(151,147,139), warmth +12.5
-       against desktop's +17 — which read as white smoke over the photo's left
-       third while the right edge stayed a hard rgb(3,3,3) cut.
-       Now: the LEFT edge only, matching desktop, mixed from --hero-fog so it is
-       amber like desktop's and self-heals when the palette moves, on desktop's
-       own 58/22/8/2/0 curve. Lifts the left to ~108 instead of 151 — the dark
-       corner goes, the photo stays. The right edge is left alone deliberately:
-       desktop does not treat it either, and the photo's own falloff carries it.
-       Order matters: the bottom-fade is listed FIRST so it composites ON TOP of
-       the edge ramps, letting the lower edge resolve to the page tone across the
-       full width while the ramps show through higher up.
-       ⚠️ The bottom's 100% stop is OPAQUE page colour — track it or the photo
-       ends in a band of the wrong cream. */
-    background:
-      /* Bottom: the amber rides the stretch where the photo's own mask is
-         already dissolving (it starts at 48vw of a 66.6vw block ≈ 72%), so the
-         warmth lands in the falloff rather than on the wood.
-         It ends TRANSPARENT, not on opaque page cream. The mask already reaches
-         fully transparent at 66vw inside a 66.6vw block, so the photo is gone
-         before the edge and the page shows through on its own — an opaque stop
-         here is the "white bar" the desktop note at .hero::after warns about,
-         and measured as one: it washed the fade to 203,195,183 by 90% where
-         this reaches 186,180,171. Verified seamless (1.7 levels to the page).
-         Do NOT give the 100% stop a colour: at 55% amber it banded by 16.8. */
-      linear-gradient(180deg, transparent 0%, transparent 74%,
-        color-mix(in srgb, var(--hero-fog) 22%, transparent) 88%,
-        color-mix(in srgb, var(--hero-fog) 34%, transparent) 96%,
-        transparent 100%),
-      /* Left only — the right edge keeps the photo's own dark falloff. */
-      linear-gradient(90deg,
-        color-mix(in srgb, var(--hero-fog) 58%, transparent) 0%,
-        color-mix(in srgb, var(--hero-fog) 22%, transparent) 15%,
-        color-mix(in srgb, var(--hero-fog) 8%, transparent) 36%,
-        color-mix(in srgb, var(--hero-fog) 2%, transparent) 55%,
-        transparent 70%);
+  /* EXPERIMENT 2026-08-22 — the eyebrow was the one hero text never re-toned
+     for mobile. [data-theme=light] .hero__hi is #ee9771, a light salmon chosen
+     to sit over the DARK photo on desktop; here it sits on the warm panel below
+     the photo, where it measured 1.47:1 and read as faded. --accent is the same
+     champagne bronze the primary button's gradient starts from — the coffee the
+     light theme already uses — and its token comment rates it 5.1:1 on --bg. */
+  [data-theme="light"] .hero__hi {
+    color: var(--accent);
   }
-  /* Dark mode: the old full-height wash (0.42 at top → 0.82 at bottom) was for
-     text-over-photo legibility; the text sits below now, so it only muddies the
-     whole scene. Cut it to a bottom-only fade into the page charcoal (#191c22) so
-     the photo shows at full brightness and just its lower edge melts into the
-     panel — mirrors the light-mode treatment. */
-  [data-theme="dark"] .hero__bg::after {
-    /* Bottom-fade on top (merge into the page charcoal), then a subtle WARM
-       light-lift on the left below it — brightens the photo's near-black left
-       corner so it reads lit rather than dead, matching the light-mode left veil.
-       Low opacity: the dark photo lifts with very little. Fades out before the
-       perfume bottles on the right. */
-    background:
-      /* ⚠️ The 100% stop is OPAQUE page colour — track --bg or the photo ends
-         in a band of the old, darker charcoal. */
-      linear-gradient(180deg, transparent 0%, transparent 50%, rgba(25, 28, 34, 0.4) 74%, rgba(25, 28, 34, 0.78) 90%, rgba(25, 28, 34, 1) 100%),
-      linear-gradient(90deg, rgba(232, 224, 210, 0.18) 0%, rgba(232, 224, 210, 0.1) 16%, rgba(232, 224, 210, 0.04) 38%, rgba(232, 224, 210, 0) 60%);
+  /* ==========================================================================
+     EXPERIMENT 2026-08-22 — light-mode hero veil OFF (MOBILE).
+     Revert = delete this one rule; the gradients above are untouched.
+     Measured: the bottom is unchanged either way (rgb(234,229,221) vs
+     rgb(235,232,227)) because the photo's own mask already does that work.
+     Only the left edge changes — it returns to the photograph's own black.
+     ======================================================================= */
+
+  /* ==========================================================================
+     EXPERIMENT 2026-08-22 — kill the stray section-bottom fade on MOBILE DARK.
+     .hero::after is anchored to the HERO's bottom. On desktop that IS the
+     photo's bottom (both boxes are 900px), which is why desktop dark is fine.
+     On mobile the photo is a 260px block inside a 774px hero, so the same
+     element lands 514px BELOW the photo — down in the text, under the buttons.
+     Measured: it darkens the hero's last ~60px from rgb(25,28,34) to
+     rgb(22,25,30), up to 4.1 levels, then snaps back at the section boundary.
+     Light already disables .hero::after globally; dark never did.
+     Revert = delete this one rule.
+     ======================================================================= */
+  [data-theme="dark"] .hero::after { background: none; }
+  /* ==========================================================================
+     EXPERIMENT 2026-08-22 — mobile atmosphere, decided PER THEME.
+
+     LIGHT gets desktop's treatment: the photo's mask (above) dissolves it onto
+     the amber --hero-fog ground, which is what produces the warm spread at the
+     bottom. ::after (above) no longer paints amber — its only job is resolving
+     that ground onto the page over the last 14%. That resolve is needed here
+     and not on desktop because the 260px photo block ends INSIDE a 774px hero,
+     so the ground would otherwise band where the block stops; on desktop the
+     photo's bottom edge IS #about's top edge and the amber simply continues.
+
+     DARK stays clean. --hero-fog is transparent in dark, so there is no amber
+     to dissolve into — a mask there just fades the photo to flat charcoal,
+     which is the muddy result this block previously produced.
+
+     Ordering matters: this sits AFTER the rules it overrides. An earlier
+     attempt placed it before them and silently did nothing (same specificity,
+     source order wins) while looking correct in the source.
+     ======================================================================= */
+  /* The amber lives on .hero, not .hero__bg, so it CONTINUES past the photo
+     instead of having to resolve at the photo's edge. That edge-resolve was the
+     white strip: an opaque page-cream stop is the only way to stop an amber
+     ground banding where the block ends, and it read as a flat band on device.
+     Anchoring the stops to the photo's own height (66.6vw) and fading over the
+     180px below it means nothing has to end at the join at all — the same
+     relationship desktop has, where the amber simply continues into #about.
+     vw units, not %, so it tracks the photo rather than the viewport height. */
+  [data-theme="light"] .hero {
+    /* Mobile keeps the deeper amber (74% cream, rgb(224,206,185), warmth +39).
+       Desktop went back to the milder 86% — scoping the token here lets the two
+       differ instead of --hero-fog dragging both. */
+    --hero-fog: color-mix(in srgb, #f4eee3 74%, var(--accent-2));
+    /* Eased tail. A single linear ramp to var(--bg) ended abruptly: the ramp's
+       slope drops to zero at its last stop and the eye reads that corner as the
+       fog "stopping". These stops ease it out over 300px instead of 180. */
+    background: linear-gradient(to bottom,
+      var(--hero-fog) 0,
+      var(--hero-fog) 66.6vw,
+      color-mix(in srgb, var(--hero-fog) 58%, var(--bg)) calc(66.6vw + 70px),
+      color-mix(in srgb, var(--hero-fog) 26%, var(--bg)) calc(66.6vw + 145px),
+      color-mix(in srgb, var(--hero-fog)  8%, var(--bg)) calc(66.6vw + 220px),
+      var(--bg) calc(66.6vw + 300px));
   }
+  /* No veil on either theme here — the dissolve does all of it. */
+  .hero__bg::after { background: none; }
   /* Scroll hint flows below the content (hero is no longer full-height, so an
      absolute bottom anchor would collide with the buttons). Centre it and leave
      room for the iOS home indicator. */
