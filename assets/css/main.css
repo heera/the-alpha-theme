@@ -4764,16 +4764,39 @@ body.drawer-open { overflow: hidden; }
         perfume bottles on the right, so they keep full strength.
      2. A bottom-only fade so the photo's lower edge melts into the cream page. */
   [data-theme="light"] .hero__bg::after {
-    /* Order matters: the bottom-fade is listed FIRST so it composites ON TOP of
-       the left-lift. The left-lift uses a warmer/darker cream than the page, so
-       if it sat on top it would tint the bottom-left and mismatch the page below
-       (a visible band). With the page-cream bottom-fade on top, the lower edge
-       resolves to the exact page tone (#f5f3ef) across the full width — seamless
-       — while the left-lift still shows through higher up where the bottom-fade
-       is transparent. */
+    /* Desktop puts the photo on --hero-fog (a warm amber ground) and lays only a
+       soft 58% veil over the LEFT, so the warmth you see there lives in the
+       falloff, not in the veil. Mobile drops that ground (.hero__bg is
+       transparent above), so an earlier fix compensated with a much heavier 0.82
+       near-GREY wash on the left only — measured rgb(151,147,139), warmth +12.5
+       against desktop's +17 — which read as white smoke over the photo's left
+       third while the right edge stayed a hard rgb(3,3,3) cut.
+       Now: the LEFT edge only, matching desktop, mixed from --hero-fog so it is
+       amber like desktop's and self-heals when the palette moves, on desktop's
+       own 58/22/8/2/0 curve. Lifts the left to ~108 instead of 151 — the dark
+       corner goes, the photo stays. The right edge is left alone deliberately:
+       desktop does not treat it either, and the photo's own falloff carries it.
+       Order matters: the bottom-fade is listed FIRST so it composites ON TOP of
+       the edge ramps, letting the lower edge resolve to the page tone across the
+       full width while the ramps show through higher up.
+       ⚠️ The bottom's 100% stop is OPAQUE page colour — track it or the photo
+       ends in a band of the wrong cream. */
     background:
-      linear-gradient(180deg, transparent 0%, transparent 86%, rgba(245, 243, 239, 0.45) 95%, rgba(245, 243, 239, 1) 100%),
-      linear-gradient(90deg, rgba(228, 222, 209, 0.82) 0%, rgba(227, 217, 200, 0.5) 16%, rgba(224, 212, 192, 0.24) 38%, rgba(222, 209, 188, 0.08) 56%, rgba(222, 209, 188, 0) 72%);
+      /* Bottom: the amber rides the stretch where the photo's own mask is
+         already dissolving (it starts at 48vw of a 66.6vw block ≈ 72%), so the
+         warmth lands in the falloff rather than on the wood. Final stop stays
+         OPAQUE page cream so the lower edge still resolves with no band. */
+      linear-gradient(180deg, transparent 0%, transparent 70%,
+        color-mix(in srgb, var(--hero-fog) 28%, transparent) 84%,
+        color-mix(in srgb, var(--hero-fog) 62%, transparent) 93%,
+        rgba(245, 243, 239, 1) 100%),
+      /* Left only — the right edge keeps the photo's own dark falloff. */
+      linear-gradient(90deg,
+        color-mix(in srgb, var(--hero-fog) 58%, transparent) 0%,
+        color-mix(in srgb, var(--hero-fog) 22%, transparent) 15%,
+        color-mix(in srgb, var(--hero-fog) 8%, transparent) 36%,
+        color-mix(in srgb, var(--hero-fog) 2%, transparent) 55%,
+        transparent 70%);
   }
   /* Dark mode: the old full-height wash (0.42 at top → 0.82 at bottom) was for
      text-over-photo legibility; the text sits below now, so it only muddies the
