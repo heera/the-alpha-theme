@@ -84,10 +84,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<p class="brand__desc"><?php bloginfo( 'description' ); ?></p>
 
 			<a class="brand__avatar" href="<?php echo esc_url( home_url( '/' ) ); ?>" aria-label="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?> &mdash; <?php esc_attr_e( 'Home', 'the-alpha' ); ?>">
+				<?php
+				// No fetchpriority here: that hint is meant to name THE LCP element,
+				// and this 140px avatar never is — the hero (front page) or the post
+				// banner (single) is. Two "high" images on one page just make them
+				// compete for early bandwidth. Still eager, so it paints immediately;
+				// it also shares a URL with the topbar avatar, so it is one request.
+				?>
 				<img
 					src="<?php echo esc_url( add_query_arg( 'v', the_alpha_asset_ver( 'assets/img/avatar.webp' ), THE_ALPHA_URI . '/assets/img/avatar.webp' ) ); ?>"
 					width="140" height="140" alt="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>"
-					fetchpriority="high">
+					decoding="async">
 			</a>
 		</div>
 

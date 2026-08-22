@@ -24,7 +24,11 @@ while ( have_posts() ) :
 <div class="content-grid content-grid--narrow">
 	<article <?php post_class( 'entry' ); ?>>
 		<?php if ( has_post_thumbnail() ) : ?>
-			<figure class="entry__cover"><?php the_post_thumbnail( 'the_alpha_hero' ); ?></figure>
+			<?php
+			// Explicit rather than leaving it to core's heuristic: on a page that
+			// has one, this cover IS the LCP, so mirror single.php's banner.
+			?>
+			<figure class="entry__cover"><?php the_post_thumbnail( 'the_alpha_hero', array( 'loading' => 'eager', 'fetchpriority' => 'high' ) ); ?></figure>
 		<?php endif; ?>
 		<div class="prose entry-content">
 			<?php
