@@ -3472,6 +3472,11 @@ body.single .page-title {
   font-style: italic;
   font-size: 1.1rem;
 }
+/* The reset zeroes every margin and `.prose > * + *` only reaches DIRECT
+   children, so a quote holding more than one paragraph would stack them flush.
+   Space them here, a little tighter than body paragraphs so a multi-line pull
+   quote still reads as one unit rather than two separate blocks. */
+.prose blockquote > * + * { margin-top: 0.9rem; }
 .prose code {
   font-family: var(--font-mono);
   font-size: 0.88em;
