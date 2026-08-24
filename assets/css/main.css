@@ -3489,6 +3489,27 @@ body.single .page-title {
    Space them here, a little tighter than body paragraphs so a multi-line pull
    quote still reads as one unit rather than two separate blocks. */
 .prose blockquote > * + * { margin-top: 0.9rem; }
+
+/* Highlighted phrase — the browser's default <mark> is a flat yellow that
+   belongs to no theme here, so the background goes and the accent does the
+   work underneath instead: a 2px dotted rule, which annotates the sentence
+   the way a reader's pen would rather than covering it. skip-ink is off so
+   descenders don't punch gaps in the dots, and the offset keeps the rule
+   clear of them. Dark runs the teal weaker than light runs the bronze —
+   accent-on-charcoal already reads brighter than accent-on-paper. */
+.prose mark {
+  background: none;
+  color: inherit;
+  text-decoration-line: underline;
+  text-decoration-style: dotted;
+  text-decoration-color: color-mix(in srgb, var(--accent) 75%, transparent);
+  text-decoration-thickness: 2px;
+  text-decoration-skip-ink: none;
+  text-underline-offset: 0.28em;
+}
+[data-theme="dark"] .prose mark {
+  text-decoration-color: color-mix(in srgb, var(--accent) 60%, transparent);
+}
 .prose code {
   font-family: var(--font-mono);
   font-size: 0.88em;

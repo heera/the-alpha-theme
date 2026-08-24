@@ -63,6 +63,20 @@
   font-style: italic;
 }
 
+/* Matches the frontend .prose mark, at the dark-mode strength since the editor
+   canvas is dark — otherwise a highlighted phrase shows the browser's yellow
+   while writing and the dotted accent rule only after publishing. */
+.editor-styles-wrapper mark {
+  background: none;
+  color: inherit;
+  text-decoration-line: underline;
+  text-decoration-style: dotted;
+  text-decoration-color: color-mix(in srgb, var(--accent) 60%, transparent);
+  text-decoration-thickness: 2px;
+  text-decoration-skip-ink: none;
+  text-underline-offset: 0.28em;
+}
+
 .editor-styles-wrapper code,
 .editor-styles-wrapper .wp-block-code {
   font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
