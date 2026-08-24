@@ -437,6 +437,39 @@ function the_alpha_no_fouc() {
 add_action( 'wp_head', 'the_alpha_no_fouc', 1 );
 
 /**
+ * Preload the 404 backdrop photo.
+ *
+ * `.lost__bg` paints its photo from CSS, so the browser cannot discover the URL
+ * until main.css has been fetched, parsed and matched — the photo then lands
+ * after first paint and visibly pops in over the gradient fallback underneath
+ * it. A plain <link rel="preload"> in the markup cannot fix that on its own:
+ * which of the two photos is needed depends on `data-theme`, and printing both
+ * would waste a whole unused image on every visit.
+ *
+ * So the job goes to a second inline script. It runs at wp_head priority 2 —
+ * after the no-FOUC script above has set the attribute, and still before
+ * wp_print_styles (8) has emitted the stylesheet <link> at all — reads the
+ * theme that was just resolved, and injects the one matching preload. The
+ * download starts at the top of <head> instead of a CSS round-trip later.
+ *
+ * The href must match the CSS `url()` exactly, with no ?ver appended: a
+ * different URL is a different resource to the browser, and the photo would be
+ * downloaded twice instead of once.
+ */
+function the_alpha_preload_lost_backdrop() {
+	if ( ! is_404() ) {
+		return;
+	}
+	$base = THE_ALPHA_URI . '/assets/img/404-';
+	?>
+<script>
+(function(){try{var t=document.documentElement.getAttribute('data-theme');if(t!=='dark'&&t!=='light'){return;}var l=document.createElement('link');l.rel='preload';l.as='image';l.type='image/webp';l.href=<?php echo wp_json_encode( $base ); ?>+t+'.webp';l.setAttribute('fetchpriority','high');document.head.appendChild(l);}catch(e){}})();
+</script>
+	<?php
+}
+add_action( 'wp_head', 'the_alpha_preload_lost_backdrop', 2 );
+
+/**
  * Browser UI colour matches the active theme.
  */
 function the_alpha_meta_tags() {
