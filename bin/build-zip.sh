@@ -19,8 +19,29 @@ cd "$ROOT"
 rm -rf "$STAGE" "$DIST/$SLUG.zip"
 mkdir -p "$STAGE"
 
+# Images that stay in the repo but must never ship. Each was checked against
+# every PHP/CSS/JS file in the theme before being listed here.
+#
+# ⚠️ A theme zip REPLACES the live directory on upgrade — WordPress deletes the
+# old folder and unpacks fresh — so anything listed here also disappears from
+# the server. Only list files nothing links to.
+IMG_EXCLUDES=(
+  # WebP sources. hero.png is the 2 MB original that hero.webp is encoded from;
+  # the theme serves the .webp only. Anchored to assets/img/, so the root
+  # screenshot.png (the Appearance → Themes preview) still ships.
+  --exclude='/assets/img/*.png'
+  # Abandoned mobile hero crop, superseded by the `contain` layout in main.css's
+  # max-width:760px block. No reference anywhere in the theme.
+  --exclude='/assets/img/hero-portrait.webp'
+  # The share-card default is a Media Library attachment picked in the
+  # Customizer (the_alpha_og_default_image), not this file. heera.it's live
+  # og:image resolves to /wp-content/uploads/, so nothing points here.
+  --exclude='/assets/img/og-default.jpg'
+)
+
 # Stage the theme, excluding everything that should not ship to production.
 rsync -a \
+  "${IMG_EXCLUDES[@]}" \
   --exclude='.git/' \
   --exclude='.github/' \
   --exclude='.claude/' \
