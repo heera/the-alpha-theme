@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<?php // One full landscape desk shot everywhere. Desktop fills it edge-to-edge (cover); mobile shows the WHOLE scene scaled down (contain) so nothing is cropped — see .hero__bg img in the max-width:760px block. ?>
 		<img
 			src="<?php echo esc_url( add_query_arg( 'v', the_alpha_asset_ver( 'assets/img/hero.webp' ), THE_ALPHA_URI . '/assets/img/hero.webp' ) ); ?>"
-			alt="" width="1324" height="882" fetchpriority="high" decoding="async">
+			alt="" width="1537" height="1023" fetchpriority="high" decoding="async">
 	</div>
 
 	<div class="hero__inner">

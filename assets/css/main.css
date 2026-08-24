@@ -4680,7 +4680,7 @@ body.drawer-open { overflow: hidden; }
   }
   /* Mobile: show the WHOLE landscape desk shot, scaled to width (`contain`, not
      `cover`, so the phone never crops the scene). The image fills 0–66.6vw of the
-     screen (882/1324 aspect) and ends on a CLEAN edge — no dissolve. A letterpress
+     screen (1023/1537 aspect) and ends on a CLEAN edge — no dissolve. A letterpress
      seam (below) marks the join into the content panel, the same pressed-fold rule
      that divides the page's other sections. The hero bg is dropped to transparent
      so the panel beneath reads as the page surface (cream in light, charcoal in
