@@ -1157,6 +1157,79 @@ function the_alpha_retired_page_redirects() {
 // cleanly to #about instead of WordPress guessing a 404 fallback first.
 add_action( 'template_redirect', 'the_alpha_retired_page_redirects', 1 );
 
+/**
+ * Open outgoing links in a new tab.
+ *
+ * Template links set target="_blank" by hand, but nothing ever touched links
+ * typed into a post body, so every source cited inside an article navigated
+ * the reader off the site. This closes that gap for posts already published
+ * as well as new ones: it rewrites on output, so nothing in the database
+ * changes and removing this filter restores the old markup exactly.
+ *
+ * Only genuinely outgoing http(s) links are touched. In-page anchors, mailto:,
+ * tel: and same-host URLs are left alone, www. counts as the same host, and an
+ * anchor that already carries a target of its own is never overridden.
+ *
+ * @param string $content The post content.
+ * @return string
+ */
+function the_alpha_external_links_new_tab( $content ) {
+	if ( is_feed() || false === strpos( $content, '<a ' ) ) {
+		return $content;
+	}
+
+	$strip_www = static function ( $host ) {
+		return preg_replace( '/^www\\./i', '', strtolower( (string) $host ) );
+	};
+	$site_host = $strip_www( wp_parse_url( home_url(), PHP_URL_HOST ) );
+
+	return (string) preg_replace_callback(
+		'/<a\\s[^>]*>/i',
+		static function ( $m ) use ( $site_host, $strip_www ) {
+			$tag = $m[0];
+
+			// An explicit target was somebody's decision. Leave it.
+			if ( preg_match( '/\\starget\\s*=/i', $tag ) ) {
+				return $tag;
+			}
+
+			if ( ! preg_match( '/\\shref\\s*=\\s*(["\'])(.*?)\\1/i', $tag, $href ) ) {
+				return $tag;
+			}
+
+			$url = trim( html_entity_decode( $href[2], ENT_QUOTES, 'UTF-8' ) );
+
+			// Anything that is not an absolute http(s) URL is not outgoing.
+			if ( '' === $url || ! preg_match( '#^https?://#i', $url ) ) {
+				return $tag;
+			}
+
+			$link_host = $strip_www( wp_parse_url( $url, PHP_URL_HOST ) );
+			if ( '' === $link_host || $link_host === $site_host ) {
+				return $tag;
+			}
+
+			// Keep whatever rel the author wrote; add noopener only when missing.
+			if ( preg_match( '/\\srel\\s*=\\s*(["\'])(.*?)\\1/i', $tag, $rel ) ) {
+				if ( ! preg_match( '/\\bnoopener\\b/i', $rel[2] ) ) {
+					$tag = str_replace(
+						$rel[0],
+						' rel="' . esc_attr( trim( $rel[2] . ' noopener' ) ) . '"',
+						$tag
+					);
+				}
+			} else {
+				$tag = rtrim( $tag, '>' ) . ' rel="noopener">';
+			}
+
+			return rtrim( $tag, '>' ) . ' target="_blank">';
+		},
+		$content
+	);
+}
+// Priority 20: after wpautop (10) has finished shaping the markup.
+add_filter( 'the_content', 'the_alpha_external_links_new_tab', 20 );
+
 require THE_ALPHA_DIR . '/inc/template-tags.php';
 require THE_ALPHA_DIR . '/inc/banner-image.php';
 require THE_ALPHA_DIR . '/inc/agent-readiness.php';
