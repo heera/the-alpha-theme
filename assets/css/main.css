@@ -3452,6 +3452,12 @@ body.single .page-title {
 .prose strong { color: var(--ink); }
 .prose ul, .prose ol { padding-left: 1.3rem; }
 .prose li + li { margin-top: 0.5rem; }
+/* The browser's default marker is body-coloured, so a list of any length
+   arrives as a wall of grey dots and reads as furniture rather than as part
+   of the page. The accent takes the marker instead — the same hand already
+   on the quote's left rule and the code block's edge — so a list belongs to
+   that family. Only the mark changes; the words keep the body colour. */
+.prose li::marker { color: var(--accent); }
 .prose img { border-radius: var(--radius-sm); border: 1px solid var(--border); }
 /* Dark mode: tone down bright/white in-post images (screenshots, charts,
    light UI captures) by inverting brightness and rotating hue back so
