@@ -2407,7 +2407,17 @@ h1, h2, h3, h4 {
   position: absolute;
   inset: 0;
   z-index: 0;
-  opacity: 0.11;
+  /* 0.11 -> 0.065 (Heera, 2026-08-26): dark's digits read louder than light's,
+     and he wanted them to recede to the same degree. Re-measured with ONE
+     method for both themes so the two are actually comparable — the texture's
+     bright pixels average 116.3 luminance (21.9% of the image), pushed through
+     each theme's own route: dark screens them over --bg-2 #15181d and lands
+     +11.61, light luminance-masks --accent over #F2EEE8 and lands -6.85. So
+     dark sat ~1.7x more present, which is what he was seeing. 0.065 puts it at
+     +6.86 — parity. (The older figures in the light-mode note below, 15.1 and
+     10.2, came from a different sampling and are not comparable to these; the
+     +11.1 recorded there for dark does match this model's +11.61.) */
+  opacity: 0.065;
   background-image: var(--binary);
   background-size: 360px;
   mix-blend-mode: screen;
