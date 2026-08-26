@@ -2133,6 +2133,21 @@ h1, h2, h3, h4 {
    width and was tried; it was rejected on looks — it holds the text too far off
    the burner at the width this page is actually designed on. */
 .frag .lede { max-width: 100ch; }
+/* ...and the cap lets go once the photo is no longer in the way (Heera, 2026-08-26).
+   100ch only exists to keep the prose off the burner, but it is a fixed 920px
+   while the photo keeps travelling right with the section, so past a certain
+   width it goes on holding the text back for a reason that has expired. The
+   content column caps at --maxw (1180px) either way — that one stays; this
+   releases only the 100ch so the prose can use the column it already has.
+
+   2240px is measured, not picked: with the cap released the prose fills the
+   1180 column, and its right edge against the burner's visible edge runs -135px
+   at 1920, -62 at 2050, -6 at 2150 (touching), +44 at 2240, +224 at 2560. So
+   the crossover is ~2155 and this clears it by 44px. Below that the cap must
+   stay or the text lands back on the photo. */
+@media (min-width: 2240px) {
+  .frag .lede { max-width: none; }
+}
 
 /* `.lede` in the about section follows the new body size for consistency */
 #about .lede { font-size: inherit; line-height: inherit; }
