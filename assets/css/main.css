@@ -2546,9 +2546,8 @@ h1, h2, h3, h4 {
        stays inside the empty band and never reaches the centred text — the
        first attempt was taller and weaker, and read as nothing at all. */
     radial-gradient(ellipse 150% 26% at 50% 100%, var(--frag-seam) 0%, transparent 74%),
-    /* Sits over the photograph's own corner (translateY(9%), and a right inset
-       that tracks the content on wide screens) so the two read as one source
-       rather than a glow beside a picture. The photo now
+    /* Sits over the photograph's own corner (translateY(9%), right:-6%) so the
+       two read as one source rather than a glow beside a picture. The photo now
        feathers out before the seam, so this is also what carries the warmth the
        rest of the way down into the corner. */
     radial-gradient(ellipse 62% 48% at 88% 96%, var(--frag-warm) 0%, transparent 76%),
@@ -2573,24 +2572,7 @@ h1, h2, h3, h4 {
      photo at every width and the bottom fade below can be aimed once. */
   bottom: 0;
   transform: translateY(9%);
-  /* Horizontal anchor, two regimes (Heera, 2026-08-26). `-6%` alone pinned the
-     photo to the SECTION's right edge, and the section keeps growing with the
-     viewport while .wrap stops at --maxw (1180px, reached ~1800px). Two
-     different anchors, so past that width the content stood still and the photo
-     walked away: the gap from the last word to where the burner becomes visible
-     measured 7px at 1728, 119 at 1920, 478 at 2560, 971 at 3440 — and beyond
-     ~2200 the photo's visible edge left the content column altogether and it
-     read as corner decoration rather than something the prose sits against.
-
-     The second term re-anchors it to the CONTENT once the wrap caps: the wrap's
-     right edge is centre + 590px (half of 1180), and the photo's right edge
-     wants to sit 160px past that, so its inset from the section edge is
-     50% - 750px. max() keeps whichever is further right... which, since these
-     are insets, means whichever pulls the photo LEFT the least. The two cross
-     at a section width of ~1339px — within a pixel of where the wrap caps — so
-     the handover is smooth and everything at 1728 and below is untouched
-     (-6% still wins there: -79.9 against -84.5). */
-  right: max(-6%, calc(50% - 750px));
+  right: -6%;
   width: clamp(360px, 48vw, 680px);
   height: auto;
   pointer-events: none;
@@ -2605,22 +2587,10 @@ h1, h2, h3, h4 {
      above the 91% clip line the translate above pins it to. */
   -webkit-mask-image:
     radial-gradient(ellipse 70% 70% at 78% 75%, black 0%, rgba(0,0,0,0.5) 38%, transparent 72%),
-    linear-gradient(to bottom, black 0%, black 56%, rgba(0,0,0,0.3) 76%, transparent 87%),
-    linear-gradient(to right, black 0%, black 82%, transparent 97%);
+    linear-gradient(to bottom, black 0%, black 56%, rgba(0,0,0,0.3) 76%, transparent 87%);
   mask-image:
     radial-gradient(ellipse 70% 70% at 78% 75%, black 0%, rgba(0,0,0,0.5) 38%, transparent 72%),
-    linear-gradient(to bottom, black 0%, black 56%, rgba(0,0,0,0.3) 76%, transparent 87%),
-    linear-gradient(to right, black 0%, black 82%, transparent 97%);
-  /* The third layer feathers the RIGHT edge, and it only became necessary once
-     the photo stopped bleeding off-screen (Heera, 2026-08-26). Up to ~1800px the
-     photo hangs past the section's right edge — 80px at 1728 — so overflow:hidden
-     cuts it exactly at the viewport border, where a cut is invisible. The new
-     content-anchored inset pulls it INSIDE the section from ~1920 up (11px in at
-     1920, 771px at 3440), and the radial mask is still 20-45% opaque along that
-     edge, so it re-appeared as a hard vertical line — the same fault the bottom
-     had. Fading 82% -> 97% dissolves it. It costs nothing at today's widths:
-     at 1728 only the last 43px of the fade is on screen, in a band already near
-     the radial's own falloff, and the burner still reaches the screen edge. */
+    linear-gradient(to bottom, black 0%, black 56%, rgba(0,0,0,0.3) 76%, transparent 87%);
   /* Intersect, not the default source-over union — the union would keep every
      pixel either mask shows and undo the feather. */
   -webkit-mask-composite: source-in;
