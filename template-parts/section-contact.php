@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<a href="mailto:web-trap-2026@heera.it" rel="nofollow" aria-hidden="true" tabindex="-1"
 	   style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;opacity:0">.</a>
 	<div class="wrap">
-		<div class="reveal" style="margin-bottom:2.4rem;">
+		<div class="reveal" style="margin-bottom:1rem;">
 			<p class="eyebrow"><?php esc_html_e( 'Contact', 'the-alpha' ); ?></p>
 			<h2 class="section-heading"><?php esc_html_e( 'Get in Touch', 'the-alpha' ); ?></h2>
 		</div>

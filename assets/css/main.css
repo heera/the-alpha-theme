@@ -1415,12 +1415,15 @@ h1, h2, h3, h4 {
 .portrait {
   position: relative;
   /* Stretch to the text column so the bottom lines up with the last social
-     row; the photo fills the frame (cover) so the border, pressed edge and
-     glow hug it on all sides. With the 2-column social links the text block is
+     row; above 1200px the photo fills the frame (cover) so the border, pressed
+     edge and glow hug it on all sides. With the 2-column social links the text block is
      short enough that this frame reads as a tall-ish near-square at wide
      viewports, showing the full HUD artwork. */
   align-self: stretch;
-  margin-bottom: -4px;
+  /* No negative bottom margin. A -4px here made the stretched height
+     rowHeight + 4, so the card hung exactly 4px below the text column and the
+     last social row — measured 521.4 vs 517.4. Zero lands the two flush. */
+  margin-bottom: 0;
   border-radius: var(--radius);
   overflow: hidden;
   /* Query container so the binary readout can be sized in cqw and span almost
@@ -1435,11 +1438,27 @@ h1, h2, h3, h4 {
   box-shadow: var(--portrait-glow), var(--portrait-ground);
 }
 [data-theme="light"] .portrait {
-  /* Light mode: framed-card look — a warm terracotta-tinted hairline (≈ #e5cdc2,
-     derived from --accent so it tracks the token) instead of the neutral
-     --border, echoing dark mode's accent halo; drop the grounding shadow so the
-     dossier reads as a crisp framed box on the cream, not a card on a shadow. */
-  border-color: color-mix(in srgb, var(--accent) 20%, var(--bg));
+  /* Light mode: framed-card look — a warm terracotta hairline derived from
+     --accent (so it tracks the token) instead of the neutral --border; no
+     grounding shadow, so the dossier reads as a crisp framed box on the cream
+     rather than a card floating on one.
+
+     Mix raised 20% -> 40% (Heera, 2026-08-26). Dark mode does not actually
+     define this card with its hairline — --border on --portrait-bg is only
+     1.254:1 — it defines it with the mint --portrait-glow. Light mode sets
+     box-shadow:none, so the hairline is the ONLY edge it has, and at 20% it
+     measured 1.226:1 against the section's --bg-2. That was survivable while
+     `contain` left flat letterbox bands, but once the photo fills the frame its
+     high-key cream backdrop runs to all four edges and the top half of the card
+     simply dissolved into the page.
+
+     Now the undiluted --accent, 4.77:1 on --bg-2 (Heera's call, tried in
+     devtools). Mixing it back toward the paper at all — 40% only reached
+     1.643 — still reads as a tint the cream is winning against. At full
+     strength it reads as a drawn frame, which is what "framed box on the
+     cream" wanted in the first place, and it is the one edge in light mode
+     doing the whole job the mint glow does in dark. */
+  border-color: var(--accent);
   box-shadow: none;
 }
 /* Per-theme photo swap: dark studio shot by default, bright high-key shot in
@@ -1503,9 +1522,10 @@ h1, h2, h3, h4 {
   inset: 0;
   width: 100%;
   height: 100%;
-  /* contain (not cover): the frame is a touch taller than the square artwork,
-     so cover would crop the side coords/bars off the HUD. contain shows the
-     whole HUD; the few px of dark band top/bottom blend into the dark frame. */
+  /* contain below 1200px, where the stretched frame runs 2.5:1 and taller —
+     cover there would slice the head down to a 31%-wide strip. contain keeps
+     the whole HUD; the dark bands blend into the dark frame. Above 1200px the
+     frame is square enough for cover — see the media query after this rule. */
   object-fit: contain;
   object-position: 50% 50%;
   /* Theme grade + the scan's de-focus blur (0 at rest). */
@@ -1864,6 +1884,52 @@ h1, h2, h3, h4 {
   overflow: visible;
 }
 .portrait__wave-frame { opacity: 0.62; }
+/* Desktop: the photo FILLS the frame (Heera, 2026-08-26).
+   `contain` on a square artwork inside a stretched frame left 41% of the card
+   empty at a 13" laptop — measured 270x270 of photo in a 270x462 box — and the
+   readout panel ended up floating on that dead band, half off the photo. The
+   narrower the viewport the worse it got, because the frame's height comes from
+   the TEXT column and that column grows as it narrows.
+
+   cover trades the artwork's baked-in side coordinates for a full frame; the
+   CSS HUD overlays carry that language anyway. Vertical crop is nil: the frame
+   is always taller than 1:1 up here, so the scaled photo already matches the
+   height and only the sides are trimmed — which is also why object-position
+   stays at its 50% 50% default (a Y value would be inert).
+
+   The 1200px floor is where the crop stops being survivable: visible width is
+   1/ratio, and the head occupies ~40% of the artwork. 1728 -> 82% visible,
+   1440 -> 59%, 1280 -> 45%, 1200 -> 41% (ears at the frame edge, the last width
+   that still holds a whole head), 1100 -> 31%, which cuts the face in half.
+
+   The 1650px CEILING is the other end, and it is why this is a range and not a
+   floor (Heera, 2026-08-26). The frame is only ever a little taller than square
+   up here, and the artwork's baked chrome — the side coordinates, the corner
+   brackets, the segmented bar — is drawn to fill it. Its bands are not waste at
+   that size; they are where THE ALPHA / VERIFIED and the binary serial live, so
+   `contain` reads as the finished dossier it was designed as. The card's height
+   comes from the bio column, and that column gaining a single line is a cliff,
+   measured by real viewport resizes (a proxy that just narrowed .main put it at
+   ~1646 and was wrong by 15px — resize the window, do not emulate): 1632 ->
+   319x412, 22% band; 1620 -> 317x435, 27%; 1560 -> 303x458, 34%; 1440 -> 44%.
+   Above the cliff contain wins, below it cover does, so cover is scoped to sit
+   strictly between the two. The ceiling sits just UNDER the cliff on purpose —
+   if the cliff drifts a few px with a font swap, erring this way keeps the full
+   artwork on the wide screens it was composed for, and the worst case on the
+   other side is a 412px frame cropped to 78% width, which still holds a whole
+   head. */
+@media (min-width: 1200px) and (max-width: 1631px) {
+  .portrait img { object-fit: cover; }
+  /* The gauge sat at top:41%, which on a filled frame lands on the cheek.
+     Anchor it to the bottom instead so it rides the shoulder, clear of the face
+     at every frame height in this range. */
+  .portrait__gauge {
+    top: auto;
+    bottom: 23%;
+    right: 5%;
+    width: clamp(56px, 20%, 84px);
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   .about__grid.scanned :is(.portrait__readout, .portrait__gauge, .portrait__wave) { opacity: 0.92; }
 }
@@ -1904,7 +1970,13 @@ h1, h2, h3, h4 {
 .about__heading {
   text-transform: uppercase;
   font-size: clamp(1.35rem, 0.9rem + 1.4vw, 1.95rem);
-  margin-bottom: 1.1rem;
+  /* No bottom margin: .about__head above already carries the gap to the grid
+     (clamp(1rem, .5rem + 1.5vw, 2rem)), so a margin here stacked a second one
+     on top — 47px under the heading against 14px above it, which floated the
+     heading between two similar gaps instead of binding it to its eyebrow.
+     Zero leaves 30px, a clean 1:2 against the eyebrow. Only headings whose
+     wrapper already spaces them get this — see #blog / .frag, which do not. */
+  margin-bottom: 0;
 }
 
 /* Eyebrow that frames the social grid as a terminal output block — the `//`
@@ -2046,9 +2118,21 @@ h1, h2, h3, h4 {
   height: 2px;
   background: linear-gradient(to left, #e89a63, transparent);
 }
-/* Let frag paragraphs span the full text-column width so they wrap into
-   fewer lines (text reaches the bottles instead of capping at 60ch). */
-.frag .lede { max-width: none; }
+/* Frag paragraphs run wider than the 60ch body default so they wrap into fewer
+   lines, but capped at 100ch (Heera's call, 2026-08-26) — the measure is set by
+   the type, not by the photo behind it.
+
+   Known trade-off, recorded so it does not get "fixed" back: `ch` is a fixed
+   measure while the bakhoor photo's visible edge is not — the photo holds its
+   680px while the column's right edge walks left with the viewport. At 1728 the
+   two coincide almost exactly (100ch = 920px, longest line at 1386 against the
+   photo edge at 1393, 8px clear). Below that they diverge: -128px at 1600,
+   -221 at 1512, -262 at 1440, and under ~1470 the column is itself narrower
+   than 920px so the cap stops binding at all and the prose runs over the photo
+   as it did before. An inset (`calc(100% - 300px)`) tracks the photo at every
+   width and was tried; it was rejected on looks — it holds the text too far off
+   the burner at the width this page is actually designed on. */
+.frag .lede { max-width: 100ch; }
 
 /* `.lede` in the about section follows the new body size for consistency */
 #about .lede { font-size: inherit; line-height: inherit; }
@@ -2279,6 +2363,13 @@ h1, h2, h3, h4 {
   text-transform: uppercase;
   font-size: clamp(1.35rem, 0.9rem + 1.4vw, 1.95rem);
 }
+/* Contact only — same double-gap as .about__heading: its header block is a
+   .reveal with an inline margin-bottom:2.4rem, and the heading is the last
+   thing in it, so the heading's own 1.4rem simply stacked underneath.
+   NOT #blog: that header block ends with a .lede paragraph, so the heading's
+   margin is the gap to that paragraph and is doing real work. Same reason
+   .frag .section-heading keeps its margin — the prose follows it directly. */
+#contact .section-heading { margin-bottom: 0; }
 #blog .lede { max-width: none; }
 /* Same ambient corner glow as #about, mirrored to the TOP-left of the blog
    section — originates just off-canvas top-left and bleeds down/right,
@@ -2445,8 +2536,10 @@ h1, h2, h3, h4 {
        stays inside the empty band and never reaches the centred text — the
        first attempt was taller and weaker, and read as nothing at all. */
     radial-gradient(ellipse 150% 26% at 50% 100%, var(--frag-seam) 0%, transparent 74%),
-    /* Sits over the photograph's own corner (bottom:-8%, right:-6%) so the two
-       read as one source rather than a glow beside a picture. */
+    /* Sits over the photograph's own corner (translateY(9%), right:-6%) so the
+       two read as one source rather than a glow beside a picture. The photo now
+       feathers out before the seam, so this is also what carries the warmth the
+       rest of the way down into the corner. */
     radial-gradient(ellipse 62% 48% at 88% 96%, var(--frag-warm) 0%, transparent 76%),
     radial-gradient(ellipse 110% 105% at 0%  108%, var(--frag-ember) 0%, transparent var(--frag-ember-spread, 70%)),
     radial-gradient(ellipse  90%  85% at 5%   88%, var(--frag-rim)   0%, transparent 80%),
@@ -2460,31 +2553,49 @@ h1, h2, h3, h4 {
    Same treatment philosophy as the hero bg: real image, heavy blend. */
 #about .section-smoke {
   position: absolute;
-  bottom: -8%;
+  /* The overhang past the section's bottom edge is a translate, NOT `bottom: -8%`.
+     A negative `bottom` percentage resolves against the SECTION's height, which is
+     100dvh on desktop but content-driven (~1880px) at =<1024px — so the same -8%
+     hung 80px off a desktop section and 150px off a tablet one, cutting the photo
+     at 91% of its height in one case and 66% in the other. A translateY percentage
+     resolves against the ELEMENT's own height, so the overhang is a fixed 9% of the
+     photo at every width and the bottom fade below can be aimed once. */
+  bottom: 0;
+  transform: translateY(9%);
   right: -6%;
   width: clamp(360px, 48vw, 680px);
   height: auto;
   pointer-events: none;
   user-select: none;
   z-index: 0;
-  /* Long, soft fade so the photo dissolves into the section bg with
-     no clear silhouette — reads as atmosphere, not a photograph. */
-  -webkit-mask-image: radial-gradient(ellipse 70% 70% at 78% 75%, black 0%, rgba(0,0,0,0.5) 38%, transparent 72%);
-  mask-image: radial-gradient(ellipse 70% 70% at 78% 75%, black 0%, rgba(0,0,0,0.5) 38%, transparent 72%);
+  /* Two masks intersected. The radial is the original: a long, soft fade so the
+     photo dissolves into the section bg with no clear silhouette — reads as
+     atmosphere, not a photograph. On its own it is still ~50% opaque at the
+     photo's bottom edge, and #about's `overflow: hidden` then sliced that off
+     as a hard horizontal line right on the seam into #blog. The linear layer
+     feathers the last third out so the photo is already gone by 87% — comfortably
+     above the 91% clip line the translate above pins it to. */
+  -webkit-mask-image:
+    radial-gradient(ellipse 70% 70% at 78% 75%, black 0%, rgba(0,0,0,0.5) 38%, transparent 72%),
+    linear-gradient(to bottom, black 0%, black 56%, rgba(0,0,0,0.3) 76%, transparent 87%);
+  mask-image:
+    radial-gradient(ellipse 70% 70% at 78% 75%, black 0%, rgba(0,0,0,0.5) 38%, transparent 72%),
+    linear-gradient(to bottom, black 0%, black 56%, rgba(0,0,0,0.3) 76%, transparent 87%);
+  /* Intersect, not the default source-over union — the union would keep every
+     pixel either mask shows and undo the feather. */
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
 }
 #about .wrap { position: relative; z-index: 1; }
-/* Dark mode: lower opacity + light blur push the photo behind the
-   atmospheric layer — the warm glow registers without the burner ever
-   reading as a discrete object. */
+/* Dark mode: the mask and blend do the dissolving on their own — the warm
+   glow registers without the burner ever reading as a discrete object. */
 [data-theme="dark"] #about .section-smoke {
-  opacity: 0.6;
   filter: brightness(1.05) saturate(1.05);
   mix-blend-mode: screen;
 }
 /* Light mode: same dissolved treatment with brightness lift so the
    warm tones bleed into the paper as a soft glow, not a photo. */
 [data-theme="light"] #about .section-smoke {
-  opacity: 0.74;
   filter: brightness(1.02) saturate(0.98);
   mix-blend-mode: multiply;
 }
@@ -2601,6 +2712,51 @@ h1, h2, h3, h4 {
   transition: color var(--t-fast);
 }
 .contact__list li a:hover { color: var(--accent); }
+/* Two-column contact: align the rows ACROSS the columns (Heera, 2026-08-26).
+   The two cards are independent flows, so nothing lined up. The left kicker
+   ("I'm kind of an introvert — but not always, though!") wraps to two lines at
+   13" while the right one holds a single line, which pushed the whole left
+   column down 17.8px — every one of the twelve letterpress rules landed at a
+   different height from its neighbour, and the drift grew to 38.2px by the last
+   row because "Hideout" wraps and "HQ" does not. Twelve near-misses read as a
+   rendering fault, not as a layout.
+
+   Subgrid fixes it at the source: the parent owns nine row tracks (kicker, h3,
+   intro paragraph, then one per list row) and both cards adopt them, so each
+   row is exactly as tall as the taller of the two columns and every rule spans
+   the section at one height. Costs ~21px of section height, because the shorter
+   kicker now sits in a two-line track — a fair price for twelve aligned rules.
+
+   Row count is hardcoded: 3 intro rows + 6 list rows. Add or remove an <li> (or
+   a heading) in .contact__card and this needs the same edit.
+
+   Floor is 1200px because that is where `auto-fit minmax(300px, 1fr)` actually
+   gives two columns — measured, the flip is ~1141px (at 1140 the grid is
+   656.8px against the 657px two-column threshold, so it stays single). Below
+   that the cards stack and must NOT span shared rows, or they would overlap.
+   @supports guards the same overlap on engines without subgrid. */
+@media (min-width: 1200px) {
+  @supports (grid-template-rows: subgrid) {
+    .contact__grid {
+      grid-template-rows: auto auto auto repeat(6, auto);
+      /* The 1.5rem row-gap is for the stacked single-column case. Here it would
+         fall between all nine shared tracks and add 24px to every row — the
+         first attempt measured 967px of section against 754px before this. The
+         vertical rhythm comes from the elements' own margins, as before. */
+      row-gap: 0;
+    }
+    .contact__card {
+      display: grid;
+      grid-template-rows: subgrid;
+      grid-row: 1 / -1;
+    }
+    .contact__list {
+      display: grid;
+      grid-template-rows: subgrid;
+      grid-row: 4 / -1;
+    }
+  }
+}
 /* Office "Hours" row carries a live availability badge above the schedule —
    computed server-side from Asia/Dhaka time, kept honest by a JS tick. The
    node mirrors the About manifest's ○ / ● language: filled + softly lit when
