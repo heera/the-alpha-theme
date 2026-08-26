@@ -2605,10 +2605,22 @@ h1, h2, h3, h4 {
      above the 91% clip line the translate above pins it to. */
   -webkit-mask-image:
     radial-gradient(ellipse 70% 70% at 78% 75%, black 0%, rgba(0,0,0,0.5) 38%, transparent 72%),
-    linear-gradient(to bottom, black 0%, black 56%, rgba(0,0,0,0.3) 76%, transparent 87%);
+    linear-gradient(to bottom, black 0%, black 56%, rgba(0,0,0,0.3) 76%, transparent 87%),
+    linear-gradient(to right, black 0%, black 82%, transparent 97%);
   mask-image:
     radial-gradient(ellipse 70% 70% at 78% 75%, black 0%, rgba(0,0,0,0.5) 38%, transparent 72%),
-    linear-gradient(to bottom, black 0%, black 56%, rgba(0,0,0,0.3) 76%, transparent 87%);
+    linear-gradient(to bottom, black 0%, black 56%, rgba(0,0,0,0.3) 76%, transparent 87%),
+    linear-gradient(to right, black 0%, black 82%, transparent 97%);
+  /* The third layer feathers the RIGHT edge, and it only became necessary once
+     the photo stopped bleeding off-screen (Heera, 2026-08-26). Up to ~1800px the
+     photo hangs past the section's right edge — 80px at 1728 — so overflow:hidden
+     cuts it exactly at the viewport border, where a cut is invisible. The new
+     content-anchored inset pulls it INSIDE the section from ~1920 up (11px in at
+     1920, 771px at 3440), and the radial mask is still 20-45% opaque along that
+     edge, so it re-appeared as a hard vertical line — the same fault the bottom
+     had. Fading 82% -> 97% dissolves it. It costs nothing at today's widths:
+     at 1728 only the last 43px of the fade is on screen, in a band already near
+     the radial's own falloff, and the burner still reaches the screen edge. */
   /* Intersect, not the default source-over union — the union would keep every
      pixel either mask shows and undo the feather. */
   -webkit-mask-composite: source-in;
