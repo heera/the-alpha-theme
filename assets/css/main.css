@@ -2730,35 +2730,57 @@ h1, h2, h3, h4 {
      intensifying upward. Theme-aware via --frag-* + --bg/--bg-2, so light
      and dark both resolve with no per-theme rule. */
   background:
-    /* Top ember toned to ~75% (mirrors the blog seam smoke) so the warmth pooling
-       down from the seam stays subtle rather than amber. */
-    radial-gradient(ellipse 140% 95% at 50% -16%, color-mix(in srgb, var(--frag-ember) 75%, transparent) 0%, transparent var(--frag-ember-spread, 70%)),
+    /* The blog's bottom, continued past the fold. #blog ends with a --frag-seam
+       pool centred on its last edge (150% 26% at 50% 100%); this is the same
+       pool mirrored to 50% 0%, so the two halves make ONE ellipse split by the
+       letterpress rule. Contact had the ember mirror but never this one, so the
+       veil above the line and the veil below it were different treatments
+       meeting — which is what the seam exists not to say. Same geometry, same
+       token, same 74% falloff as the blog side, and short enough (26% of the
+       height, so ~19% after the falloff) that it stays inside the empty band
+       above the eyebrow. */
+    radial-gradient(ellipse 150% 26% at 50% 0%, var(--frag-seam) 0%, transparent 74%),
+    /* Ember at 90%, matching the blog's bottom pool exactly. It was 75% here
+       against the blog's 90% — the two are one pool cut by the fold, so the
+       mismatch read as the warmth stepping down as the eye crossed the line.
+       The geometry was already mirrored (blog 50% 116% / here 50% -16%); only
+       the strength was out. */
+    radial-gradient(ellipse 140% 95% at 50% -16%, color-mix(in srgb, var(--frag-ember) 90%, transparent) 0%, transparent var(--frag-ember-spread, 70%)),
     radial-gradient(ellipse 160% 120% at 50% 42%, var(--frag-haze)  0%, transparent 92%),
     linear-gradient(to bottom, var(--bg-2) 0%, var(--bg-2) 14%, var(--bg) 70%);
 }
 /* Light mode: the base wash lightens toward the bottom (bg-2 → bg), which
    reads washed/plain. Pool a stronger warm glow down from the blog seam at
    top so the section gains the same atmospheric depth dark mode gets. */
-/* Light mode, amber at the head of the section (Heera, 2026-08-06).
-   The two pools this replaces were rgba(246,234,212,.45) and (244,230,206,.22)
-   — creams a shade off the paper they sat on, measuring 1.015:1. Invisible,
-   for the reason every other light-mode wash here was: they lightened.
-   Real amber is possible, but ONLY above the text. Any amber strong enough to
-   see drags --eyebrow (4.77:1 on bare --bg-2) and --ink-dim under the 4.5
-   floor if it washes the whole top half — #D9A85E at 55% lands them at 3.4.
-   Eased twice on his call, 0.60/0.26 -> 0.40/0.16 -> 0.24/0.09, which peaks
-   at 1.22:1. Deliberately BELOW the wall (1.401) and the seam (1.373): those
-   two are structural, marking where one region ends and another begins, while
-   this is only warmth at the head of a section. The floor to stay above is
-   1.015:1 — the cream wash this replaced, which could not be seen at all.
-   The mass sits in the empty band the section opens with and fades out
-   before the eyebrow: a tall ellipse's centre pulled off-canvas (-8%) with
-   only 44% of the height to spread in. Same rule as the wall and the seam —
-   full strength where nothing reads, nothing where something does. */
+/* ⭐ HIS CALL, 2026-08-28: the head of this section is now the BLOG'S BOTTOM,
+   not a treatment of its own — same in both themes. What stood here was a pair
+   of hand-tuned ambers, rgba(217,168,94,.24) at 150% 44% / 50% -8% and
+   rgba(206,150,66,.09) at 130% 34% / 50% 2%, and they were the reason the veil
+   changed character as the eye crossed the rule: measured on the two rows either
+   side of the seam they put contact's side 10.3 luminance darker and 20 points
+   warmer than the blog's (warmth +48.8 against +28.7). Replacing them with the
+   mirrored pair lands −0.4 and +0.3 — the fold reads as one surface.
+   ⚠️ Those ambers had real history: they were themselves eased twice on his call
+   (0.60/0.26 -> 0.40/0.16 -> 0.24/0.09) and the constraint that shaped them is
+   still live if warmth is ever added back here. Any amber strong enough to see
+   drags --eyebrow (4.77:1 on bare --bg-2) and --ink-dim under the 4.5 floor when
+   it washes the whole top half — #D9A85E at 55% lands them at 3.4. And the pools
+   BEFORE those, rgba(246,234,212,.45) / (244,230,206,.22), were creams a shade
+   off the paper they sat on: 1.015:1, invisible, for the reason every light-mode
+   wash here fails — they lightened. The window is narrow, and the current
+   layers sit inside it: --frag-seam is the seam's own 1.373:1, spent on the one
+   thing that is structural rather than decorative.
+   What survives from the old rule is the base wash (--bg-2 -> --surface) and the
+   haze, which is all this override is still for. */
 [data-theme="light"] #contact {
   background:
-    radial-gradient(ellipse 150% 44% at 50% -8%, rgba(217, 168, 94, 0.24) 0%, transparent 76%),
-    radial-gradient(ellipse 130% 34% at 50% 2%, rgba(206, 150, 66, 0.09) 0%, transparent 70%),
+    /* Same two layers as the dark rule above, for the same reason and with the
+       same values — the blog's bottom, mirrored across the fold. They are
+       theme-aware tokens, so this rule only exists now for the base wash below
+       (--surface, not --bg) and the haze centre; keep the pair in sync with the
+       dark rule if either ever moves. */
+    radial-gradient(ellipse 150% 26% at 50% 0%, var(--frag-seam) 0%, transparent 74%),
+    radial-gradient(ellipse 140% 95% at 50% -16%, color-mix(in srgb, var(--frag-ember) 90%, transparent) 0%, transparent var(--frag-ember-spread, 70%)),
     radial-gradient(ellipse 160% 120% at 50% 45%, var(--frag-haze) 0%, transparent 92%),
     linear-gradient(to bottom, var(--bg-2) 0%, var(--bg-2) 20%, var(--surface) 100%);
 }
