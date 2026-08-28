@@ -2459,6 +2459,19 @@ h1, h2, h3, h4 {
     /* The other half of the seam pool — mirrored across the fold, the way this
        section already mirrors contact's. */
     radial-gradient(ellipse 150% 26% at 50% 0%, var(--frag-seam) 0%, transparent 74%),
+    /* The SAME treatment for the fold below, which never got its second half.
+       Contact pools warmth downward from that join; on this side the ground
+       stayed the bare cool --bg-2, so in light mode the warmth began exactly AT
+       the border — grey above the line, cream below — and the join read as two
+       documents butted together instead of one page folding. This is the half
+       that rises into the blog's bottom band and lets the two grounds meet.
+       Same geometry as the about/blog pair above (150% 26%, 74% spread) so both
+       folds behave alike, and --frag-seam lands this side within ~10 units of
+       the cream contact carries just below the line — close enough that only
+       the letterpress rule marks the boundary, which is its job. Shared by both
+       themes: dark's fold already half-merged through the ember pools, so there
+       it only deepens what was there. */
+    radial-gradient(ellipse 150% 26% at 50% 100%, var(--frag-seam) 0%, transparent 74%),
     /* The bakhoor warmth carried across the fold, in BOTH themes — it stopped
        dead at the seam in each, which announces that the two sections are
        separate documents, the one thing this join exists not to say. Shorter
