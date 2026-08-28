@@ -2208,8 +2208,17 @@ h1, h2, h3, h4 {
   .frag .lede { max-width: none; }
 }
 
-/* `.lede` in the about section follows the new body size for consistency */
-#about .lede { font-size: inherit; line-height: inherit; }
+/* `.lede` follows the body size, not its own 1.075rem — the front page sets
+   body copy at 0.92rem and a lede 17% above that was the only text on the page
+   at its size, so it read as a jump rather than a hierarchy.
+   ⚠️ This was #about-only for a while, which is exactly how the inconsistency
+   got in: .frag lives inside #about and was pulled down with it, #blog was not,
+   and the blog description ended up the single outlier (17.2px against 14.72
+   everywhere else — the about prose above it, its own card excerpts below it).
+   Both sections are named here now. Any new section with a .lede on the front
+   page belongs in this list too, or it will be the next outlier. */
+#about .lede,
+#blog .lede { font-size: inherit; line-height: inherit; }
 
 /* "ABOUT FRAGRANCE" — uppercase editorial heading, slightly smaller */
 .frag .section-heading {
@@ -2444,6 +2453,12 @@ h1, h2, h3, h4 {
    margin is the gap to that paragraph and is doing real work. Same reason
    .frag .section-heading keeps its margin — the prose follows it directly. */
 #contact .section-heading { margin-bottom: 0; }
+/* ⭐ HIS CALL, 2026-08-28: this one runs the FULL .wrap — do not cap it.
+   Capping it was tried and rejected: 68ch (626px) matched the measure of the
+   about prose beside it exactly (both breaking at 92-94 characters), and he
+   still wanted the width back. The description is the section's full-width
+   opener, not a prose column, and that reads ahead of any line-length target.
+   The base .lede's 60ch is what this is overriding. */
 #blog .lede { max-width: none; }
 /* Same ambient corner glow as #about, mirrored to the TOP-left of the blog
    section — originates just off-canvas top-left and bleeds down/right,
