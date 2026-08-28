@@ -117,10 +117,38 @@
      the alpha further is not available, this IS the alpha. */
   --frag-rim: rgb(13 16 16);
   --frag-haze: rgba(215, 210, 230, 0.10);
-  /* Dark's hero already lands on --bg-2 via .hero::after, and #about's ground
-     IS --bg-2, so the join needs no help. transparent makes the #about top-fade
-     layer inert here rather than requiring a second selector. */
-  --hero-fog: transparent;
+  /* Was `transparent`: dark landed the hero on --bg-2 via .hero::after and
+     #about's ground IS --bg-2, so the join needed no help and the token only
+     existed to make #about's top-fade layer inert. That left the fold reading
+     COOL — the photo's last inches are warm lamplit wood and the ground under
+     them was blue-charcoal, so the seam doubled as a temperature edge, the one
+     thing light mode spends this token avoiding. Dark now gets the same amber
+     treatment at its own depth: (39,30,21) against a --bg-2 of (21,24,29).
+     ⭐ HIS CALL, eased twice — (55,40,27) -> (49,37,26) -> here — and the second
+     pass changed the KIND, not just the amount: "like an old bulb". So the move
+     was down in level AND further round in hue, which is what a tungsten lamp
+     actually is — dim and orange, not brown. Hence a near-black base carrying a
+     lamp-coloured #F2B266 rather than more of the bronze: average level 37 -> 30
+     while the hue sits warmer than the value it replaced. It reads as the
+     photo's own lamp spilling past the frame instead of a wash under it.
+     ⚠️ I claimed last pass that warmth +18 was a floor below which the cool
+     fold returns. That was wrong — it measured warmth alone. This value IS +18
+     and the seam still reads warm, because what keeps it warm is warmth
+     relative to how DIM the ground is: dropping the level and the spread
+     together holds the join. One notch further (#17130f 95%, #FFBC74, giving
+     (35,27,20)) was built and still holds. There is no measured floor here yet;
+     judge it by eye at the seam.
+     ⚠️ The lamp tone is a literal, NOT var(--accent-2) as light's mix uses —
+     --accent-2 is the bronze there but VIOLET here, the trap already recorded
+     on .hero__hi below. Same mix shape as light so the two read as one idea. */
+  --hero-fog: color-mix(in srgb, #1a1510 94%, #F2B266);
+  /* How much photo survives at the hero's bottom edge, so the fog has something
+     to be transparent OVER. See the mask on .hero__bg img. Lowering the fog's
+     own alpha instead does NOT do this — measured, the only thing behind it is
+     --bg #191c22, so thinning just bleeds cool ground in: 72% -> warmth 18 -> 10,
+     50% -> 4, 30% -> neutral grey. Transparency had to come from what is under
+     the fog, not from the fog. Light stays at the `transparent` fallback. */
+  --hero-mask-tail: rgba(0, 0, 0, 0.14);
   /* Letterpress rule: recessed dark line + light lower lip (pressed-in look) */
   --rule-ink: rgba(0, 0, 0, 0.62);
   --rule-lip: rgba(255, 255, 255, 0.09);
@@ -172,7 +200,7 @@
   /* The hero's bottom fog, and the first inches of #about under the fold — one
      value, because the two meet at the letterpress seam and any drift between
      them reads as a temperature change exactly where the eye crosses. */
-  --hero-fog: color-mix(in srgb, #f4eee3 86%, var(--accent-2));
+  --hero-fog: color-mix(in srgb, #f4e5d2 86%, var(--accent-2));
   /* The shadow was tinted navy (rgba(15, 23, 42, …)) — a cool grey halo, which
      is the one thing paper never casts. Warmed to the ink's own family, and it
      matters more here than it did: with the papers this close together, the card
@@ -1096,10 +1124,22 @@ h1, h2, h3, h4 {
   /* One dissolve for BOTH themes: the photo fades out over its last quarter and
      reveals .hero__bg's ground beneath — amber (--hero-fog) in light, charcoal
      (--bg) in dark. Only the ground differs, so the curve lives here once. */
+  /* The final stop is a TOKEN so dark can stop short of zero. Light dissolves
+     the photo to nothing and lets an opaque fog take the last inches, which
+     reads as a painted band; dark keeps a sliver of image alive under its fog
+     so the desk is still faintly there through it — fog over something rather
+     than fog instead of something. Nothing else can show through: behind the
+     fog is only flat page ground, so the photo is the only thing there is to
+     reveal. .hero::after finishes fully opaque at the seam and absorbs the
+     sliver, so the image never has to end on an edge.
+     Via a token, NOT a [data-theme] rule on this selector: that would out-
+     specify the mobile block's plain `.hero__bg img` mask and hijack the phone
+     curve, which must reach zero before its block ends. The mobile rule states
+     its own mask and simply never reads this token. */
   -webkit-mask-image: linear-gradient(
-    to bottom, #000 74%, rgba(0, 0, 0, 0.6) 88%, rgba(0, 0, 0, 0.22) 96%, transparent 100%);
+    to bottom, #000 74%, rgba(0, 0, 0, 0.6) 88%, rgba(0, 0, 0, 0.22) 96%, var(--hero-mask-tail, transparent) 100%);
           mask-image: linear-gradient(
-    to bottom, #000 74%, rgba(0, 0, 0, 0.6) 88%, rgba(0, 0, 0, 0.22) 96%, transparent 100%);
+    to bottom, #000 74%, rgba(0, 0, 0, 0.6) 88%, rgba(0, 0, 0, 0.22) 96%, var(--hero-mask-tail, transparent) 100%);
   /* Anchor to the right so the perfume bottle at the frame's edge is never
      cropped by `cover` on wide screens; the empty left desk (cropped instead)
      sits under the headline veil anyway. */
@@ -1138,6 +1178,10 @@ h1, h2, h3, h4 {
    is deliberately `none` (a cream wash there re-introduced a white bar).
    It is a TOKEN because #about repeats it below the fold; see --hero-fog. */
 [data-theme="light"] .hero__bg { background: var(--hero-fog); }
+/* Dark takes the same ground, so the photo's dissolve lands on warmth in both
+   themes and only the depth differs — the arrangement the mask comment above
+   already describes. */
+[data-theme="dark"] .hero__bg { background: var(--hero-fog); }
 .hero__bg::after {
   content: "";
   position: absolute;
@@ -1177,6 +1221,13 @@ h1, h2, h3, h4 {
    carry the boundary with no haze. */
 [data-theme="light"] .hero::after {
   background: none;
+}
+/* Dark keeps its bottom fade, but it now has to resolve to the SAME colour the
+   ground beneath it does. Left ramping to --bg-2 it painted charcoal back over
+   the last inches of the amber and put the temperature step right on the seam —
+   which is where it is most visible, and exactly what the fog is for. */
+[data-theme="dark"] .hero::after {
+  background: linear-gradient(to bottom, transparent, var(--hero-fog));
 }
 .hero__inner { position: relative; z-index: 2; max-width: 720px; }
 .hero__hi {
@@ -5004,13 +5055,31 @@ body.drawer-open { overflow: hidden; }
      relationship desktop has, where the amber simply continues into #about.
      vw units, not %, so it tracks the photo rather than the viewport height. */
   [data-theme="light"] .hero {
-    /* Mobile keeps the deeper amber (74% cream, rgb(224,206,185), warmth +39).
-       Desktop went back to the milder 86% — scoping the token here lets the two
-       differ instead of --hero-fog dragging both. */
-    --hero-fog: color-mix(in srgb, #f4eee3 74%, var(--accent-2));
+    /* Mobile keeps the deeper amber: same base as desktop, one notch heavier on
+       the bronze (74% against 86%) — scoping the token here lets the two differ
+       instead of --hero-fog dragging both. The BASE has to track desktop's or
+       the relationship inverts: when desktop moved to an amber cream and this
+       was left on #f4eee3, mobile at warmth +39 became the COOLER of the two,
+       which is the opposite of what this rule is for. On the shared #f4e5d2 it
+       lands (224,200,173), warmth +51 against desktop's +43 — deeper again. */
+    --hero-fog: color-mix(in srgb, #f4e5d2 74%, var(--accent-2));
     /* Eased tail. A single linear ramp to var(--bg) ended abruptly: the ramp's
        slope drops to zero at its last stop and the eye reads that corner as the
        fog "stopping". These stops ease it out over 300px instead of 180. */
+    background: linear-gradient(to bottom,
+      var(--hero-fog) 0,
+      var(--hero-fog) 66.6vw,
+      color-mix(in srgb, var(--hero-fog) 58%, var(--bg)) calc(66.6vw + 70px),
+      color-mix(in srgb, var(--hero-fog) 26%, var(--bg)) calc(66.6vw + 145px),
+      color-mix(in srgb, var(--hero-fog)  8%, var(--bg)) calc(66.6vw + 220px),
+      var(--bg) calc(66.6vw + 300px));
+  }
+  /* Dark needs the identical move now that it carries a fog: .hero__bg is a
+     66.6vw BLOCK here, not the inset:0 layer it is on desktop, so its amber
+     would simply stop at the block's edge — the hard band the light rule above
+     was built to avoid. Same eased ramp, same stops, dark's own --bg tail. No
+     deeper mobile token as light takes: this fog is already at its depth. */
+  [data-theme="dark"] .hero {
     background: linear-gradient(to bottom,
       var(--hero-fog) 0,
       var(--hero-fog) 66.6vw,
