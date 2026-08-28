@@ -2160,14 +2160,22 @@ h1, h2, h3, h4 {
   background: linear-gradient(to left, var(--accent), transparent);
   opacity: 0.65;
 }
-/* The trailing hairline sits over the dark bakhoor photo. In light mode the
-   accent is a dark terracotta — dark-on-dark, so it vanishes. Use a brighter
-   warm tone, full opacity, and a slightly thicker line so it stays legible
-   against the photo. */
+/* The trailing hairline sits over the bakhoor photo, and which tone reads
+   depends entirely on what the photo is doing behind it. It used to be dark
+   there, so the light-mode accent (a dark terracotta) went dark-on-dark and
+   vanished — hence a bright #e89a63, the brightest thing available.
+   Raising the photo's opacity inverted that: the ground under the line is now
+   the light warm grey of the smoke plume, and it was the BRIGHT tone washing
+   out against it (~1.5:1) while the accent it replaced reads at ~3.7:1. So the
+   line goes back to var(--accent) — which is also the polarity the rest of the
+   theme keeps, light mode being ink that advances rather than a glint that
+   recedes, and it pairs the hairline with the opening quote glyph above it,
+   the same accent at 0.55. Full opacity and 2px (against dark mode's 1px at
+   0.65) stay: they are carrying a line over a photograph either way. */
 [data-theme="light"] .frag__quote::after {
   opacity: 1;
   height: 2px;
-  background: linear-gradient(to left, #e89a63, transparent);
+  background: linear-gradient(to left, var(--accent), transparent);
 }
 /* Frag paragraphs run wider than the 60ch body default so they wrap into fewer
    lines, but capped at 100ch (Heera's call, 2026-08-26) — the measure is set by
