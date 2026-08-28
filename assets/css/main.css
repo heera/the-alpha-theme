@@ -2696,14 +2696,30 @@ h1, h2, h3, h4 {
   filter: brightness(1.02) saturate(0.98);
   mix-blend-mode: multiply;
 }
-/* Contact subtracts the footer's approximate height so contact + footer
-   fit together in one viewport. */
+/* Contact subtracts the footer's height so the two land together as the page's
+   last screen: scrolling to the document bottom puts contact's top seam exactly
+   at the viewport top with the whole footer below it, top to bottom. The
+   subtraction has to be the footer's REAL height or the landing is off by the
+   difference — 9rem (144px) was an estimate against a footer that measures
+   232px, so the last screen overshot contact's seam by 88px and the footer
+   still ran past the fold. theme.js measures it into --footer-h, because the
+   height is content-dependent (the machine-links line is absent when the
+   plugin isn't active, and the colophon columns can wrap). 14.5rem is the
+   no-JS fallback: the measured desktop height today. */
 #contact {
   position: relative;   /* anchors the ::before letterpress seam at its top */
-  min-height: calc(100dvh - 9rem);
+  min-height: calc(100dvh - var(--footer-h, 14.5rem));
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  /* Top-aligned, NOT centred like #about / #blog. Those two carry enough
+     content to overflow their min-height, so centring never engages and their
+     eyebrow sits exactly one section padding below the seam. Contact's block is
+     ~200px shorter than its box, so centring split that leftover in two and
+     pushed the eyebrow down by half of it — 31px lower than its siblings on a
+     877px viewport, 59px on a 933px one, growing with the screen. flex-start
+     makes the gap above the eyebrow structural (the padding) in all three, and
+     drops the leftover at the bottom, where the footer follows anyway. */
+  justify-content: flex-start;
   /* Full-width, full-height ambient — no corner bias. The base is a vertical
      wash that starts at the blog's --bg-2 at the very top (so the section
      seam is invisible and contact reads as continuing the blog's surface)

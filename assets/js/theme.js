@@ -155,6 +155,30 @@
     });
   }
 
+  /* ---- Footer height -> --footer-h ---------------------------------------
+     #contact is sized (desktop only) to fill the viewport MINUS the footer, so
+     the two read as the page's last screen: the seam landing below then puts
+     contact's top at the viewport top with the whole footer under it. That only
+     holds if the CSS subtracts the footer's REAL height, and the footer's
+     height is content-dependent — the machine-links line is absent whenever
+     the_alpha_machine_links() comes back empty (plugin inactive), which alone
+     moves it by a line. Measure and publish it; main.css carries 14.5rem, the
+     measured desktop height today, as the no-JS fallback. offsetHeight, not
+     getBoundingClientRect, so the pre-.is-ready translateY can't skew it. */
+  var siteFooter = document.querySelector(".site-footer");
+  if (siteFooter) {
+    var syncFooterHeight = function () {
+      root.style.setProperty("--footer-h", siteFooter.offsetHeight + "px");
+    };
+    syncFooterHeight();
+    // Resizing #contact can't resize the footer, so this can't feed back.
+    if ("ResizeObserver" in window) {
+      new ResizeObserver(syncFooterHeight).observe(siteFooter);
+    } else {
+      window.addEventListener("resize", syncFooterHeight, { passive: true });
+    }
+  }
+
   /* ---- Scroll-spy + close menu on section link click --------------------- */
   var links = Array.prototype.slice.call(
     document.querySelectorAll(".nav__link[data-section]")
@@ -169,49 +193,49 @@
     l.addEventListener("click", function (e) {
       if (window.innerWidth <= 1024) setNav(false);
       // Contact is the last section on the front page. On DESKTOP it's sized to
-      // sit with the footer in one viewport, so scroll to the very bottom to
-      // reveal the footer. On mobile/tablet (<=1024px) sections are stacked at
-      // content height and the footer is a full screen below — scrolling to the
-      // bottom would skip past the contact section, so let the native anchor
-      // jump handle it (CSS .section scroll-margin-top lands it just below the
-      // sticky topbar). Only override when #contact exists (front page); on
-      // archive / single pages let the link navigate normally.
+      // sit with the footer in one viewport, so landing on its top seam also
+      // brings the whole footer into view. Aim at the SEAM, not the document
+      // bottom: the two are the same position once the sizing is right, but on
+      // a viewport too short to hold contact + footer the document bottom
+      // overshoots and cuts the section's own top off. On mobile/tablet
+      // (<=1024px) sections are stacked at content height and the footer is a
+      // full screen below, so let the native anchor jump handle it (CSS
+      // .section scroll-margin-top lands it just below the sticky topbar).
+      // Only override when #contact exists (front page); on archive / single
+      // pages let the link navigate normally.
+      var contactEl = document.getElementById("contact");
       if (
         l.getAttribute("data-section") === "contact" &&
-        document.getElementById("contact") &&
+        contactEl &&
         window.innerWidth > 1024
       ) {
         e.preventDefault();
         if (history.replaceState) history.replaceState(null, "", "#contact");
-        window.scrollTo({
-          top: document.documentElement.scrollHeight,
-          behavior: "smooth"
-        });
+        window.scrollTo({ top: sectionTop(contactEl), behavior: "smooth" });
       }
     });
   });
 
-  /* Deep-link to #contact (e.g. coming from a post page) — land the user
-     at the document bottom so the footer is in view, not at the section's
-     top with the footer cut below the viewport. */
-  function alignContactToBottom() {
+  /* Deep-link to #contact (e.g. coming from a post page) — land on the
+     section's top seam, which on desktop also brings the footer fully into
+     view (contact is sized to the viewport minus --footer-h). */
+  function sectionTop(el) {
+    return Math.round(el.getBoundingClientRect().top + window.pageYOffset);
+  }
+  function alignContact() {
     // Desktop only — mirrors the click handler above. On mobile/tablet the
     // native hash scroll (offset by .section scroll-margin-top) already lands
-    // at the contact section's start; forcing the document bottom would skip
-    // past it to the footer.
-    if (
-      location.hash === "#contact" &&
-      document.getElementById("contact") &&
-      window.innerWidth > 1024
-    ) {
+    // at the contact section's start.
+    var el = document.getElementById("contact");
+    if (location.hash === "#contact" && el && window.innerWidth > 1024) {
       requestAnimationFrame(function () {
-        window.scrollTo(0, document.documentElement.scrollHeight);
+        window.scrollTo(0, sectionTop(el));
       });
     }
   }
-  alignContactToBottom();
-  window.addEventListener("load", alignContactToBottom);
-  window.addEventListener("hashchange", alignContactToBottom);
+  alignContact();
+  window.addEventListener("load", alignContact);
+  window.addEventListener("hashchange", alignContact);
 
   if (sections.length && "IntersectionObserver" in window) {
     var spy = new IntersectionObserver(
