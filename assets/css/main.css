@@ -1455,7 +1455,67 @@ h1, h2, h3, h4 {
   border-color: var(--accent);
   background: rgba(245, 243, 239, 0.5);
 }
-
+/* The hero's ghost button is the ONE that does not sit on paper — it sits on
+   the photograph, and in light mode the spot under it is the dark desk with the
+   Patchouli bottle lying across it. The paper-mode fill above cannot lift a dark
+   photo: measured, --ink #232323 against the pill's own ground came out 2.58:1
+   at 1440 and 2.64 at 1280, while the IDENTICAL button in #blog — same rule,
+   real paper behind it — reads 12.84:1. Nothing about the button is wrong
+   except what is behind it, so only this one is overridden.
+   ⭐ HIS CALL, 2026-08-28: the grey below, and the background does NOT move on
+   hover. A cream fill was measured first (0.70, landing 7.5:1) and he took the
+   grey instead. It sits lower — the pill's ground lands ~(151,146,143) against
+   the cream's ~200 — so the ink reads 5.11:1 at its worst width rather than
+   7.54, which clears the 4.5 floor at every width measured: 5.11 (1440), 5.17
+   (1280), 5.48 (1600), 5.50 (1700), 5.57 (2560), 6.01 (1100), 6.22 (1920),
+   6.30 (2000), 10.54 (390).
+   ⚠️ The hover MUST restate the background even though it is unchanged — the
+   generic light hover above swaps in a 0.5 cream, so "don't change it" has to be
+   written down or the button lightens on hover.
+   The hover reads through the TEXT and the border instead.
+   ⭐ HIS CALL: #d27b27 on the text, #c17831 on the border — both literals, both
+   picked by eye, and neither is var(--accent) (#8A6037), so they do NOT follow
+   the token if it moves. Update them by hand if it does.
+   ⚠️ #7c450f measures 2.53:1 at the worst width, against the 4.5 this text needs
+   at 12.8px. His choice, made after being shown the number and the alternatives
+   — recording it, not arguing it. It is a long way up from the #d27b27 tried
+   first (1.03, virtually the pill's own luminance, letters separating by hue
+   alone with the bottle cutting through them), and indistinguishable on contrast
+   from the #6e4a28 that preceded it (2.57) — that swap was a hue choice, rust
+   against coffee, and bought nothing either way.
+   The constraint is the GROUND: rgb(199 197 194 / 70%) over the dark photo lands
+   ~(151,146,143), mid-scale, the worst place to sit — anything readable on it has
+   to be much darker or much lighter. Measured points in this warm family, all on
+   that ground: #d27b27 1.03, #7c450f 2.53, #6e4a28 2.57, var(--accent) #8A6037
+   1.79, accent 40% + black 4.70, #3f250c 4.61, and #4a2909 (this hue, deep
+   enough to pass) ~4.5. Toward white nothing works at all — #d27b27 at +70%
+   white is still only 2.24.
+   If it is ever revisited, the lever is the FILL, not the text: a near-black text
+   wants this mid-grey (the rest state reads 5.11), a warm mid-tone wants a much
+   darker pill, and one background cannot serve both.
+   Dark mode needs none of this: its glyph is light on a dark fill over a dark
+   photo and already measures 7.68:1 at rest. */
+/* ⚠️ Gated to >=761px, and that gate is the whole reason this override is safe.
+   Below 760px the hero stops being a photo with text on it: it becomes a
+   vertical stack — photo block pinned at the top, text and buttons on the cream
+   paper beneath it (see the .hero rule in the max-width:760px block). So on a
+   phone this button is NOT on the photograph, the problem this rule exists to
+   solve does not exist, and the grey fill stops being a frosted panel over a
+   dark desk and becomes a grey chip sitting on cream paper next to the bronze
+   primary — which is exactly how it looked, and why it is gated.
+   Below the gate the generic light .btn--ghost above takes over unchanged: the
+   0.32 cream on paper, the same treatment the identical button uses in #blog,
+   where it measures 12.84:1. */
+@media (min-width: 761px) {
+  [data-theme="light"] .hero__cta .btn--ghost {
+    background: rgb(199 197 194 / 70%);
+  }
+  [data-theme="light"] .hero__cta .btn--ghost:hover {
+    background: rgb(199 197 194 / 70%);
+    color: #7c450f;
+    border-color: #7c450f;
+  }
+}
 /* ----- About -------------------------------------------------------------- */
 .about__grid {
   display: grid;
