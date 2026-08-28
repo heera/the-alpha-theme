@@ -25,7 +25,7 @@ $ta_latest = new WP_Query( array(
 		<div class="reveal" style="margin-bottom:2.4rem;">
 			<p class="eyebrow"><?php esc_html_e( 'Read', 'the-alpha' ); ?></p>
 			<h2 class="section-heading"><?php esc_html_e( 'Latest from the blog', 'the-alpha' ); ?></h2>
-			<p class="lede"><?php esc_html_e( 'Essays on software architecture, scalable systems, and the engineering decisions behind shipping production-grade products — with parallel reflections on fragrance, a long-standing craft pursued with the same rigour.', 'the-alpha' ); ?></p>
+			<p class="lede"><?php esc_html_e( 'I write about building software, designing systems, and the decisions that make products work in the real world. I also write about fragrance, a craft I have explored for years. Both are things I enjoy deeply, and both keep teaching me to look closer, think carefully, and appreciate the details. This is a place for sharing what I learn, what I build, and the ideas that stay with me along the way.', 'the-alpha' ); ?></p>
 		</div>
 
 		<?php if ( $ta_latest->have_posts() ) : ?>
