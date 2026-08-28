@@ -17,7 +17,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<a class="post-row__media card__media<?php echo $ta_cover_id ? '' : ' card__media--ph'; ?>" href="<?php the_permalink(); ?>" tabindex="-1" aria-hidden="true">
 			<?php if ( $ta_cover_id ) : ?>
 				<?php // Listing rows display the cover in a short banner box; the 760x480 card keeps the download small instead of the full-size/banner image. ?>
-				<?php echo wp_get_attachment_image( $ta_cover_id, 'the_alpha_card', false, array( 'loading' => 'lazy', 'decoding' => 'async', 'alt' => '' ) ); ?>
+				<?php // The wrapping link is aria-hidden, so this alt never reaches a screen reader (the title link below names the post) — it exists for image search and scanners. ?>
+				<?php echo wp_get_attachment_image( $ta_cover_id, 'the_alpha_card', false, array( 'loading' => 'lazy', 'decoding' => 'async', 'alt' => get_the_title() ) ); ?>
 			<?php else : ?>
 				<?php
 				$ta_cats = get_the_category();

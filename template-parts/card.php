@@ -21,7 +21,8 @@ $ta_related = isset( $args['variant'] ) && 'related' === $args['variant'];
 	<?php $ta_thumb = the_alpha_thumb_id(); ?>
 	<a class="card__media<?php echo $ta_thumb ? '' : ' card__media--ph'; ?>" href="<?php the_permalink(); ?>" tabindex="-1" aria-hidden="true">
 		<?php if ( $ta_thumb ) : ?>
-			<?php echo wp_get_attachment_image( $ta_thumb, 'the_alpha_card', false, array( 'loading' => 'lazy', 'decoding' => 'async', 'alt' => '' ) ); ?>
+			<?php // The wrapping link is aria-hidden, so this alt never reaches a screen reader (the title link below names the post) — it exists for image search and scanners. ?>
+			<?php echo wp_get_attachment_image( $ta_thumb, 'the_alpha_card', false, array( 'loading' => 'lazy', 'decoding' => 'async', 'alt' => get_the_title() ) ); ?>
 		<?php else : ?>
 			<?php
 			$ta_cats = get_the_category();
