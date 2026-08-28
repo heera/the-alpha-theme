@@ -2238,8 +2238,11 @@ h1, h2, h3, h4 {
   background: linear-gradient(to left, var(--accent), transparent);
 }
 /* Frag paragraphs run wider than the 60ch body default so they wrap into fewer
-   lines, but capped at 100ch (Heera's call, 2026-08-26) — the measure is set by
-   the type, not by the photo behind it.
+   lines, but capped at ~100ch (Heera's call, 2026-08-26) — the measure is set by
+   the type, not by the photo behind it. 101, not 100 (Heera, 2026-08-29): at
+   100ch the closing "You'll also find me over on Fragrantica." sentence just
+   tips onto a line of its own; one more ch keeps it on the previous line. The
+   measurements below were taken at 100ch and sit ~9px tighter now.
 
    Known trade-off, recorded so it does not get "fixed" back: `ch` is a fixed
    measure while the bakhoor photo's visible edge is not — the photo holds its
@@ -2251,13 +2254,13 @@ h1, h2, h3, h4 {
    as it did before. An inset (`calc(100% - 300px)`) tracks the photo at every
    width and was tried; it was rejected on looks — it holds the text too far off
    the burner at the width this page is actually designed on. */
-.frag .lede { max-width: 100ch; }
+.frag .lede { max-width: 101ch; }
 /* ...and the cap lets go once the photo is no longer in the way (Heera, 2026-08-26).
-   100ch only exists to keep the prose off the burner, but it is a fixed 920px
+   101ch only exists to keep the prose off the burner, but it is a fixed ~929px
    while the photo keeps travelling right with the section, so past a certain
    width it goes on holding the text back for a reason that has expired. The
    content column caps at --maxw (1180px) either way — that one stays; this
-   releases only the 100ch so the prose can use the column it already has.
+   releases only the 101ch so the prose can use the column it already has.
 
    2240px is measured, not picked: with the cap released the prose fills the
    1180 column, and its right edge against the burner's visible edge runs -135px
