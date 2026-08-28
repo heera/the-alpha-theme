@@ -148,7 +148,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<p class="lede" style="margin-top:1rem;">
 					<?php
 					echo esc_html__( 'My world leans toward deep, cold-weather compositions — ', 'the-alpha' );
-					foreach ( array( 'Whiskey', 'Oud', 'Leather', 'Patchouli', 'Vanilla', 'Tobacco' ) as $note ) {
+					foreach ( array( 'Patchouli', 'Vanilla', 'Leather', 'Wood', 'Tobacco', 'Oud', 'Whiskey' ) as $note ) {
 						echo '<span class="chip">' . esc_html( $note ) . '</span>';
 					}
 					echo esc_html__( ' — layered with incense, drifting smoke, and the kind of resin that hangs in a room long after you leave it.', 'the-alpha' );
