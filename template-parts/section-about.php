@@ -72,7 +72,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				</span>
 				<?php // Dossier HUD overlays (decorative): readout, status gauge, waveform — all --portrait-hud, revealed after the scan (see main.css). ?>
 				<div class="portrait__readout" aria-hidden="true">
-					<span><?php echo esc_html_x( 'LOC: N24.884011° E91.877673°', 'portrait HUD readout', 'the-alpha' ); ?></span>
+					<span><?php // Same spot the portrait's edge text names — Machimpur, Sylhet (Plus Code VVMH+F3F). ?><?php echo esc_html_x( 'LOC: N24.8868° E91.8795°', 'portrait HUD readout', 'the-alpha' ); ?></span>
 					<span><?php echo esc_html_x( 'ID: [REDACTED]', 'portrait HUD readout', 'the-alpha' ); ?></span>
 					<span><?php echo esc_html_x( 'PSYCH: STABLE', 'portrait HUD readout', 'the-alpha' ); ?> <i class="portrait__bars">▂▄▆▅</i></span>
 					<span><?php echo esc_html_x( 'CLASS: PRIORITY', 'portrait HUD readout', 'the-alpha' ); ?> <i class="portrait__bars">▁▃▅▇</i></span>
@@ -84,10 +84,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<text class="portrait__gauge-cap" x="50" y="46" text-anchor="middle" fill="currentColor"><?php echo esc_html_x( 'Status', 'portrait HUD gauge caption', 'the-alpha' ); ?></text>
 					<text class="portrait__gauge-val" x="50" y="63" text-anchor="middle" fill="currentColor"><?php echo esc_html_x( 'STABLE', 'portrait HUD gauge value', 'the-alpha' ); ?></text>
 				</svg>
-				<?php // Voice-print waveform, framed by an open HUD corner-bracket on the left (line-art, no box) rather than a frosted panel. ?>
+				<?php // Voice-print waveform, framed by an open HUD corner-bracket on the left (line-art, no box)
+				      // rather than a frosted panel. The bars are Morse — short bar = dot, tall bar = dash, wide
+				      // gap = next letter — and spell SYLHETI: ··· −·−− ·−·· ···· · − ·· ?>
 				<svg class="portrait__wave" viewBox="-22 -8 173 56" aria-hidden="true" focusable="false">
 					<path class="portrait__wave-frame" d="M-6 -3 L-13 -3 L-18 2 L-18 38 L-13 43 L-6 43" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
-					<path d="M3 17 L3 23 M8 14 L8 26 M13 16 L13 24 M18 11 L18 29 M23 8 L23 32 M28 13 L28 27 M33 5 L33 35 M38 10 L38 30 M43 15 L43 25 M48 4 L48 36 M53 11 L53 29 M58 8 L58 32 M63 2 L63 38 M68 12 L68 28 M73 6 L73 34 M78 10 L78 30 M83 16 L83 24 M88 7 L88 33 M93 13 L93 27 M98 9 L98 31 M103 3 L103 37 M108 11 L108 29 M113 15 L113 25 M118 8 L118 32 M123 12 L123 28 M128 17 L128 23 M133 13 L133 27 M138 15 L138 25 M143 10 L143 30 M148 14 L148 26" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+					<path d="M5 14 L5 26 M11 15 L11 25 M17 16 L17 24 M29 3 L29 37 M35 14 L35 26 M41 4 L41 36 M47 5 L47 35 M59 15 L59 25 M65 3 L65 37 M71 16 L71 24 M77 14 L77 26 M89 15 L89 25 M95 16 L95 24 M101 14 L101 26 M107 15 L107 25 M119 16 L119 24 M131 4 L131 36 M143 14 L143 26 M149 15 L149 25" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
 				</svg>
 			</figure>
 
