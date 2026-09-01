@@ -110,15 +110,19 @@
   }
 
   // Crossfade the whole page between light/dark via the View Transitions
-  // API (CSS controls the timing). Falls back to an instant switch where
-  // it's unsupported or when the user prefers reduced motion. Shared by the
-  // toggle and the OS-flip listener below, so both switch the same way.
+  // API (CSS tunes the timing). Falls back to an instant switch where it's
+  // unsupported or when the user prefers reduced motion. Shared by the toggle
+  // and the OS-flip listener below, so both switch the same way.
   function withThemeFade(fn) {
-    if (!reduceMotion && typeof document.startViewTransition === "function") {
-      document.startViewTransition(fn);
-    } else {
+    if (reduceMotion || typeof document.startViewTransition !== "function") {
       fn();
+      return;
     }
+    var vt = document.startViewTransition(fn);
+    // `ready` rejects when the browser skips the animation (e.g. automation
+    // tooling racing the snapshot); the switch still lands, so keep the
+    // rejection out of the console.
+    vt.ready.catch(function () {});
   }
 
   toggleOpts.forEach(function (opt) {
