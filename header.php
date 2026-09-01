@@ -105,23 +105,28 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<div class="sidebar__foot">
 			<?php the_alpha_social_links( 'socials' ); ?>
 
-			<?php /* The accessible name must CONTAIN the visible label word
-			         ("Light"/"Dark" — WCAG 2.5.3), so it flips with the theme:
-			         theme.js syncToggle() keeps it current from these data attrs.
-			         The PHP value is the pre-JS placeholder, matching the
-			         aria-pressed="false" (= dark) default below. */ ?>
-			<button class="theme-toggle" type="button"
-				aria-label="<?php esc_attr_e( 'Switch to light theme', 'the-alpha' ); ?>"
-				data-label-to-light="<?php esc_attr_e( 'Switch to light theme', 'the-alpha' ); ?>"
-				data-label-to-dark="<?php esc_attr_e( 'Switch to dark theme', 'the-alpha' ); ?>"
-				aria-pressed="false">
-				<svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
-				<svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0-13a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0V5a1 1 0 0 1 1-1zm0 15a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0v-1a1 1 0 0 1 1-1zM4 12a1 1 0 0 1 1-1h1a1 1 0 1 1 0 2H5a1 1 0 0 1-1-1zm14 0a1 1 0 0 1 1-1h1a1 1 0 1 1 0 2h-1a1 1 0 0 1-1-1zM5.6 5.6a1 1 0 0 1 1.4 0l.7.7a1 1 0 1 1-1.4 1.4l-.7-.7a1 1 0 0 1 0-1.4zm10.7 10.7a1 1 0 0 1 1.4 0l.7.7a1 1 0 1 1-1.4 1.4l-.7-.7a1 1 0 0 1 0-1.4zM18.4 5.6a1 1 0 0 1 0 1.4l-.7.7a1 1 0 1 1-1.4-1.4l.7-.7a1 1 0 0 1 1.4 0zM7.7 16.3a1 1 0 0 1 0 1.4l-.7.7a1 1 0 0 1-1.4-1.4l.7-.7a1 1 0 0 1 1.4 0z"/></svg>
-				<span class="theme-toggle__label">
-					<span class="theme-toggle__label--to-light"><?php esc_html_e( 'Light', 'the-alpha' ); ?></span>
-					<span class="theme-toggle__label--to-dark"><?php esc_html_e( 'Dark', 'the-alpha' ); ?></span>
-				</span>
-			</button>
+			<?php /* Tri-state colour control: all three modes visible at once as
+			         icons only — System (half-lit disc) / Light / Dark — and a
+			         click selects that mode directly. System follows the
+			         visitor's OS live; Light/Dark pin that palette. CSS keys
+			         the selected highlight off <html data-theme-mode>, so it is
+			         right before theme.js runs; JS keeps aria-pressed in sync
+			         (the static values below are the pre-JS placeholder,
+			         matching the CSS no-attribute default of System). */ ?>
+			<div class="theme-toggle" role="group" aria-label="<?php esc_attr_e( 'Colour theme', 'the-alpha' ); ?>">
+				<button class="theme-toggle__opt" type="button" data-mode="system" aria-pressed="true"
+					aria-label="<?php esc_attr_e( 'System theme — follows your device', 'the-alpha' ); ?>">
+					<svg class="icon-system" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M12 3a9 9 0 1 1 0 18 9 9 0 0 1 0-18zm0 2a7 7 0 0 1 0 14z"/></svg>
+				</button>
+				<button class="theme-toggle__opt" type="button" data-mode="light" aria-pressed="false"
+					aria-label="<?php esc_attr_e( 'Light theme', 'the-alpha' ); ?>">
+					<svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0-13a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0V5a1 1 0 0 1 1-1zm0 15a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0v-1a1 1 0 0 1 1-1zM4 12a1 1 0 0 1 1-1h1a1 1 0 1 1 0 2H5a1 1 0 0 1-1-1zm14 0a1 1 0 0 1 1-1h1a1 1 0 1 1 0 2h-1a1 1 0 0 1-1-1zM5.6 5.6a1 1 0 0 1 1.4 0l.7.7a1 1 0 1 1-1.4 1.4l-.7-.7a1 1 0 0 1 0-1.4zm10.7 10.7a1 1 0 0 1 1.4 0l.7.7a1 1 0 1 1-1.4 1.4l-.7-.7a1 1 0 0 1 0-1.4zM18.4 5.6a1 1 0 0 1 0 1.4l-.7.7a1 1 0 1 1-1.4-1.4l.7-.7a1 1 0 0 1 1.4 0zM7.7 16.3a1 1 0 0 1 0 1.4l-.7.7a1 1 0 0 1-1.4-1.4l.7-.7a1 1 0 0 1 1.4 0z"/></svg>
+				</button>
+				<button class="theme-toggle__opt" type="button" data-mode="dark" aria-pressed="false"
+					aria-label="<?php esc_attr_e( 'Dark theme', 'the-alpha' ); ?>">
+					<svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+				</button>
+			</div>
 
 			<p class="colophon-mini">
 				<?php the_alpha_copyright( true ); ?><br>

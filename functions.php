@@ -280,7 +280,7 @@ function the_alpha_customize_register( $wp_customize ) {
 	) );
 	$wp_customize->add_control( 'the_alpha_default_scheme', array(
 		'label'       => __( 'Default colour scheme', 'the-alpha' ),
-		'description' => __( 'Cold-start default for first-time visitors. Visitors can still toggle and their choice persists in their browser.', 'the-alpha' ),
+		'description' => __( 'Cold-start default for first-time visitors. The sidebar control cycles System / Light / Dark: System follows the visitor\'s device (including its day/night switching), an explicit Light or Dark pick persists in their browser.', 'the-alpha' ),
 		'section'     => 'the_alpha_options',
 		'type'        => 'select',
 		'choices'     => array(
@@ -416,13 +416,23 @@ function the_alpha_default_home_description() {
 
 /**
  * Flicker-free theme: set the colour scheme on <html> before first paint.
- * Resolution order:
- *   1. localStorage (visitor's explicit choice from the toggle) — always wins
- *   2. Phones (viewport <= 760px) land on light by default, when the
- *      "Light theme by default on phones" Customizer option is enabled
- *   3. Otherwise the site default from Customizer (dark / light / auto)
- *   4. If "auto": OS preference via prefers-color-scheme
- *   5. Final fallback: dark
+ * Two attributes come out of this:
+ *   data-theme      — the resolved palette, 'light' | 'dark'; ALL theme CSS
+ *                     keys off it, exactly as before.
+ *   data-theme-mode — the visitor's selection, 'system' | 'light' | 'dark';
+ *                     only the tri-state control's icon/label keys off it.
+ * Resolution:
+ *   1. localStorage 'the-alpha-theme': 'light' / 'dark' pin that palette;
+ *      'system' follows the OS (and keeps following it live — theme.js
+ *      listens for prefers-color-scheme flips in system mode only). Visitors
+ *      from the old two-state toggle stored the same 'light'/'dark' strings,
+ *      so their pick carries over as a pinned mode unchanged.
+ *   2. Nothing stored (cold start): phones (viewport <= 760px) land on light
+ *      when the "Light theme by default on phones" Customizer option is on;
+ *      otherwise the Customizer default (dark / light / auto — auto shows as
+ *      "system"). The cold-start mode is displayed but NOT persisted; only a
+ *      click on the control writes the key.
+ *   3. Final fallback: dark.
  * Printed as early as possible inside <head>.
  */
 function the_alpha_no_fouc() {
@@ -430,7 +440,7 @@ function the_alpha_no_fouc() {
 	$mobile_light   = (bool) the_alpha_sanitize_bool( get_theme_mod( 'the_alpha_mobile_light', true ) );
 	?>
 <script>
-(function(){var d=document.documentElement;d.classList.add('js');try{var s=localStorage.getItem('the-alpha-theme');if(!s){var mq=window.matchMedia;if(<?php echo $mobile_light ? 'true' : 'false'; ?>&&mq&&mq('(max-width: 760px)').matches){s='light';}else{var def=<?php echo wp_json_encode( $default_scheme ); ?>;s=(def==='auto')?(mq&&mq('(prefers-color-scheme: light)').matches?'light':'dark'):def;}}d.setAttribute('data-theme',s);}catch(e){d.setAttribute('data-theme','dark');}})();
+(function(){var d=document.documentElement;d.classList.add('js');try{var mq=window.matchMedia;var os=mq&&mq('(prefers-color-scheme: light)').matches?'light':'dark';var m=localStorage.getItem('the-alpha-theme');if(m!=='light'&&m!=='dark'&&m!=='system'){if(<?php echo $mobile_light ? 'true' : 'false'; ?>&&mq&&mq('(max-width: 760px)').matches){m='light';}else{var def=<?php echo wp_json_encode( $default_scheme ); ?>;m=(def==='auto')?'system':def;}}d.setAttribute('data-theme-mode',m);d.setAttribute('data-theme',m==='system'?os:m);}catch(e){d.setAttribute('data-theme-mode','dark');d.setAttribute('data-theme','dark');}})();
 </script>
 	<?php
 }

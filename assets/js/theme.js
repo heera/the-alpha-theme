@@ -40,32 +40,53 @@
   }
   setTimeout(revealPage, 3000); // safety net.
 
-  /* ---- Colour theme toggle (no-FOUC script already set the initial value) */
-  var toggle = document.querySelector(".theme-toggle");
+  /* ---- Colour theme: tri-state System / Light / Dark ---------------------
+     (the no-FOUC script already set data-theme + data-theme-mode). All three
+     modes sit in the control as icons; a click selects that mode directly.
+     System follows the OS — live too, via the change listener below; an
+     explicit Light/Dark pick pins that palette until the next pick. The
+     selected highlight is pure CSS off data-theme-mode; JS only maintains
+     aria-pressed. */
+  var toggleOpts = Array.prototype.slice.call(
+    document.querySelectorAll(".theme-toggle__opt")
+  );
+  var MODES = ["system", "light", "dark"];
+  var osLightMq = window.matchMedia
+    ? window.matchMedia("(prefers-color-scheme: light)")
+    : null;
+
+  function osScheme() {
+    return osLightMq && osLightMq.matches ? "light" : "dark";
+  }
+
+  function currentMode() {
+    var m = root.getAttribute("data-theme-mode");
+    return MODES.indexOf(m) !== -1 ? m : "system";
+  }
 
   function syncToggle() {
-    if (!toggle) return;
-    var isLight = root.getAttribute("data-theme") === "light";
-    toggle.setAttribute("aria-pressed", String(isLight));
-    /* Accessible name must contain the visible word ("Light"/"Dark") — WCAG
-       2.5.3. Localised strings come from the button's data attributes. */
-    toggle.setAttribute(
-      "aria-label",
-      (isLight
-        ? toggle.getAttribute("data-label-to-dark")
-        : toggle.getAttribute("data-label-to-light")) ||
-        (isLight ? "Switch to dark theme" : "Switch to light theme")
-    );
+    var mode = currentMode();
+    toggleOpts.forEach(function (opt) {
+      opt.setAttribute(
+        "aria-pressed",
+        String(opt.getAttribute("data-mode") === mode)
+      );
+    });
   }
   syncToggle();
 
-  function setTheme(next) {
+  function applyMode(mode, persist) {
+    var next = mode === "system" ? osScheme() : mode;
+    var changed = root.getAttribute("data-theme") !== next;
+    root.setAttribute("data-theme-mode", mode);
     root.setAttribute("data-theme", next);
-    try {
-      localStorage.setItem("the-alpha-theme", next);
-    } catch (e) {}
+    if (persist) {
+      try {
+        localStorage.setItem("the-alpha-theme", mode);
+      } catch (e) {}
+    }
     syncToggle();
-    syncDisqus();
+    if (changed) syncDisqus();
   }
 
   /* Keep the Disqus thread in sync with the colour theme. Disqus samples the
@@ -88,21 +109,55 @@
     }, 350);
   }
 
-  if (toggle) {
-    toggle.addEventListener("click", function () {
-      var next =
-        root.getAttribute("data-theme") === "light" ? "dark" : "light";
-      // Crossfade the whole page between light/dark via the View Transitions
-      // API (CSS controls the timing). Falls back to an instant switch where
-      // it's unsupported or when the user prefers reduced motion.
-      if (!reduceMotion && typeof document.startViewTransition === "function") {
-        document.startViewTransition(function () {
-          setTheme(next);
+  // Crossfade the whole page between light/dark via the View Transitions
+  // API (CSS controls the timing). Falls back to an instant switch where
+  // it's unsupported or when the user prefers reduced motion. Shared by the
+  // toggle and the OS-flip listener below, so both switch the same way.
+  function withThemeFade(fn) {
+    if (!reduceMotion && typeof document.startViewTransition === "function") {
+      document.startViewTransition(fn);
+    } else {
+      fn();
+    }
+  }
+
+  toggleOpts.forEach(function (opt) {
+    opt.addEventListener("click", function () {
+      var mode = opt.getAttribute("data-mode");
+      if (MODES.indexOf(mode) === -1 || mode === currentMode()) return;
+      // Crossfade only when the palette actually changes — picking e.g.
+      // System while the OS is already dark repaints nothing worth animating.
+      if (
+        root.getAttribute("data-theme") !==
+        (mode === "system" ? osScheme() : mode)
+      ) {
+        withThemeFade(function () {
+          applyMode(mode, true);
         });
       } else {
-        setTheme(next);
+        applyMode(mode, true);
       }
     });
+  });
+
+  /* System mode follows the OS while a page is open (macOS/iOS switch
+     automatically at sunrise/sunset); explicit Light/Dark picks are pinned
+     and ignore the flip. Applies without persisting: nothing the visitor
+     didn't choose is written, and the no-FOUC script re-resolves to the same
+     answer on the next load anyway. */
+  if (osLightMq) {
+    var onOsFlip = function () {
+      if (currentMode() !== "system") return;
+      if (root.getAttribute("data-theme") === osScheme()) return;
+      withThemeFade(function () {
+        applyMode("system", false);
+      });
+    };
+    if (osLightMq.addEventListener) {
+      osLightMq.addEventListener("change", onOsFlip);
+    } else if (osLightMq.addListener) {
+      osLightMq.addListener(onOsFlip); // Safari < 14
+    }
   }
 
   /* ---- Mobile navigation -------------------------------------------------- */

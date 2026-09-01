@@ -990,40 +990,75 @@ h1, h2, h3, h4 {
   border: 1px solid var(--border);
   transition: color var(--t-fast), border-color var(--t-fast), transform var(--t-fast);
 }
+/* Border composition mirrored per polarity — each mode's ink tone at 9%
+   (dark ink #ccd1d8 ≈ 213-grey, light ink #232323 ≈ 35-grey), matching the
+   theme-toggle pill outline so the sidebar's bordered pieces share one
+   weight. Must sit BEFORE the :hover rule below: they tie on specificity,
+   and hover's accent has to win. */
+[data-theme="light"] .socials a { border-color: rgba(35, 35, 35, 0.06); }
+[data-theme="dark"] .socials a { border-color: rgba(213, 213, 213, 0.06); }
 .socials a:hover { color: var(--accent); border-color: var(--accent); transform: translateY(-2px); }
 
 .theme-toggle {
-  /* 1.67rem (26.72px), not 1.3: the gap below this button is measured to the
+  /* 1.67rem (26.72px), not 1.3: the gap below this control is measured to the
      first ink of .colophon-mini, not to its box. That block's 24.64px line-height
      over a 15px font box puts 4.82px of half-leading above the line, plus 2.7px
      between the font's ascent and the cap height of its uppercase text — 7.52px
-     of air the box model doesn't show. Matching box-to-box left the button
+     of air the box model doesn't show. Matching box-to-box left the control
      visibly closer to the socials than to the copyright line. */
   margin: 1.67rem auto 0;
   display: flex;
   align-items: center;
-  gap: 0.55rem;
-  padding: 0.5rem 0.9rem;
+  gap: 0.3rem;
+  padding: 0.3rem;
+  width: max-content;
   border-radius: 999px;
   border: 1px solid var(--border);
-  color: var(--ink-soft);
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  transition: border-color var(--t-fast), color var(--t-fast);
 }
-.theme-toggle:hover { border-color: var(--accent); color: var(--ink); }
 .theme-toggle svg { width: 16px; height: 16px; }
-/* Icon + label advertise the mode you'll switch TO, not the current one:
-   dark mode shows a sun + "Light"; light mode shows a moon + "Dark". */
-.theme-toggle .icon-moon { display: none; }
-.theme-toggle .icon-sun { display: block; }
-[data-theme="light"] .theme-toggle .icon-sun { display: none; }
-[data-theme="light"] .theme-toggle .icon-moon { display: block; }
-.theme-toggle__label--to-dark { display: none; }
-[data-theme="light"] .theme-toggle__label--to-light { display: none; }
-[data-theme="light"] .theme-toggle__label--to-dark { display: inline; }
+.theme-toggle__opt {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  color: var(--ink-soft);
+  opacity: 0.55;
+  transition: color var(--t-fast), opacity var(--t-fast),
+    background-color var(--t-fast), box-shadow var(--t-fast);
+}
+.theme-toggle__opt:hover { opacity: 1; color: var(--ink); }
+/* The selected mode's chip — keyed off <html data-theme-mode> (the resolved
+   palette stays on data-theme), so it's right before theme.js runs. The :not
+   chain makes System double as the attribute-less (no-JS) resting state. */
+[data-theme-mode="light"] .theme-toggle__opt[data-mode="light"],
+[data-theme-mode="dark"] .theme-toggle__opt[data-mode="dark"],
+:root:not([data-theme-mode="light"]):not([data-theme-mode="dark"]) .theme-toggle__opt[data-mode="system"] {
+  opacity: 1;
+  color: var(--ink);
+  /* Ringless glint chip in BOTH polarities — the fill lifts softly toward
+     white over each ground: translucent white here (light mode; an ink-dark
+     chip read as a hole, and the old opaque --surface + ring read harsh),
+     222-grey at 8% in the dark override below. Rings tried and rejected. */
+  background: rgba(250, 250, 250, 0.65);
+}
+/* Dark polarity: --surface sits within a point of the ground (a documented
+   choice — see the dark token block) and --border barely lifts off it, so the
+   chip and the pill outline vanish. The chip takes the genuinely raised
+   --surface-2 plus a white-glint ring, and the outline steps up to a glint —
+   light mode's surface+border already advance on their own. Only the dark-
+   reachable selections need covering (mode "light" always resolves light);
+   same-specificity as the base rule, so these must stay AFTER it. */
+/* Mirrored composition, one per polarity: each mode's ink tone at 9% —
+   dark ink #ccd1d8 ≈ 213-grey, light ink #232323 ≈ 35-grey. Shared with the
+   .socials boxes so the sidebar's bordered pieces read as one family. */
+[data-theme="light"] .theme-toggle { border-color: rgba(35, 35, 35, 0.06); }
+[data-theme="dark"] .theme-toggle { border-color: rgba(213, 213, 213, 0.06); }
+[data-theme="dark"][data-theme-mode="dark"] .theme-toggle__opt[data-mode="dark"],
+[data-theme="dark"]:not([data-theme-mode="light"]):not([data-theme-mode="dark"]) .theme-toggle__opt[data-mode="system"] {
+  background: rgba(222, 222, 222, 0.08);
+}
 
 .colophon-mini {
   margin-top: 1.2rem;
