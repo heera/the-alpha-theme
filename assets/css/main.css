@@ -2350,6 +2350,28 @@ h1, h2, h3, h4 {
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1.5rem;
   align-items: stretch;
+  container-type: inline-size;
+}
+/* In the 2-column track range with an odd card left over (the front-page
+   section runs exactly three posts), the orphan would sit beside an empty
+   slot. Instead it spans the full row and turns horizontal — media left,
+   body right — so the second row reads as a deliberate feature strip.
+   Container query, not viewport: the COLUMN width decides the track count
+   (the sidebar leaves at 1024px, so viewport queries misjudge it — same
+   reasoning as .related__cards). Range = this grid's 2-track window:
+   2×280px + one 1.5rem gap = 584px, up to (not incl.) 3×280px + two gaps =
+   888px. The related row is excluded — its short footer-furniture cards
+   keep their own rhythm — and browsers without container queries simply
+   keep the old 2+1 layout. */
+@container (584px <= width < 888px) {
+  .cards:not(.related__cards) > .card:last-child:nth-child(odd) {
+    flex-direction: row;
+    grid-column: 1 / -1;
+  }
+  .cards:not(.related__cards) > .card:last-child:nth-child(odd) .card__media {
+    flex: 0 0 42%;
+    aspect-ratio: auto;
+  }
 }
 .card {
   position: relative;          /* anchor for the stretched title link */
