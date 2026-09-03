@@ -4077,6 +4077,10 @@ body.single .page-title {
   justify-content: center;
 }
 .subscribe .lede { margin-bottom: 2rem; max-width: 65ch; }
+/* An editor-written intro arrives as paragraphs inside the .lede box; the box
+   already carries the gap below, so the last paragraph's own margin would
+   double it. Keeps the rhythm identical to the default single sentence. */
+.subscribe .lede > :last-child { margin-bottom: 0; }
 .subscribe__feed { margin: 1.6rem 0 1.4rem; }
 .subscribe__feed-label {
   display: block;

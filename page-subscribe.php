@@ -6,6 +6,10 @@
  * The heading and breadcrumb print the page's own title: the name of a page is
  * the owner's to set in the editor, and the footer drawer lifts this heading as
  * its title, so a fixed word here would shadow whatever the page is called.
+ * The intro works the same way page-blog.php's does: whatever the page holds in
+ * the editor prints as the lede, and the sentence in this file is only the
+ * default for an empty page. The feed box and the reader buttons stay here —
+ * they are machinery built from live data, not words.
  *
  * @package TheAlpha
  */
@@ -53,9 +57,13 @@ $readers = array(
 <div class="content-grid content-grid--single">
 	<article class="entry subscribe">
 		<div class="prose">
-			<p class="lede">
-				<?php esc_html_e( 'Follow this blog in a reader app — no email, no algorithm. New posts land in your inbox of choice the moment they’re published.', 'the-alpha' ); ?>
-			</p>
+			<?php if ( get_the_content() ) : ?>
+				<div class="lede"><?php the_content(); ?></div>
+			<?php else : ?>
+				<p class="lede">
+					<?php esc_html_e( 'Follow this blog in a reader app — no email, no algorithm. New posts land in your inbox of choice the moment they’re published.', 'the-alpha' ); ?>
+				</p>
+			<?php endif; ?>
 
 			<div class="subscribe__feed">
 				<label class="subscribe__feed-label" for="subscribe-feed-url"><?php esc_html_e( 'RSS feed URL', 'the-alpha' ); ?></label>
