@@ -719,8 +719,8 @@ h1, h2, h3, h4 {
   position: relative;      /* anchors the orbit ring below */
   width: 118px;
   height: 118px;
-  /* 2.2rem, not 1.7: the outer orbit and its planets reach ~16px proud of the
-     disc, and the old top margin left them touching the tagline. */
+  /* 2.2rem, not 1.7: the reticle's strokes reach ~13px proud of the disc,
+     and the old top margin left them touching the tagline. */
   margin: 2.2rem auto 0;
   /* Static gradient border: solid disc on the padding-box, the accent gradient
      on the border-box. Auto-themes via --accent-grad (terracotta→gold in light,
@@ -733,23 +733,12 @@ h1, h2, h3, h4 {
     linear-gradient(var(--bg-2), var(--bg-2)) padding-box,
     var(--accent-grad) border-box;
   outline: none;
-  /* Glow spreads scale with the disc — tuned at 140px, they read as a heavy
-     band at this size.
-
-     Dark mode replaces this list wholesale; what's left is therefore the paper
-     version, and it is built the way paper works. The inset stays — light
-     bleeding inward from the bezel lands on the photo, which is dark enough to
-     receive it. The outer glow does not: it used to be a 10px amber bloom, which
-     on cream is not light but a faint brown smudge. A sheet on a desk doesn't
-     glow, it casts — so that budget goes to a small cast shadow instead.
-
-     Both were also still struck in the retired gold (rgba(214,170,90) was
-     #cf9b4f), so they had stopped following the palette entirely. */
-  box-shadow:
-    inset 0 0 15px 5px color-mix(in srgb, var(--accent-2) 42%, transparent),
-    0 2px 8px -4px rgba(35, 35, 35, .28);
-  transition: box-shadow .4s ease;
-  /* The orrery's three strokes (see the pseudo-elements below), named here so
+  /* No shadow, in either theme. The medallion used to carry an inset glow, a
+     halo and a cast shadow, and the halo sat exactly where the rings now sit —
+     a soft bloom under a hard reticle reads as a smudge on the glass. A
+     reticle is a flat drawing: the bezel, two rings, four strokes. Hover is
+     carried by the strokes themselves (below), not by light. */
+  /* The reticle's three strokes (see the pseudo-elements below), named here so
      they inherit into ::before and ::after and can be re-struck per theme. They
      have to be: these are percentages of the accent laid over the sidebar, and a
      percentage does not buy the same visibility on paper that it does on
@@ -783,36 +772,35 @@ h1, h2, h3, h4 {
   --portrait-grade: sepia(0.55) saturate(1.35) hue-rotate(-12deg) contrast(1.02);
 }
 
-/* Orrery — two orbits round the medallion with planets riding them. Static:
-   no animation, so it costs nothing to paint once and never pulls the eye off
-   the page. Purely decorative, and drawn entirely with pseudo-elements so the
-   markup stays one <a> and one <img>. Radii, measured from the avatar's
-   centre: the photo ends at 59px, then a solid orbit at 66 and a dotted one at
-   73 — even 7px bands. The orbits carry their presence by being faint (18–22%
-   accent) rather than heavy, so they frame the portrait without competing with
-   it. The outer radius is the fixed point here: the portrait grows into the
-   system rather than the system growing around the portrait. */
+/* Reticle — two rings round the medallion and a four-point crosshair, the
+   way a scope frames its subject. Static: no animation, so it costs nothing
+   to paint once and never pulls the eye off the page. Purely decorative, and
+   drawn entirely with pseudo-elements so the markup stays one <a> and one
+   <img>. Radii, measured from the avatar's centre: the photo ends at 59px,
+   then a solid ring at 64 and a dotted one at 69 — even 5px bands, tight to
+   the portrait (they sat at 66 and 73 before, and read as orbiting it rather
+   than sighting it). The rings carry their presence by being faint (18–34%
+   accent) rather than heavy, so they frame the portrait without competing
+   with it. */
 .brand__avatar::before,
 .brand__avatar::after {
   content: "";
   position: absolute;
   pointer-events: none;
 }
-/* Outer orbit, r=73 — a real dotted border, so the dots space themselves evenly
+/* Outer ring, r=69 — a real dotted border, so the dots space themselves evenly
    round the circle instead of being hand-placed one by one. */
 .brand__avatar::before {
-  inset: -14px;
+  inset: -10px;
   border-radius: 50%;
   /* Carries a touch more accent than the inner orbit: it's the widest ring, so
      at matching strength it read as the faintest thing on screen. */
   border: 1px dotted var(--orbit-dash);
 }
-/* The inner orbit (r=66) and the planets on both. The ring is a thin band cut
-   out of a radial-gradient; each planet is a dot placed at
-   x = 50% + 50%·f·cos θ, y = 50% + 50%·f·sin θ, where f is its orbit's radius
-   over this box's half-width (77px). All three take --accent — an earlier pair
-   used --accent-2, which reads amber in light but violet in dark, and the
-   violet fought the mint ring it sat on. No border-radius: nothing here needs
+/* The inner ring (r=64) and the crosshair. The ring is a thin band cut out of
+   a radial-gradient. All three strokes take --accent — an earlier pair used
+   --accent-2, which reads amber in light but violet in dark, and the violet
+   fought the mint ring it sat on. No border-radius: nothing here needs
    clipping, and leaving it off keeps the box out of hit-testing entirely. */
 .brand__avatar::after {
   inset: -18px;
@@ -822,24 +810,27 @@ h1, h2, h3, h4 {
      body in a system. Softening them helped; anchoring them fixes it. A mark
      that crosses a line it belongs to can't be mistaken for a stray speck.
 
-     Four of them, at the compass points, each spanning radius 63.5→75.5 so it
-     laces the inner orbit (66) to the outer (73) and reads as the armature the
-     rings hang on. The footer seal draws its crosshair exactly this way, at
-     exactly these angles — the two emblems are now speaking the same language.
+     Four of them, at the compass points, each spanning radius 61→72: it
+     crosses BOTH rings (64 and 69) and overshoots each by 3px, the way a
+     scope's crosshair runs through its circles rather than hanging between
+     them — that overshoot is what makes it read as a sight and not as a
+     ladder. The footer seal draws its crosshair at exactly these angles — the
+     two emblems speak the same language.
 
      N/E/S/W is also what makes this cheap: at those four angles a radial tick is
      simply a vertical or horizontal bar, so each is one plain background layer,
      with no mask, no rotation and no extra element. Positions are absolute
      because this box is a fixed 154px (118px disc + 18px inset on each side) —
-     centre 77, so a 1px bar sits at 76.5 and a 12px arm starts 63.5 out. */
+     centre 77, so a 1px bar sits at 76.5 and an 11px arm runs from 5 to 16 on
+     the near side (radius 72 down to 61) and from 138 to 149 on the far one. */
   background-image:
     linear-gradient(var(--orbit-tick), var(--orbit-tick)),   /* N */
     linear-gradient(var(--orbit-tick), var(--orbit-tick)),   /* S */
     linear-gradient(var(--orbit-tick), var(--orbit-tick)),   /* W */
     linear-gradient(var(--orbit-tick), var(--orbit-tick)),   /* E */
-    radial-gradient(circle at 50% 50%, transparent 0 65.2px, var(--orbit-ring) 65.8px 66.4px, transparent 67px);
-  background-size: 1px 12px, 1px 12px, 12px 1px, 12px 1px, auto;
-  background-position: 76.5px 1.5px, 76.5px 140.5px, 1.5px 76.5px, 140.5px 76.5px, 0 0;
+    radial-gradient(circle at 50% 50%, transparent 0 63.2px, var(--orbit-ring) 63.8px 64.4px, transparent 65px);
+  background-size: 1px 11px, 1px 11px, 11px 1px, 11px 1px, auto;
+  background-position: 76.5px 5px, 76.5px 138px, 5px 76.5px, 138px 76.5px, 0 0;
   background-repeat: no-repeat;
 }
 /* Light mode: the cutout's feathered edge was authored to fade into a dark
@@ -864,57 +855,23 @@ h1, h2, h3, h4 {
   --orbit-dash: color-mix(in srgb, var(--accent) 58%, transparent);
   --orbit-tick: color-mix(in srgb, var(--accent) 70%, transparent);
 }
-/* Hover, on paper. Dark mode's version is a step you can't miss — its 1px ring
-   goes .12 → .55, better than four times brighter — and the light one was two
-   amber glows getting glowier, which on cream is nothing happening at all.
-   Rebuilt out of the two things a sheet of paper can actually do:
-
-   · the bezel thickens — a crisp 1px accent ring struck immediately outside the
-     gradient border, which is the literal analogue of dark's ring brightening;
-   · the medallion lifts — the resting cast shadow grows and drops, so the disc
-     reads as rising off the page rather than lighting up.
-
-   Plus the inset deepens, since that one does work here. */
+/* Hover: the reticle locks on — the same three strokes, struck harder. This
+   used to be done with light (a brightening halo in dark, a thickened bezel
+   and a deeper cast shadow on paper), and every one of those was a shadow the
+   medallion no longer carries. A sight sharpens; it does not glow. Dark steps
+   the strokes to roughly the weights paper uses at rest, and paper steps past
+   them by the same ratio, so the change is the same size in either theme. */
 .brand__avatar:hover,
 .brand__avatar:focus-visible {
-  box-shadow:
-    inset 0 0 22px 7px color-mix(in srgb, var(--accent-2) 58%, transparent),
-    0 0 0 1px color-mix(in srgb, var(--accent) 55%, transparent),
-    0 10px 22px -10px rgba(35, 35, 35, .45);
+  --orbit-ring: color-mix(in srgb, var(--accent) 40%, transparent);
+  --orbit-dash: color-mix(in srgb, var(--accent) 65%, transparent);
+  --orbit-tick: color-mix(in srgb, var(--accent) 85%, transparent);
 }
-/* Dark theme: softer mint glow so the medallion separates on the near-black
-   sidebar (the gradient border itself comes from --accent-grad).
-
-   The inset comes first and is the reason this rule looks the way it does. The
-   base .brand__avatar lights the photo's own edge from the bezel inward — that
-   is what gives the medallion its depth — but because box-shadow is a single
-   property, every value here replaces the base list wholesale, and dark mode had
-   been quietly dropping that inner light while keeping only the outer ring.
-
-   Held to .16 rather than light mode's .4: there the inset is amber over a sepia
-   photo and the warmth belongs. Here it is mint over a neutral greyscale face,
-   and past roughly a fifth it stops reading as a lit rim and starts reading as a
-   colour cast on skin — which is exactly what the grading note above this refuses
-   to do. Tight spread for the same reason: it should hug the bezel, not wash the
-   face. */
-[data-theme="dark"] .brand__avatar {
-  box-shadow:
-    inset 0 0 14px 4px rgba(94, 230, 208, .16),
-    0 0 0 1px rgba(94, 230, 208, .12),
-    0 0 14px 1px rgba(94, 230, 208, .28),   /* brighter ambient glow */
-    0 8px 22px rgba(0, 0, 0, .55);
-}
-[data-theme="dark"] .brand__avatar:hover,
-[data-theme="dark"] .brand__avatar:focus-visible {
-  box-shadow:
-    inset 0 0 22px 7px rgba(94, 230, 208, .30),
-    0 0 0 1px rgba(94, 230, 208, .55),    /* ring brightens on hover */
-    0 0 22px 0 rgba(94, 230, 208, .28),
-    0 8px 24px rgba(0, 0, 0, .55);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .brand__avatar { transition: none; }
+[data-theme="light"] .brand__avatar:hover,
+[data-theme="light"] .brand__avatar:focus-visible {
+  --orbit-ring: color-mix(in srgb, var(--accent) 52%, transparent);
+  --orbit-dash: color-mix(in srgb, var(--accent) 82%, transparent);
+  --orbit-tick: color-mix(in srgb, var(--accent) 96%, transparent);
 }
 
 /* Extra breath above the first item: the orbit ring gave the medallion a wider
@@ -5083,10 +5040,10 @@ body.drawer-open { overflow: hidden; }
      tuned in fixed pixels, and scaling the disc without them would break the
      even rings. Scoped to the drawer; the pinned desktop sidebar keeps its
      air. */
-  /* The medallion's margins must clear the ORBITS, not the image: the outer
-     ring reaches ~14px past the 118px box on every side, so anything under
-     ~1rem reads as no gap at all. These leave ~15px of visible air beyond
-     the ring in both directions. */
+  /* The medallion's margins must clear the RETICLE, not the image: its
+     strokes reach ~13px past the 118px box on every side, so anything under
+     ~1rem reads as no gap at all. These leave ~16px of visible air beyond
+     the strokes in both directions. */
   .brand__avatar { margin-top: 2.3rem; }
   .sidebar .nav { margin-top: 2.4rem; margin-bottom: 0.9rem; }
   .sidebar__foot { padding-top: 0.9rem; margin-bottom: 1rem; }
