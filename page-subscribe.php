@@ -3,6 +3,10 @@
  * Subscribe — landing page for the RSS feed with copy + one-click reader buttons.
  * Picked up automatically by WP for the page with slug `subscribe`.
  *
+ * The heading and breadcrumb print the page's own title: the name of a page is
+ * the owner's to set in the editor, and the footer drawer lifts this heading as
+ * its title, so a fixed word here would shadow whatever the page is called.
+ *
  * @package TheAlpha
  */
 
@@ -41,8 +45,8 @@ $readers = array(
 ?>
 <div class="page-head">
 	<div class="wrap">
-		<p class="breadcrumb"><a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'Home', 'the-alpha' ); ?></a> / <?php esc_html_e( 'Subscribe', 'the-alpha' ); ?></p>
-		<h1 class="page-title"><?php esc_html_e( 'Subscribe', 'the-alpha' ); ?></h1>
+		<p class="breadcrumb"><a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'Home', 'the-alpha' ); ?></a> / <?php the_title(); ?></p>
+		<h1 class="page-title"><?php the_title(); ?></h1>
 	</div>
 </div>
 
