@@ -853,9 +853,11 @@
      #terms / #subscribe open the matching drawer, anything else closes it, and
      `hashchange` drives the whole thing. A click sets the hash; closing is
      history.back() (so the previous hash, e.g. #about, comes back for free).
-     The link href stays the real /terms/ page — it's both the content source
-     the panel fetches and the no-JS fallback. Adds focus trap, Esc, scrim,
-     scroll-lock, and a graceful fallback to the real page if the fetch fails. */
+     The link href stays the real /terms/ page — the no-JS fallback, and the
+     way out when a load fails; the content itself comes from the page's REST
+     address (data-drawer-src) where the link carries one, else from the href
+     as HTML (see read()). Adds focus trap, Esc, scrim, scroll-lock, and a
+     graceful fallback to the real page if the fetch fails. */
   (function initDrawer() {
     var triggers = Array.prototype.slice.call(
       document.querySelectorAll("[data-drawer]")
@@ -930,37 +932,76 @@
         });
     }
 
-    function load(href, fallbackTitle) {
+    // A REST-rendered title ("Terms &amp; Conditions") as plain text.
+    function textOf(html) {
+      return html
+        ? new DOMParser().parseFromString(html, "text/html").body.textContent.trim()
+        : "";
+    }
+
+    // Read a page's title and body. Two sources, chosen by the trigger:
+    //  - data-drawer-src, the page's REST address, for a page whose content is
+    //    its post content (Terms, Privacy). /terms can't be fetched as HTML:
+    //    the retired-page redirect answers with a 301 that both caches in
+    //    front of the site keep for hours, and no request header gets past a
+    //    cached answer — so after any bot's visit, an anonymous visitor's
+    //    drawer used to land on the homepage with nothing to show. REST is
+    //    never cached here (see the_alpha_drawer_src()).
+    //  - the page's own URL as HTML otherwise (Subscribe — its body is
+    //    template markup no API carries, and nothing redirects it).
+    function read(src, href) {
+      if (src) {
+        return fetch(src, {
+          credentials: "same-origin",
+          headers: { Accept: "application/json" }
+        })
+          .then(function (r) {
+            if (!r.ok) throw new Error("HTTP " + r.status);
+            return r.json();
+          })
+          .then(function (page) {
+            var html = page && page.content && page.content.rendered;
+            if (!html) throw new Error("No content");
+            return { title: textOf(page.title && page.title.rendered), html: html };
+          });
+      }
+      return fetch(href, { credentials: "same-origin" })
+        .then(function (r) {
+          if (!r.ok) throw new Error("HTTP " + r.status);
+          return r.text();
+        })
+        .then(function (html) {
+          var doc = new DOMParser().parseFromString(html, "text/html");
+          var article = doc.querySelector(".content-grid .entry");
+          var bodyEl = doc.querySelector(".content-grid .prose");
+          var titleSrc = doc.querySelector(".page-title");
+          if (!bodyEl) throw new Error("No content");
+          return {
+            title: titleSrc ? titleSrc.textContent.trim() : "",
+            html: bodyEl.innerHTML,
+            subscribe: !!(article && article.classList.contains("subscribe"))
+          };
+        });
+    }
+
+    function load(src, href, fallbackTitle) {
       var id = ++reqId;
       drawer.classList.add("is-loading");
       panel.setAttribute("aria-busy", "true");
       contentEl.className = "drawer__content prose";
       contentEl.innerHTML = "";
       titleEl.textContent = fallbackTitle || "";
-      fetch(href, {
-        credentials: "same-origin",
-        headers: { "X-Requested-With": "fetch" }
-      })
-        .then(function (r) {
-          if (!r.ok) throw new Error("HTTP " + r.status);
-          return r.text();
-        })
-        .then(function (html) {
+      read(src, href)
+        .then(function (page) {
           if (id !== reqId) return; // a newer open() superseded this load
-          var doc = new DOMParser().parseFromString(html, "text/html");
-          var article = doc.querySelector(".content-grid .entry");
-          var bodyEl = doc.querySelector(".content-grid .prose");
-          var titleSrc = doc.querySelector(".page-title");
-          if (!bodyEl) throw new Error("No content");
-          var name = titleSrc ? titleSrc.textContent.trim() : fallbackTitle || "";
-          titleEl.textContent = name;
+          titleEl.textContent = page.title || fallbackTitle || "";
           // Carry the page-specific class (e.g. .subscribe) so its scoped
           // styles apply; .drawer__content.subscribe neutralises the page's
           // full-height centring (see main.css).
-          if (article && article.classList.contains("subscribe")) {
+          if (page.subscribe) {
             contentEl.classList.add("subscribe");
           }
-          contentEl.innerHTML = bodyEl.innerHTML;
+          contentEl.innerHTML = page.html;
           // Injected markup missed the load-time pass, so decode any encoded
           // phone/email links this page brought with it.
           revealContacts(contentEl);
@@ -995,7 +1036,11 @@
         body.classList.add("drawer-open");
         setInert(true);
       }
-      load(trigger.getAttribute("href"), trigger.textContent.trim());
+      load(
+        trigger.getAttribute("data-drawer-src"),
+        trigger.getAttribute("href"),
+        trigger.textContent.trim()
+      );
       requestAnimationFrame(function () { panel.focus(); });
     }
 

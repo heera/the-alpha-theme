@@ -1129,21 +1129,18 @@ add_filter( 'document_title_parts', 'the_alpha_tag_document_title' );
  * page — the Terms drawer reads it — but the redirect still applies to direct
  * visits all the same.
  *
- * Exception: the footer's Terms/Subscribe drawer fills itself by fetching the
- * real page over XHR (theme.js `load()` sends `X-Requested-With: fetch`). That
- * request MUST reach the actual page, or the drawer has nothing to show — so we
- * bail out before redirecting whenever the drawer is the one asking.
+ * The drawer reads that page through the REST API (the_alpha_drawer_src()),
+ * which this redirect never touches. It used to fetch /terms as HTML with a
+ * header this function let through — honoured by PHP, ignored by both caches
+ * in front of the site, which kept the 301 for hours: after any bot's visit to
+ * /terms, an anonymous visitor's drawer followed the cached redirect to the
+ * homepage and found nothing to show. No request header gets past a cached
+ * answer, so no bypass lives here any more.
  *
  * Map is slug => home-page anchor. Add future retirees here.
  */
 function the_alpha_retired_page_redirects() {
 	if ( is_admin() ) {
-		return;
-	}
-
-	// Let the drawer's own fetch through to the real page (see docblock).
-	if ( isset( $_SERVER['HTTP_X_REQUESTED_WITH'] )
-		&& 'fetch' === strtolower( sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_REQUESTED_WITH'] ) ) ) ) {
 		return;
 	}
 

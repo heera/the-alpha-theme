@@ -27,6 +27,42 @@ function the_alpha_page_url( $path ) {
 }
 
 /**
+ * Where the footer drawer reads a page's content from: its REST address.
+ *
+ * The drawer used to fetch the page's own URL as HTML. That breaks for /terms:
+ * the retired-page redirect answers every plain request for it with a 301 to
+ * /#terms, and both caches in front of the site — Cloudflare's and the origin's
+ * — keep that 301 for hours without keying on request headers. So the header
+ * the drawer sent to be let through was honoured by PHP and ignored by the
+ * caches: one bot's visit to /terms, and every anonymous visitor's drawer
+ * followed the cached redirect to the homepage and found nothing to show. The
+ * owner never saw it — a logged-in session bypasses both caches.
+ *
+ * No request header gets past a cached answer, so the drawer reads such a page
+ * through the REST API instead, which nothing redirects and the edge never
+ * caches here. Only for a page whose content IS its post content (Terms,
+ * Privacy); Subscribe's body is template markup no API carries, so it stays an
+ * HTML fetch of its own URL — which nothing redirects.
+ *
+ * Empty when the page is missing or unpublished: the drawer then offers its
+ * "open the page" fallback.
+ *
+ * @param int|string $page A page ID, or a top-level slug such as 'terms'.
+ * @return string REST URL of the page, or '' when there is no page to read.
+ */
+function the_alpha_drawer_src( $page ) {
+	if ( is_numeric( $page ) ) {
+		$post = (int) $page > 0 ? get_post( (int) $page ) : null;
+	} else {
+		$post = get_page_by_path( (string) $page );
+	}
+	if ( ! $post || 'page' !== $post->post_type || 'publish' !== $post->post_status ) {
+		return '';
+	}
+	return rest_url( 'wp/v2/pages/' . $post->ID );
+}
+
+/**
  * Site copyright line.
  *
  * Full (footer):  "Copyright © {start}–{current} {site name}".

@@ -183,7 +183,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			esc_html_e( 'Subscribe to my', 'the-alpha' );
 			?><span class="site-footer__rss-slug">&nbsp;/rss</span>
 		</a>
-		<a class="site-footer__terms" href="<?php echo esc_url( the_alpha_page_url( 'terms' ) ); ?>" data-drawer><?php esc_html_e( 'Terms and Conditions', 'the-alpha' ); ?></a>
+		<a class="site-footer__terms" href="<?php echo esc_url( the_alpha_page_url( 'terms' ) ); ?>" data-drawer data-drawer-src="<?php echo esc_url( the_alpha_drawer_src( 'terms' ) ); ?>"><?php esc_html_e( 'Terms and Conditions', 'the-alpha' ); ?></a>
 		<?php
 		/*
 		 * Whatever page is set under Settings → Privacy, not a hard-coded slug —
@@ -194,7 +194,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		$ta_privacy = get_privacy_policy_url();
 		if ( $ta_privacy ) :
 			?>
-			<a class="site-footer__privacy" href="<?php echo esc_url( $ta_privacy ); ?>" data-drawer><?php esc_html_e( 'How I handle privacy', 'the-alpha' ); ?></a>
+			<a class="site-footer__privacy" href="<?php echo esc_url( $ta_privacy ); ?>" data-drawer data-drawer-src="<?php echo esc_url( the_alpha_drawer_src( (int) get_option( 'wp_page_for_privacy_policy' ) ) ); ?>"><?php esc_html_e( 'How I handle privacy', 'the-alpha' ); ?></a>
 		<?php endif; ?>
 	</div>
 </footer>
@@ -203,8 +203,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 /*
  * Slide-in drawer for Terms / Subscribe. Progressive enhancement: the footer
  * links above navigate normally without JS; theme.js intercepts [data-drawer]
- * clicks and loads the target page's content in here instead. The real pages
- * stay the canonical, shareable, no-JS fallback.
+ * clicks and loads the target page's content in here instead — through the
+ * REST address in data-drawer-src where the link carries one (Terms, Privacy:
+ * see the_alpha_drawer_src() for why not the page URL), else by fetching the
+ * href as HTML (Subscribe). The real pages stay the canonical, shareable,
+ * no-JS fallback.
  */
 ?>
 <div class="drawer" id="site-drawer" hidden>
