@@ -435,7 +435,7 @@ h1, h2, h3, h4 {
   color: var(--ink-head);
   margin-bottom: 1.4rem;
 }
-.lede { color: var(--ink-soft); font-size: 1.075rem; max-width: 60ch; }
+.lede { color: var(--ink-soft); font-size: 1.075rem; max-width: 65ch; }
 
 /* ----- Page loader -------------------------------------------------------- */
 /* Covers the viewport on first paint with the theme bg, fades out when JS
@@ -2601,7 +2601,7 @@ h1, h2, h3, h4 {
    about prose beside it exactly (both breaking at 92-94 characters), and he
    still wanted the width back. The description is the section's full-width
    opener, not a prose column, and that reads ahead of any line-length target.
-   The base .lede's 60ch is what this is overriding. */
+   The base .lede's 65ch is what this is overriding. */
 #blog .lede { max-width: none; }
 /* Same ambient corner glow as #about, mirrored to the TOP-left of the blog
    section — originates just off-canvas top-left and bleeds down/right,
