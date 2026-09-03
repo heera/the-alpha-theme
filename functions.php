@@ -1248,8 +1248,12 @@ function the_alpha_recent_posts_widget( $instance, $widget, $args ) {
 		// part of the design here, so the widget's own "Display post date" box
 		// no longer decides it; a recent-posts list without dates is a list
 		// without its point.
-		echo '<li><span class="widget__entry"><a href="' . esc_url( get_permalink() ) . '">' . esc_html( get_the_title() ? get_the_title() : get_the_ID() ) . '</a>'
-			. '<span class="widget__meta"><time datetime="' . esc_attr( get_the_date( 'c' ) ) . '">' . esc_html( get_the_date() ) . '</time> <span class="sep" aria-hidden="true">|</span> <span class="widget__read">' . esc_html( the_alpha_reading_time() ) . '</span></span></span></li>';
+		// The whole entry is the link — title AND meta line — so the pointer,
+		// the hairline, the title and the meta all answer together wherever
+		// the entry is hovered (his catch: a meta line that sat outside the
+		// link neither lit nor took the pointer).
+		echo '<li><a class="widget__entry" href="' . esc_url( get_permalink() ) . '"><span class="widget__name">' . esc_html( get_the_title() ? get_the_title() : get_the_ID() ) . '</span>'
+			. '<span class="widget__meta"><time datetime="' . esc_attr( get_the_date( 'c' ) ) . '">' . esc_html( get_the_date() ) . '</time> <span class="sep" aria-hidden="true">|</span> <span class="widget__read">' . esc_html( the_alpha_reading_time() ) . '</span></span></a></li>';
 	}
 	echo '</ul></nav>';
 	echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- sidebar markup, registered by this theme.

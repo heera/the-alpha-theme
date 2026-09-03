@@ -4436,8 +4436,10 @@ body.single .page-title {
 .widget a:hover { color: var(--accent); }
 /* A Recent Posts entry: the title, then a meta line in the post rows' own
    grammar — date, a pipe, reading time — in the mono voice they use, left
-   under the title. the_alpha_recent_posts_widget() prints this shape in
-   place of core's. */
+   under the title. The entry IS the link, both lines, so hovering either
+   lights the hairline, the title and the meta together and the pointer
+   agrees. the_alpha_recent_posts_widget() prints this shape in place of
+   core's. */
 .widget__entry {
   display: flex;
   flex: 1;
@@ -4451,7 +4453,10 @@ body.single .page-title {
   letter-spacing: 0.06em;
   font-variant-numeric: tabular-nums;
   color: var(--ink-dim);
+  transition: color var(--t-fast);
 }
+.widget__entry:hover .widget__meta,
+.widget__entry:focus-visible .widget__meta { color: var(--accent); }
 .widget__meta .sep { margin: 0 0.2rem; } /* the post rows' pipe, spaced the same */
 /* The category count at the row's end: a contents page's figure, in the mono
    face at the meta size, flush right so the counts form a column. No leader
