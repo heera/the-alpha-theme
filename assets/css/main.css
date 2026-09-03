@@ -733,14 +733,22 @@ h1, h2, h3, h4 {
     linear-gradient(var(--bg-2), var(--bg-2)) padding-box,
     var(--accent-grad) border-box;
   outline: none;
-  /* Inset only. The medallion used to carry an outer halo and a cast shadow
-     as well, and the halo sat exactly where the rings now sit — a soft bloom
-     under a hard reticle reads as a smudge on the glass, so both went. The
-     inset stays: it lights the photo's own edge from the bezel inward, which
-     is what gives the medallion its depth, and it deepens on hover (below).
-     Dark mode re-strikes it in mint at a fifth of the strength — see there. */
-  box-shadow: inset 0 0 15px 5px color-mix(in srgb, var(--accent-2) 42%, transparent);
-  transition: box-shadow .4s ease;
+  /* No box-shadow, and the reason matters. The medallion carried an inset
+     glow for years, and it never painted: an inset shadow sits UNDER the
+     element's content, and the portrait is opaque to its last pixel (RGB
+     WebP, no alpha), so the photo covered it entirely. What people saw on
+     hover was the bezel ring and the halo brightening — and the halo sat
+     exactly where the rings now sit, a soft bloom under a hard reticle that
+     read as a smudge on the glass. Halo and cast shadow are gone. The inner
+     light is real now: a rim painted ABOVE the photo by ::after (the last
+     background layer there), fading in from --rim-r out to the bezel at
+     --rim-a strength, and deepening on hover. The two numbers are registered
+     (@property, below) so the hover can fade over .4s the way the old shadow
+     did; a browser without @property simply snaps. Paper strikes the rim in
+     --accent-2 at .42, the weight the old inset was written at. */
+  --rim-base: var(--accent-2);
+  --rim-a: .42;
+  --rim-r: 41px;
   /* The reticle's three strokes (see the pseudo-elements below), named here so
      they inherit into ::before and ::after and can be re-struck per theme. They
      have to be: these are percentages of the accent laid over the sidebar, and a
@@ -836,6 +844,26 @@ h1, h2, h3, h4 {
   background-position: 76.5px 5px, 76.5px 138px, 5px 76.5px, 138px 76.5px, 0 0;
   background-repeat: no-repeat;
 }
+/* The inner rim — light bleeding inward from the bezel, ramping from nothing
+   at --rim-r (41px from centre at rest, 30 on hover: 18px and 29px of bleed,
+   the old inset's blur-plus-spread) to --rim-a at the photo's edge, 59px, and
+   cut there. Its own rule, appended as the LAST layer, so the crosshair and
+   ring layers above stay the drawing they are. Above the photo because this
+   box paints over the in-flow image; nothing under an opaque image is seen. */
+.brand__avatar::after {
+  background-image:
+    linear-gradient(var(--orbit-tick), var(--orbit-tick)),   /* N */
+    linear-gradient(var(--orbit-tick), var(--orbit-tick)),   /* S */
+    linear-gradient(var(--orbit-tick), var(--orbit-tick)),   /* W */
+    linear-gradient(var(--orbit-tick), var(--orbit-tick)),   /* E */
+    radial-gradient(circle at 50% 50%, transparent 0 63.2px, var(--orbit-ring) 63.8px 64.4px, transparent 65px),
+    radial-gradient(circle at 50% 50%, transparent 0 var(--rim-r), color-mix(in srgb, var(--rim-base) calc(var(--rim-a) * 100%), transparent) 58.5px, transparent 59.5px);
+  background-size: 1px 11px, 1px 11px, 11px 1px, 11px 1px, auto, auto;
+  background-position: 76.5px 5px, 76.5px 138px, 5px 76.5px, 138px 76.5px, 0 0, 0 0;
+  transition: --rim-a .4s ease, --rim-r .4s ease;
+}
+@property --rim-a { syntax: "<number>"; inherits: true; initial-value: .42; }
+@property --rim-r { syntax: "<length>"; inherits: true; initial-value: 41px; }
 /* Light mode: the cutout's feathered edge was authored to fade into a dark
    backing, so keep a dark medallion disc (lit from below) rather than the
    cream sidebar — it absorbs the fade and lets the portrait pop. */
@@ -858,31 +886,32 @@ h1, h2, h3, h4 {
   --orbit-dash: color-mix(in srgb, var(--accent) 58%, transparent);
   --orbit-tick: color-mix(in srgb, var(--accent) 70%, transparent);
 }
-/* Hover: the inset deepens — light bleeding further in from the bezel onto
-   the photo. That is the whole effect: the reticle does not react (his call —
-   a sight is fixed; the subject is what changes), and the outer halo, the
-   thickened bezel and the lifted cast shadow that used to join in are shadows
-   the medallion no longer carries. */
+/* Hover: the rim deepens and reaches further in — light bleeding further
+   from the bezel onto the photo. That is the whole effect: the reticle does
+   not react (his call — a sight is fixed; the subject is what changes), and
+   the halo, the thickened bezel and the lifted cast shadow that used to join
+   in are shadows the medallion no longer carries. */
 .brand__avatar:hover,
 .brand__avatar:focus-visible {
-  box-shadow: inset 0 0 22px 7px color-mix(in srgb, var(--accent-2) 58%, transparent);
+  --rim-a: .58;
+  --rim-r: 30px;
 }
-/* Dark theme: the same inset in mint, held to .16 rather than paper's .42.
-   There the inset is amber over a sepia photo and the warmth belongs; here it
+/* Dark theme: the same rim in mint, held to .16 rather than paper's .42.
+   There the rim is amber over a sepia photo and the warmth belongs; here it
    is mint over a neutral greyscale face, and past roughly a fifth it stops
    reading as a lit rim and starts reading as a colour cast on skin — exactly
-   what the grading note above refuses to do. Tight spread for the same reason:
-   it should hug the bezel, not wash the face. */
+   what the grading note above refuses to do. */
 [data-theme="dark"] .brand__avatar {
-  box-shadow: inset 0 0 14px 4px rgba(94, 230, 208, .16);
+  --rim-base: rgb(94 230 208);
+  --rim-a: .16;
 }
 [data-theme="dark"] .brand__avatar:hover,
 [data-theme="dark"] .brand__avatar:focus-visible {
-  box-shadow: inset 0 0 22px 7px rgba(94, 230, 208, .30);
+  --rim-a: .30;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .brand__avatar { transition: none; }
+  .brand__avatar::after { transition: none; }
 }
 
 /* Extra breath above the first item: the orbit ring gave the medallion a wider
