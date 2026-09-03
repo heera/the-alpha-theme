@@ -1112,6 +1112,154 @@ function the_alpha_tag_document_title( $parts ) {
 add_filter( 'document_title_parts', 'the_alpha_tag_document_title' );
 
 /**
+ * Wrap the post count wp_list_categories appends as bare text — " (36)" — in a
+ * span, so the sidebar can set it as a figure at the row's end reached by a
+ * dotted leader, the way a contents page counts. The widget prints the count
+ * only when its "Show post counts" box is ticked; nothing to wrap otherwise,
+ * and the pattern touches nothing but a bracketed number right after a link.
+ *
+ * @param string $output The list markup.
+ * @return string
+ */
+function the_alpha_category_count_span( $output ) {
+	return (string) preg_replace( '/<\/a>(?:\s|&nbsp;)*\((\d[\d,.]*)\)/', '</a><span class="count">$1</span>', $output );
+}
+add_filter( 'wp_list_categories', 'the_alpha_category_count_span' );
+// The Archives widget prints its count the same way, with a non-breaking
+// space for the gap — the pattern above allows for it, so one wrapper
+// serves both lists and every count in the sidebar is set the same.
+add_filter( 'get_archives_link', 'the_alpha_category_count_span' );
+
+/**
+ * Tame the tag cloud. WordPress's default runs five sizes from 8pt to 22pt by
+ * post count, which next to the sidebar's quiet lists reads as a different
+ * site shouting. One voice instead: every tag near the list's own size, the
+ * weight a tag used to carry as type size carried instead by its tone
+ * (the_alpha_tag_cloud_tone) and, when the widget's "Show tag counts" box is
+ * ticked, by the same small mono figure the categories wear. That box is the
+ * owner's switch, as the Categories widget's "Show post counts" box is — the
+ * theme only sets the sizes.
+ *
+ * @param array $args wp_tag_cloud() arguments.
+ * @return array
+ */
+function the_alpha_tag_cloud_args( $args ) {
+	$args['smallest'] = 0.86;
+	$args['largest']  = 0.98;
+	$args['unit']     = 'rem';
+	return $args;
+}
+add_filter( 'widget_tag_cloud_args', 'the_alpha_tag_cloud_args' );
+
+/**
+ * The cloud prints each count as " (36)" inside its span; drop the brackets
+ * so the figure can be set the way the categories' is.
+ *
+ * @param string $html The rendered cloud.
+ * @return string
+ */
+function the_alpha_tag_cloud_count( $html ) {
+	return (string) preg_replace( '/(<span class="tag-link-count">)\s*\((\d[\d,.]*)\)(<\/span>)/', '$1$2$3', $html );
+}
+add_filter( 'wp_tag_cloud', 'the_alpha_tag_cloud_count' );
+
+/**
+ * Give each tag a tone step from its post count — the weight the default cloud
+ * carried as type size, carried here as ink. Four steps on a LOG scale, so one
+ * tag with ten times the posts of the rest does not push everything else into
+ * the faintest step; a tag in the middle of the range lands in the middle. The
+ * step rides in the link's class list (tag-tone-1 … tag-tone-4), and the
+ * stylesheet maps it from the dim ink up to the heading ink.
+ *
+ * @param array $tags_data The cloud's per-tag data, before it is rendered.
+ * @return array
+ */
+function the_alpha_tag_cloud_tone( $tags_data ) {
+	$counts = array();
+	foreach ( $tags_data as $tag ) {
+		$counts[] = max( 1, (int) $tag['real_count'] );
+	}
+	if ( empty( $counts ) ) {
+		return $tags_data;
+	}
+	$lo   = log( min( $counts ) );
+	$hi   = log( max( $counts ) );
+	$span = $hi - $lo;
+	foreach ( $tags_data as $i => $tag ) {
+		$weight = $span > 0 ? ( log( max( 1, (int) $tag['real_count'] ) ) - $lo ) / $span : 1;
+		$step   = 1 + (int) floor( min( 0.999, $weight ) * 4 );
+		$tags_data[ $i ]['class'] = trim( (string) $tag['class'] . ' tag-tone-' . $step );
+	}
+	return $tags_data;
+}
+add_filter( 'wp_generate_tag_cloud_data', 'the_alpha_tag_cloud_tone' );
+
+/**
+ * Render the Recent Posts widget the theme's way: every entry carries a meta
+ * line under the title — the date at its left end, the reading time at its
+ * right — in the mono voice the post rows already speak.
+ *
+ * Core's widget prints its list straight from widget() with no filter on the
+ * markup; widget_display_callback is core's own seam for exactly this — print
+ * in its place and return false, and the widget's output is skipped. The
+ * query goes through widget_posts_args the way core's does, so anything
+ * hooked there still applies.
+ *
+ * @param array|false $instance The widget's settings.
+ * @param WP_Widget   $widget   The widget object.
+ * @param array       $args     Sidebar markup: before/after widget and title.
+ * @return array|false The settings untouched for other widgets; false here.
+ */
+function the_alpha_recent_posts_widget( $instance, $widget, $args ) {
+	if ( ! $widget instanceof WP_Widget_Recent_Posts || ! is_array( $instance ) ) {
+		return $instance;
+	}
+
+	$number = ! empty( $instance['number'] ) ? absint( $instance['number'] ) : 5;
+	$posts  = new WP_Query(
+		apply_filters(
+			'widget_posts_args',
+			array(
+				'posts_per_page'      => $number,
+				'no_found_rows'       => true,
+				'post_status'         => 'publish',
+				'ignore_sticky_posts' => true,
+			),
+			$instance
+		)
+	);
+	if ( ! $posts->have_posts() ) {
+		return false;
+	}
+
+	$title = ! empty( $instance['title'] ) ? $instance['title'] : __( 'Recent Posts', 'the-alpha' );
+	$title = apply_filters( 'widget_title', $title, $instance, $widget->id_base );
+
+	echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- sidebar markup, registered by this theme.
+	if ( $title ) {
+		echo $args['before_title'] . $title . $args['after_title']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- as core's widget prints it.
+	}
+	echo '<nav aria-label="' . esc_attr( $title ? $title : __( 'Recent Posts', 'the-alpha' ) ) . '"><ul>';
+	while ( $posts->have_posts() ) {
+		$posts->the_post();
+		// The meta line in the post rows' own grammar — date, a pipe, reading
+		// time — left-aligned under the title. (A two-ended line, date left
+		// and time right, was tried and read as ugly: his call.) The date is
+		// part of the design here, so the widget's own "Display post date" box
+		// no longer decides it; a recent-posts list without dates is a list
+		// without its point.
+		echo '<li><span class="widget__entry"><a href="' . esc_url( get_permalink() ) . '">' . esc_html( get_the_title() ? get_the_title() : get_the_ID() ) . '</a>'
+			. '<span class="widget__meta"><time datetime="' . esc_attr( get_the_date( 'c' ) ) . '">' . esc_html( get_the_date() ) . '</time> <span class="sep" aria-hidden="true">|</span> <span class="widget__read">' . esc_html( the_alpha_reading_time() ) . '</span></span></span></li>';
+	}
+	echo '</ul></nav>';
+	echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- sidebar markup, registered by this theme.
+	wp_reset_postdata();
+
+	return false;
+}
+add_filter( 'widget_display_callback', 'the_alpha_recent_posts_widget', 10, 3 );
+
+/**
  * Fold old standalone page URLs into the single-page front.
  *
  * These pages are still indexed by search engines (and get typed/shared

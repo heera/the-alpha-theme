@@ -4388,10 +4388,40 @@ body.single .page-title {
   border-bottom: 1px solid var(--rule-ink);
   box-shadow: 0 1px 0 var(--rule-lip);
 }
+/* The marker: the dash, drawn rather than typed — a 10px hairline in the
+   dim ink, centred on the text (a typed em dash rides the baseline and lands
+   a hair high, and is heavier than the letterpress rules under each row).
+   When the LINK is hovered it lengthens to 16px and takes the accent: the
+   same quiet move the medallion's reticle strokes make. Nothing else moves.
+   Keyed to the link with :has(), not to the row: only the name is clickable,
+   and a row that lit up under a default pointer over its empty space was a
+   promise the cursor did not keep (his catch). Focus counts the same as
+   hover, so the keyboard sees what the mouse sees. */
 .widget li::before {
-  content: "\2014";
-  color: var(--ink-dim);
+  content: "";
+  width: 10px;
+  height: 1px;
+  background: var(--ink-dim);
+  align-self: center;
   flex: none;
+  transition: width var(--t-fast), background-color var(--t-fast);
+}
+/* On the FIRST line's centre, not the row's: a Recent Posts entry is two
+   lines (title, then its meta line) and a centred marker would float
+   between them. Half a line box down, via the lh unit, lands it on the
+   title's centre — and on a one-line category row that is the same spot
+   centring gave. Behind a support check: a browser without lh would drop
+   the margin and leave the marker at the top of the row, so it keeps the
+   centred marker above instead. */
+@supports (margin-top: 1lh) {
+  .widget li::before {
+    align-self: flex-start;
+    margin-top: calc((1lh - 1px) / 2);
+  }
+}
+.widget li:has(a:hover, a:focus-visible)::before {
+  width: 16px;
+  background: var(--accent);
 }
 .widget li:first-child {
   border-top: 1px solid var(--rule-ink);
@@ -4399,8 +4429,41 @@ body.single .page-title {
 }
 .widget a { color: var(--ink-soft); transition: color var(--t-fast); }
 .widget a:hover { color: var(--accent); }
-.widget li .post-date,
-.widget li .count { color: var(--ink-dim); font-size: 0.82rem; }
+/* A Recent Posts entry: the title, then a meta line in the post rows' own
+   grammar — date, a pipe, reading time — in the mono voice they use, left
+   under the title. the_alpha_recent_posts_widget() prints this shape in
+   place of core's. */
+.widget__entry {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+.widget__meta {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-dim);
+}
+.widget__meta .sep { margin: 0 0.2rem; } /* the post rows' pipe, spaced the same */
+/* The category count at the row's end: a contents page's figure, in the mono
+   face at the meta size, flush right so the counts form a column. No leader
+   between name and figure — a row already has a rule above and below it, and
+   a third line inside it, however faint, made every row read narrower (his
+   catch, and no, not on hover either). WordPress prints the count as bare
+   " (36)"; the_alpha_category_count_span() wraps it so this can exist. */
+.widget li .count {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-dim);
+  transition: color var(--t-fast);
+}
+.widget li:has(a:hover, a:focus-visible) .count { color: var(--accent); }
 
 /* Tag cloud renders inline <a> tags (no <li>), so it misses the bracket
    borders the list widgets get. Add a matching top/bottom rule + a bit
@@ -4409,11 +4472,54 @@ body.single .page-title {
 .widget_tag_cloud .wp-block-tag-cloud {
   border-top: 1px solid var(--border);
   padding: 0.95rem 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  /* Set as running text and JUSTIFIED, the way a paragraph is: the browser
+     widens the spaces between tags so every row ends flush with the rules
+     above it, and the last row stays left like a paragraph's last line. A
+     flex row with gaps left a ragged right edge that changed with every
+     word's length (his catch). Each tag is one unbreakable word — nowrap —
+     so justification only ever stretches the space BETWEEN tags, never
+     inside one, and the line-height carries the vertical rhythm the flex
+     gap used to. */
+  display: block;
+  text-align: justify;
+  text-align-last: left;
+  line-height: 2;
 }
-.widget_tag_cloud .tagcloud a { line-height: 1; }
+/* One voice: the_alpha_tag_cloud_args() holds every tag between .86 and
+   .98rem, so the size still whispers the count without a word ever
+   shouting, and the figure beside each tag says it plainly — the same small
+   mono figure the categories carry, in the dim ink, accent on hover with
+   its word. The right margin is the floor of the gap; justification adds to
+   it, never takes from it. inline-block, not inline: an inline tag's OWN
+   spaces ("Best Practices") are word spaces too, and justification widened
+   them along with the gaps, so two-word tags fell apart mid-row. An
+   inline-block is one atom to the line — only the spaces between atoms
+   stretch. */
+.widget_tag_cloud .tagcloud a {
+  display: inline-block;
+  white-space: nowrap;
+  margin-right: 0.45rem;
+}
+/* Tone by count, from the_alpha_tag_cloud_tone(): the rare tags sit in the
+   dim ink, the busy ones in the heading ink, two even steps between — the
+   count's weight carried as light rather than size, in both themes, since
+   every stop is mixed from the theme's own inks. Hover overrides every
+   step with the accent (specificity matched below). */
+.widget_tag_cloud .tagcloud .tag-tone-1 { color: var(--ink-dim); }
+.widget_tag_cloud .tagcloud .tag-tone-2 { color: color-mix(in srgb, var(--ink-dim) 62%, var(--ink-head)); }
+.widget_tag_cloud .tagcloud .tag-tone-3 { color: color-mix(in srgb, var(--ink-dim) 28%, var(--ink-head)); }
+.widget_tag_cloud .tagcloud .tag-tone-4 { color: var(--ink-head); }
+.widget_tag_cloud .tagcloud a:hover { color: var(--accent); }
+.widget_tag_cloud .tag-link-count {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-dim);
+  margin-left: 0.3em;
+  transition: color var(--t-fast);
+}
+.widget_tag_cloud a:hover .tag-link-count { color: var(--accent); }
 
 /* Underline search (matches the original) */
 .search-form {
