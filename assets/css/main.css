@@ -4359,6 +4359,11 @@ body.single .page-title {
 /* Sidebar widgets */
 /* Editorial sidebar: no card boxes — tracked headings, airy list dividers. */
 .blog-aside { position: sticky; top: 1.5rem; display: grid; gap: 2.6rem; }
+/* A column taller than the viewport is held by theme.js (initAsideStick):
+   pinned by its bottom while scrolling down, by its top while scrolling up,
+   riding with the page in between. The script sets position and top inline;
+   this rule is what a column that fits, and every browser without the
+   script, gets. */
 
 .widget {
   background: none;

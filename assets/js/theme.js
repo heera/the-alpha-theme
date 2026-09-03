@@ -1154,4 +1154,61 @@
       applyHash();
     }
   })();
+
+  /* ---- Blog sidebar: pinned by whichever end you scroll toward -----------
+     .blog-aside sticks to the top of the viewport, which is right for a
+     column shorter than the screen and wrong for a taller one: everything
+     below the fold — the tag block here — could only be reached at the very
+     end of the page, and letting the column scroll away instead leaves a
+     blank rail beside a long post. So a tall column changes hands as you
+     go: scrolling down it pins by its BOTTOM edge, so its tail stays in
+     view; scrolling up it pins by its TOP, so Search comes back. Between
+     the two it rides with the page from wherever it was, so a change of
+     direction never makes it jump — the hand-over happens only at the
+     moment the pinning edge reaches the viewport's. A column that fits is
+     left to the stylesheet's plain sticky-top. */
+  (function initAsideStick() {
+    var aside = document.querySelector(".blog-aside");
+    if (!aside) return;
+    var mode = "top"; // top | bottom | free — how the column is currently held
+    var lastY = window.pageYOffset;
+    var ticking = false;
+    var offset = function () { return 1.5 * parseFloat(getComputedStyle(root).fontSize); };
+    var tall = function () { return aside.offsetHeight + offset() > window.innerHeight; };
+    var hold = function (how, top) {
+      mode = how;
+      aside.style.position = how === "free" ? "relative" : "sticky";
+      aside.style.top = top + "px";
+    };
+    var release = function () {
+      mode = "top";
+      aside.style.position = "";
+      aside.style.top = "";
+    };
+    var update = function () {
+      ticking = false;
+      var y = window.pageYOffset;
+      var down = y > lastY;
+      lastY = y;
+      if (!tall()) { if (aside.style.position) release(); return; }
+      var gap = offset();
+      var rect = aside.getBoundingClientRect();
+      var parentTop = aside.parentElement.getBoundingClientRect().top;
+      if (down) {
+        if (mode === "top") hold("free", rect.top - parentTop);          // let go; ride with the page
+        else if (mode === "free" && rect.bottom <= window.innerHeight - gap)
+          hold("bottom", window.innerHeight - aside.offsetHeight - gap);  // tail reached the bottom: pin it there
+      } else {
+        if (mode === "bottom") hold("free", rect.top - parentTop);       // let go; ride with the page
+        else if (mode === "free" && rect.top >= gap) hold("top", gap);   // head reached the top: pin it there
+      }
+    };
+    var onScroll = function () {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", function () { release(); lastY = window.pageYOffset; update(); });
+    if ("ResizeObserver" in window) new ResizeObserver(function () { release(); update(); }).observe(aside);
+    update();
+  })();
 })();
