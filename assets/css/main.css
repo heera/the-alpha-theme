@@ -44,19 +44,26 @@
      of the ground, so anything painted with it has no fill — only its border.
      The two places that mattered (.sidebar, .prose pre) are given a literal
      below; the rest were left, and a future reader deciding to "fix" --surface
-     should know it was a choice. */
-  --bg: #191c22;
+     should know it was a choice.
+     ⭐ HIS CALL, 2026-09-03 — a third step, #191c22 → #1e2229, and this time
+     the ladder DID move with it: --surface, --surface-2, --border-soft and
+     --border each took the same lift so every surface keeps the relation it
+     had to the old ground (cards still flat-by-a-point, inline code still
+     ~1.2:1). --bg-2 alone stayed put: it was already below the page by design,
+     and the ground moving away only deepens that recess. Dark now has one
+     RAISED surface, #24292f, shared by the rail, code blocks and .to-top. */
+  --bg: #1e2229;   /* ⭐ HIS CALL, 2026-09-03: one more step up, from #191c22 — the value the sidebar rail had held */
   --bg-2: #15181d;
-  --surface: #191d23;
-  --surface-2: #262a32;
-  --border: #232a33;
-  --border-soft: #1b2128;
+  --surface: #1f232a;    /* was #191d23, lifted 2026-09-03 with --bg */
+  --surface-2: #2b3039;  /* was #262a32, same lift */
+  --border: #2a323c;      /* ⭐ 2026-09-03: lifted with --bg (was #232a33) so hairlines keep ~1.2:1 on the raised ground */
+  --border-soft: #20272f; /* was #1b2128, same lift */
   /* Softened off-white instead of near-pure white (#e8eaed): pure-white text
      on the near-black bg glares/halates (~16:1, well past WCAG AAA). #ccd1d8
      drops it to a comfortable ~12.7:1 while staying crisp for headings/strong. */
   --ink: #ccd1d8;
   --ink-soft: #a3abb6;
-  --ink-dim: #6c7682;
+  --ink-dim: #727c88;    /* ⭐ 2026-09-03: was #6c7682; lifted with --bg so meta/labels keep ~3.7:1 on the ground (3.46 had crept in) */
   /* Headings/titles use a softer tone than inline --ink: large display text
      glares more by area, so it's stepped down (~10.9:1) below inline emphasis
      (--ink ~12.7:1) while staying clearly brighter than body (--ink-soft). */
@@ -145,7 +152,7 @@
   /* How much photo survives at the hero's bottom edge, so the fog has something
      to be transparent OVER. See the mask on .hero__bg img. Lowering the fog's
      own alpha instead does NOT do this — measured, the only thing behind it is
-     --bg #191c22, so thinning just bleeds cool ground in: 72% -> warmth 18 -> 10,
+     --bg (#191c22 at the time, #1e2229 since 2026-09-03), so thinning just bleeds cool ground in: 72% -> warmth 18 -> 10,
      50% -> 4, 30% -> neutral grey. Transparency had to come from what is under
      the fog, not from the fog. Light stays at the `transparent` fallback. */
   --hero-mask-tail: rgba(0, 0, 0, 0.14);
@@ -576,6 +583,11 @@ h1, h2, h3, h4 {
   transition: opacity var(--t), transform var(--t), border-color var(--t-fast);
 }
 .to-top.is-visible { opacity: 1; pointer-events: auto; transform: none; }
+/* ⭐ HIS CALL, 2026-09-03: a floating control must sit ABOVE the page it
+   floats over. --surface is flat by design (cards), so the button takes the
+   dark theme's one raised surface — the same literal as the rail and code
+   blocks. Move the three together or not at all. */
+[data-theme="dark"] .to-top { background: #24292f; }
 .to-top:hover { border-color: var(--accent); color: var(--accent); }
 
 /* Scroll-progress ring — the same effect as the top .scroll-progress bar,
@@ -620,13 +632,15 @@ h1, h2, h3, h4 {
    --bg-2 has 23 consumers (sections, hero, seams, gradients) and only these two
    were meant to change. Scoped so light mode, which has its own --bg-2, is
    untouched. */
-[data-theme="dark"] .sidebar { background: #1e2229; }
+/* ⭐ 2026-09-03: stepped up with the ground (--bg took the rail's old #1e2229),
+   so the rail keeps sitting one step above the page. */
+[data-theme="dark"] .sidebar { background: #24292f; }
 /* ⭐ HIS CALL, 2026-08-19. Light's half of the same move, and a literal for the
    same reason: --bg-2 also carries the hero fog and every #about/#blog ground,
    and only the sidebar and the footer were meant to change.
    Note what this value does NOT do: #f4eee3 is the same LIGHTNESS as --bg-2
    (L 0.8593 against 0.8585 — 1.001:1, indistinguishable), so it does not step
-   the rail down the way dark's #1e2229 does. It separates by hue instead —
+   the rail down the way dark's #24292f does. It separates by hue instead —
    warmth 17 red-minus-blue against --bg-2's 10 — while sitting below the page
    itself (1.062:1 against --bg). A sandier paper beside a cooler one, not a
    darker panel. Anyone reaching for contrast here should know there is none to
@@ -2626,7 +2640,7 @@ h1, h2, h3, h4 {
     radial-gradient(ellipse 110% 105% at 0%  -8%, var(--frag-ember) 0%, transparent var(--frag-ember-spread, 70%)),
     radial-gradient(ellipse  90%  85% at 5%   12%, var(--frag-rim)   0%, transparent 80%),
     radial-gradient(ellipse 130% 110% at 18%  38%, var(--frag-haze)  0%, transparent 88%),
-    var(--bg-2);   /* same base as #about; the seam below carries the boundary */
+    var(--section-ground, var(--bg-2));   /* same base as #about; the seam below carries the boundary */
 }
 /* Binary-code texture — relocated here from the hero. The same developer
    motif (glowing digits on black) now lives in the blog section. screen blend
@@ -2737,6 +2751,15 @@ h1, h2, h3, h4 {
   --eyebrow: #7F5833;
   --ink-dim: #685E50;
 }
+/* ⭐ HIS CALL, 2026-09-03. The pools that light the top and bottom of these
+   sections are untouched; only the FLOOR under them moves. It was --bg-2,
+   the one token that stayed when the ground rose, so the unlit middle of
+   each section (about 60% down, mean luminance 35) had dropped a clear step
+   below the #24292f rail beside it and read as a dark band. #1a1e24 is the
+   footer's literal — one shade under the page — which puts the trough back
+   level with the rail. #contact already grades its floor down to --bg, so it
+   needs nothing. */
+[data-theme="dark"] :is(#about, #blog) { --section-ground: #1a1e24; }
 #about,
 #blog {
   min-height: 100dvh;
@@ -2785,7 +2808,7 @@ h1, h2, h3, h4 {
     radial-gradient(ellipse 110% 105% at 0%  108%, var(--frag-ember) 0%, transparent var(--frag-ember-spread, 70%)),
     radial-gradient(ellipse  90%  85% at 5%   88%, var(--frag-rim)   0%, transparent 80%),
     radial-gradient(ellipse 130% 110% at 18%  62%, var(--frag-haze)  0%, transparent 88%),
-    var(--bg-2);
+    var(--section-ground, var(--bg-2));
 }
 /* Bakhoor photograph anchored to the bottom-left of the about section.
    A tight radial mask centered on the burner + smoke crops away the dark
@@ -3105,7 +3128,7 @@ h1, h2, h3, h4 {
     radial-gradient(150% 130% at 50% -8%,
       color-mix(in srgb, var(--accent) 4%, transparent) 0%,
       transparent 55%),
-    var(--bg-2);
+    var(--footer-ground, var(--bg-2));
   display: grid;
   /* Utility info left, centred wordmark, utility links right. The auto centre
      column anchors the brand mark directly under the top-edge node so the node
@@ -3167,6 +3190,13 @@ h1, h2, h3, h4 {
 /* Light mode: a soft halo reads as a muddy stain on the cream (a glow only
    reads as light against a dark surface), so the node becomes a crisp dot with
    just a tight glow — clean rather than smudged. */
+/* ⭐ HIS CALL, 2026-09-03. Dark's ground rose to #1e2229 while --bg-2 stayed,
+   which took the footer from a shade under the page (1.04:1) to a black slab
+   (1.12:1, and 1.20:1 against the #24292f rail beside it). A literal for the
+   footer alone — the token also carries the front-page section grounds and the
+   hero fog, which were tuned as a set — puts the old step back. Only the base
+   layer changes; the beam and node gradients above it are untouched. */
+[data-theme="dark"] .site-footer { --footer-ground: #1a1e24; }
 /* Light mode: the smoky bloom reads as a muddy stain on the cream, so drop the
    white lift entirely and let only a whisper of accent tint the top edge. */
 [data-theme="light"] .site-footer {
@@ -3971,7 +4001,13 @@ body.single .page-title {
   font-size: 0.86rem;
   line-height: 1.7;
 }
-[data-theme="dark"] .prose pre { background: #1f232a; }
+/* ⭐ HIS CALL, 2026-09-03: lifted with the ground — #1f232a sat at 1.08:1
+   over the old #191c22 but only 1.01:1 over the raised --bg, so the block had
+   gone flat. Deliberately the SAME literal as the dark .sidebar rail: in dark
+   mode there is the page ground and one raised surface, and both the rail and
+   code blocks sit on it (1.09:1 over --bg, the relation the block had before).
+   Move the two together or not at all. */
+[data-theme="dark"] .prose pre { background: #24292f; }
 
 .prose pre code { background: none; border: 0; padding: 0; font-size: inherit; }
 
@@ -4361,19 +4397,27 @@ body.single .page-title {
   margin: 0 0 0.4rem;
 }
 .widget ul { list-style: none; padding: 0; margin: 0; }
+/* Letterpress rules, the same recessed-line + light-lip pair the left
+   sidebar's menu items carry (see .nav__list): dark line below each item, a
+   light edge under it. The first item also takes the top rule, with the lip
+   inset so the pressed direction stays the same at both ends. */
 .widget li {
   display: flex;
   gap: 0.7rem;
   padding: 0.65rem 0;
   font-size: 0.95rem;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--rule-ink);
+  box-shadow: 0 1px 0 var(--rule-lip);
 }
 .widget li::before {
   content: "\2014";
   color: var(--ink-dim);
   flex: none;
 }
-.widget li:first-child { border-top: 1px solid var(--border); }
+.widget li:first-child {
+  border-top: 1px solid var(--rule-ink);
+  box-shadow: inset 0 1px 0 var(--rule-lip), 0 1px 0 var(--rule-lip);
+}
 .widget a { color: var(--ink-soft); transition: color var(--t-fast); }
 .widget a:hover { color: var(--accent); }
 .widget li .post-date,
@@ -4385,13 +4429,12 @@ body.single .page-title {
 .widget_tag_cloud .tagcloud,
 .widget_tag_cloud .wp-block-tag-cloud {
   border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
   padding: 0.95rem 0;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem 0.75rem;
+  gap: 0.5rem;
 }
-.widget_tag_cloud .tagcloud a { line-height: 1.4; }
+.widget_tag_cloud .tagcloud a { line-height: 1; }
 
 /* Underline search (matches the original) */
 .search-form {
@@ -4414,6 +4457,47 @@ body.single .page-title {
 }
 .search-form input::placeholder { color: var(--ink-dim); }
 .search-form input:focus { outline: none; }
+/* Chrome paints a value it autofilled (or the user picked from its history
+   list) with its own blue-grey field background, set !important in the UA
+   sheet, which breaks the underline-only look. Two standard counters, both
+   needed: a huge inset shadow in the page ground paints over the fill, and a
+   near-infinite transition keeps the UA background from ever arriving. The
+   text-fill keeps the theme's ink instead of Chrome's white. */
+.search-form input:-webkit-autofill,
+.search-form input:-webkit-autofill:hover,
+.search-form input:-webkit-autofill:focus,
+.wp-block-search .wp-block-search__input:-webkit-autofill,
+.wp-block-search .wp-block-search__input:-webkit-autofill:hover,
+.wp-block-search .wp-block-search__input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px var(--bg) inset;
+          box-shadow: 0 0 0 1000px var(--bg) inset;
+  -webkit-text-fill-color: var(--ink);
+  caret-color: var(--ink);
+  transition: background-color 9999s ease-out 0s;
+}
+/* The clear (×) control that WebKit/Blink draws inside a search field is
+   its own pseudo-element: Chrome's default is a bold glyph with no pointer
+   and no hover. Redrawn as a stroke × in the arrow button's weight, painted
+   through a mask so it takes colour like text, with the same accent hover as
+   the arrow. Firefox draws no clear control at all, so it needs nothing. */
+.search-form input[type="search"]::-webkit-search-cancel-button,
+.wp-block-search .wp-block-search__input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+          appearance: none;
+  width: 0.95em;
+  height: 0.95em;
+  margin: 0 0.15em 0 0.5em;
+  flex: none;
+  cursor: pointer;
+  background-color: var(--ink-soft);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 3.5l9 9M12.5 3.5l-9 9' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 3.5l9 9M12.5 3.5l-9 9' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  transition: background-color var(--t-fast);
+}
+.search-form input[type="search"]::-webkit-search-cancel-button:hover,
+.wp-block-search .wp-block-search__input::-webkit-search-cancel-button:hover {
+  background-color: var(--accent);
+}
 .search-form button {
   flex: none;
   display: grid;
