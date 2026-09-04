@@ -1242,9 +1242,11 @@ function the_alpha_recent_posts_widget( $instance, $widget, $args ) {
 	echo '<nav aria-label="' . esc_attr( $title ? $title : __( 'Recent Posts', 'the-alpha' ) ) . '"><ul>';
 	while ( $posts->have_posts() ) {
 		$posts->the_post();
-		// The meta line in the post rows' own grammar — date, a pipe, reading
-		// time — left-aligned under the title. (A two-ended line, date left
-		// and time right, was tried and read as ugly: his call.) The date is
+		// The meta line in the single post's own grammar — a calendar before the
+		// date, a clock before the reading time, the icons doing the parting
+		// (his call, 2026-09-04; the pipe it replaced was the post rows'). A
+		// two-ended line, date left and time right, was tried earlier and read
+		// as ugly: his call too. The date is
 		// part of the design here, so the widget's own "Display post date" box
 		// no longer decides it; a recent-posts list without dates is a list
 		// without its point.
@@ -1253,7 +1255,10 @@ function the_alpha_recent_posts_widget( $instance, $widget, $args ) {
 		// the entry is hovered (his catch: a meta line that sat outside the
 		// link neither lit nor took the pointer).
 		echo '<li><a class="widget__entry" href="' . esc_url( get_permalink() ) . '"><span class="widget__name">' . esc_html( get_the_title() ? get_the_title() : get_the_ID() ) . '</span>'
-			. '<span class="widget__meta"><time datetime="' . esc_attr( get_the_date( 'c' ) ) . '">' . esc_html( get_the_date() ) . '</time> <span class="sep" aria-hidden="true">|</span> <span class="widget__read">' . esc_html( the_alpha_reading_time() ) . '</span></span></a></li>';
+			. '<span class="widget__meta">'
+			. '<span class="widget__meta-item">' . the_alpha_meta_icon( 'date', 12 ) . '<time datetime="' . esc_attr( get_the_date( 'c' ) ) . '">' . esc_html( get_the_date() ) . '</time></span>'
+			. '<span class="widget__meta-item">' . the_alpha_meta_icon( 'clock', 12 ) . '<span class="widget__read">' . esc_html( the_alpha_reading_time() ) . '</span></span>'
+			. '</span></a></li>';
 	}
 	echo '</ul></nav>';
 	echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- sidebar markup, registered by this theme.

@@ -193,18 +193,48 @@ function the_alpha_reading_time() {
 }
 
 /**
+ * One inline SVG for the meta rows — the single post's line, the related
+ * cards' foot and the sidebar's Recent Writing entries — so an icon is drawn
+ * once and every row agrees. Outlined on a 24-unit grid, 1.6 stroke in
+ * currentColor; $size is the box.
+ *
+ * @param string $name author | date | clock | folder | comment.
+ * @param int    $size Rendered width and height in px.
+ * @return string SVG markup, or '' for a name the set does not have.
+ */
+function the_alpha_meta_icon( $name, $size = 14 ) {
+	$paths = array(
+		'author'  => '<circle cx="12" cy="8" r="3.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M4.5 19.2c1.4-3.2 4.2-5 7.5-5s6.1 1.8 7.5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>',
+		'date'    => '<rect x="3.2" y="5" width="17.6" height="15" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M3.2 9.5h17.6M8 3.5v3M16 3.5v3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>',
+		'clock'   => '<circle cx="12" cy="12" r="8.4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 7.3V12l3.2 1.9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>',
+		'folder'  => '<path d="M3.5 7.5a2 2 0 0 1 2-2h4l2 2.5h7a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2V7.5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>',
+		'comment' => '<path d="M4.5 5.5h15a1.5 1.5 0 0 1 1.5 1.5v9a1.5 1.5 0 0 1-1.5 1.5H10l-4.5 3.2v-3.2H4.5A1.5 1.5 0 0 1 3 16V7a1.5 1.5 0 0 1 1.5-1.5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>',
+	);
+	if ( ! isset( $paths[ $name ] ) ) {
+		return '';
+	}
+	$size = (int) $size;
+	return '<svg viewBox="0 0 24 24" width="' . $size . '" height="' . $size . '" aria-hidden="true">' . $paths[ $name ] . '</svg>';
+}
+
+/**
  * Single-post meta bar: author · date · comments-count link. Author and
  * date are static (informational); the comments item is an anchor link
  * to #comments and only renders when there is a comments section to
  * scroll to (open or has existing comments).
  */
 function the_alpha_post_meta_single() {
-	$author_icon = '<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><circle cx="12" cy="8" r="3.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M4.5 19.2c1.4-3.2 4.2-5 7.5-5s6.1 1.8 7.5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
-	$date_icon   = '<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><rect x="3.2" y="5" width="17.6" height="15" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M3.2 9.5h17.6M8 3.5v3M16 3.5v3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
-	$cat_icon    = '<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M3.5 7.5a2 2 0 0 1 2-2h4l2 2.5h7a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2V7.5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>';
-	$comm_icon   = '<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M4.5 5.5h15a1.5 1.5 0 0 1 1.5 1.5v9a1.5 1.5 0 0 1-1.5 1.5H10l-4.5 3.2v-3.2H4.5A1.5 1.5 0 0 1 3 16V7a1.5 1.5 0 0 1 1.5-1.5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+	$author_icon = the_alpha_meta_icon( 'author' );
+	$date_icon = the_alpha_meta_icon( 'date' );
+	$cat_icon = the_alpha_meta_icon( 'folder' );
+	$comm_icon = the_alpha_meta_icon( 'comment' );
+	$clock_icon = the_alpha_meta_icon( 'clock' );
 
 	echo '<div class="post-meta-single">';
+	// Who, when and how long make one group; what and how many the other. The
+	// row wraps at the group boundary when it must (see .post-meta-single__line
+	// in main.css); the reading-focus layout gives each group its own line.
+	echo '<span class="post-meta-single__line post-meta-single__line--who">';
 
 	// rel="author" keeps the byline machine-readable for search/AI crawlers (an
 	// E-E-A-T signal), but it has to point somewhere real: this site does not
@@ -231,11 +261,20 @@ function the_alpha_post_meta_single() {
 	);
 
 	printf(
-		'<span class="post-meta-single__item">%s<time datetime="%s">%s</time></span>',
+		'<span class="post-meta-single__item post-meta-single__date">%s<time datetime="%s">%s</time></span>',
 		$date_icon,
 		esc_attr( get_the_date( DATE_W3C ) ),
 		esc_html( get_the_date() )
 	);
+
+	// Reading time, in the same words the sidebar and cards use.
+	printf(
+		'<span class="post-meta-single__item post-meta-single__read">%s<span>%s</span></span>',
+		$clock_icon, // safe: hand-authored inline SVG above.
+		esc_html( the_alpha_reading_time() )
+	);
+
+	echo '</span><span class="post-meta-single__line post-meta-single__line--what">';
 
 	$cats = get_the_category();
 	if ( ! empty( $cats ) ) {
@@ -254,18 +293,22 @@ function the_alpha_post_meta_single() {
 		);
 	}
 
+	// The icon lives in the wrapper span, not in the link: the Disqus count
+	// script rewrites the link's contents client-side (its own span inside the
+	// link is how it finds it), which used to wipe the SVG along with the text.
 	if ( comments_open() || get_comments_number() ) {
-		echo '<a class="post-meta-single__item post-meta-single__comments" href="#comments">';
+		echo '<span class="post-meta-single__item post-meta-single__comments">';
 		echo $comm_icon; // safe: hand-authored inline SVG above.
+		echo '<a href="#comments">';
 		comments_number(
 			esc_html__( 'No Comments', 'the-alpha' ),
 			esc_html__( '1 Comment', 'the-alpha' ),
 			esc_html__( '% Comments', 'the-alpha' )
 		);
-		echo '</a>';
+		echo '</a></span>';
 	}
 
-	echo '</div>';
+	echo '</span></div>';
 }
 
 /**
@@ -349,7 +392,7 @@ function the_alpha_card_category() {
  * matches the stroke weight of the single-post meta bar's icon set.
  */
 function the_alpha_card_meta() {
-	$clock_icon = '<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><circle cx="12" cy="12" r="8.4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 7.3V12l3.2 1.9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+	$clock_icon = the_alpha_meta_icon( 'clock' );
 
 	// Abbreviated on purpose, not the site-wide date_format: this line is card
 	// chrome kept to a single row, and a spelled-out month ("September 12,

@@ -172,6 +172,7 @@
      as UI chrome, a warm one reads as printed. */
   --bg: #F8F5F0;
   --bg-2: #F2EEE8;        /* sidebar surface — a gentle step down from --bg; also the hero bottom-fog colour, so this value drives the fog brightness too (kept matched so the hero→About seam stays invisible) */
+  --rail: #f4efe6;        /* ⭐ HIS CALL, 2026-09-04: the sidebar's own paper, shared by exactly three consumers — .sidebar, .site-footer and the code blocks — so they stay one surface. NOT --bg-2, which has 23 consumers. Dark has no --rail: its sidebar and footer keep their literals and its code blocks stay wells. */
   --surface: #FCFAF7;     /* card/sheet — the one surface allowed to sit above the page */
   --surface-2: #F1EDE6;
   --border: #DDD3C5;      /* warm, never grey */
@@ -635,20 +636,23 @@ h1, h2, h3, h4 {
 /* ⭐ 2026-09-03: stepped up with the ground (--bg took the rail's old #1e2229),
    so the rail keeps sitting one step above the page. */
 [data-theme="dark"] .sidebar { background: #24292f; }
-/* ⭐ HIS CALL, 2026-08-19. Light's half of the same move, and a literal for the
-   same reason: --bg-2 also carries the hero fog and every #about/#blog ground,
-   and only the sidebar and the footer were meant to change.
-   Note what this value does NOT do: #f4eee3 is the same LIGHTNESS as --bg-2
-   (L 0.8593 against 0.8585 — 1.001:1, indistinguishable), so it does not step
-   the rail down the way dark's #24292f does. It separates by hue instead —
-   warmth 17 red-minus-blue against --bg-2's 10 — while sitting below the page
-   itself (1.062:1 against --bg). A sandier paper beside a cooler one, not a
-   darker panel. Anyone reaching for contrast here should know there is none to
-   speak of, and that this is deliberate.
-   The footer takes the same literal in its own light rule below — the two are
+/* ⭐ HIS CALL, 2026-08-19, revalued 2026-09-04. Light's half of the same move,
+   kept off --bg-2 for the same reason: that token also carries the hero fog and
+   every #about/#blog ground, and only the sidebar and the footer were meant to
+   change. The value now lives in --rail (light block) so the footer and the
+   code blocks can share it without a literal being copied around.
+   Note what this value does NOT do: #f4efe6 is all but the same LIGHTNESS as
+   --bg-2 (L 0.8668 against 0.8585 — 1.009:1, indistinguishable), so it does
+   not step the rail down the way dark's #24292f does. It separates by hue
+   instead — warmth 14 red-minus-blue against --bg-2's 10 — while sitting below
+   the page itself (1.053:1 against --bg). A sandier paper beside a cooler one,
+   not a darker panel. The 2026-09-04 value is a touch cooler and lighter than
+   the #f4eee3 it replaced (warmth 17, L 0.8593). Anyone reaching for contrast
+   here should know there is none to speak of, and that this is deliberate.
+   The footer takes the same token in its own light rule below — the two are
    one surface at the bottom-left corner and must move together or a seam
    appears at the fold. */
-[data-theme="light"] .sidebar { background: #f4eee3; }
+[data-theme="light"] .sidebar { background: var(--rail); }
 
 
 .brand { text-align: center; }
@@ -2169,9 +2173,10 @@ h1, h2, h3, h4 {
 /* ⭐ HIS CALL, 2026-08-19. Scoped literal, not a --surface-2 move: that token
    also carries .card__media, .card:focus-within and .prose code, and only these
    cards were meant to change. #f6f0e5 is warmth 17 against --surface-2's 11 —
-   the same temperature as the sidebar's #f4eee3, a shade lighter, so the cards
-   read as the rail's paper lifted onto the section rather than as a fourth
-   cream. Text keeps 7.72:1 (--ink-soft) and the accent bullet 4.86:1. */
+   a shade warmer and lighter than the rail (--rail, #f4efe6 since 2026-09-04,
+   warmth 14; it matched the rail's earlier #f4eee3 exactly), so the cards read
+   as the rail's paper lifted onto the section rather than as a fourth cream.
+   Text keeps 7.72:1 (--ink-soft) and the accent bullet 4.86:1. */
 [data-theme="light"] .about__link { background: #f6f0e5; }
 .about__link:hover,
 .about__link:focus-visible {
@@ -2543,18 +2548,43 @@ h1, h2, h3, h4 {
   color: inherit;
 }
 .post-meta-single__item svg { flex-shrink: 0; }
-.post-meta-single__cats a {
+/* The two groups (who · when · how long, then what · how many) are flex rows
+   of their own, so the ROW wraps at a group boundary: when the five items do
+   not fit on one line, "categories · comments" drops to the next line together
+   instead of leaving "No Comments" orphaned on its own (his catch on a laptop
+   width, 2026-09-04). A group wider than the column wraps inside itself, which
+   is the phone stacking he already had. The gap is inherited so a row that
+   fits renders exactly as the flat row did. */
+.post-meta-single__line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: inherit;
+}
+/* Every link in the row speaks in the same quiet voice, accent on hover. The
+   byline is listed here on purpose: it became a link for the machine-readable
+   rel="author" and, with no rule of its own, had been wearing the base link
+   accent — an omission that read as a decision until he asked (2026-09-04). */
+.post-meta-single__cats a,
+.post-meta-single__author a {
   color: var(--ink-soft);
   text-decoration: none;
   transition: color var(--t-fast);
 }
-.post-meta-single__cats a:hover { color: var(--accent); }
-.post-meta-single__comments {
-  color: var(--ink);
-  font-weight: 600;
+.post-meta-single__cats a:hover,
+.post-meta-single__author a:hover { color: var(--accent); }
+/* The comments item speaks in the same voice as the three before it — it had
+   been bold ink, the one loud word on the line (his catch, 2026-09-04). The
+   icon sits in the wrapper span, OUTSIDE the link, because the Disqus count
+   script rewrites the link's contents in the browser and used to take the
+   inline SVG with it: the server HTML always carried the icon, the page never
+   showed it. */
+.post-meta-single__comments a {
+  color: var(--ink-soft);
+  text-decoration: none;
   transition: color var(--t-fast);
 }
-.post-meta-single__comments:hover { color: var(--accent); }
+.post-meta-single__comments a:hover { color: var(--accent); }
 
 .section__cta { margin-top: 2.6rem; text-align: center; }
 
@@ -3179,9 +3209,9 @@ h1, h2, h3, h4 {
     radial-gradient(130% 120% at 50% -8%,
       color-mix(in srgb, var(--accent) 7%, transparent) 0%,
       transparent 50%),
-    /* Paired with [data-theme="light"] .sidebar — same literal, same reason.
+    /* Paired with [data-theme="light"] .sidebar — same token, same reason.
        These two meet at the bottom-left corner, so they move together. */
-    #f4eee3;
+    var(--rail);
 }
 [data-theme="light"] .site-footer::after {
   width: 4px;
@@ -3748,12 +3778,42 @@ body.single .page-title {
     margin-inline: auto;
     padding-inline: clamp(1.2rem, 4vw, 2rem);
   }
+  /* The column reads like a printed page (his pick, 2026-09-04). The size was
+     matched by x-height against the reference he sent, not by its CSS value:
+     that page sets 18px, but his 125%-zoomed tab showed it at 22.5px, and the
+     x-height he was looking at was 10.1px. Fraunces reaches that at 1.34rem;
+     it is already loaded for the sidebar, so the serif costs no request. On
+     1.68 with a paragraph gap of about one line, ragged right and no
+     hyphenation. Headings keep their sizes — his call — so the h2 sits
+     closer to the text here than it does beside the sidebar. */
   body.reading-focus .prose {
     max-width: none;
     margin-inline: 0;
-    font-size: 1.02rem;
-    line-height: 1.9;
+    font-family: var(--font-brand);
+    font-size: 1.34rem;
+    line-height: 1.68;
   }
+  body.reading-focus .prose > * + * { margin-top: 1.4rem; }
+  body.reading-focus .prose p { text-align: left; hyphens: manual; -webkit-hyphens: manual; }
+  /* The pull quote is sized in rem for the sidebar layout (1.1rem); at this
+     body size that would leave it smaller than the text around it. */
+  body.reading-focus .prose blockquote { font-size: inherit; }
+  /* The meta line goes quiet: sentence case, no tracking. The icons stay —
+     they are what parts one item from the next (his call, 2026-09-04, after
+     the hero's accent dot was tried in their place; both together would mark
+     every boundary twice). */
+  body.reading-focus .post-meta-single {
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 0.84rem;
+    gap: 0.35rem 1.4rem;
+  }
+  /* Always two lines here, fit or not: each group takes the full width. */
+  body.reading-focus .post-meta-single { row-gap: 0.6rem; }
+  body.reading-focus .post-meta-single__line { flex-basis: 100%; gap: 0.35rem 1.4rem; }
+  /* A little more air on either side of the rule. */
+  body.reading-focus .page-head__rule { margin-top: 2rem; }
+  body.reading-focus .content-grid--tight { padding-top: 3rem; }
   body.reading-focus .focus-toggle { background: var(--accent); color: #06120f; border-color: transparent; }
 }
 
@@ -3964,6 +4024,12 @@ body.single .page-title {
   border-radius: 6px;
   border: 1px solid var(--border-soft);
 }
+/* Light mode: an inline code chip and a pre block take the rail's paper (his
+   call, 2026-09-04), so code and sidebar read as one surface. Dark keeps its
+   wells, --surface-2 and --bg-2, which sit below the page rather than beside
+   it. */
+[data-theme="light"] .prose code,
+[data-theme="light"] .prose pre { background: var(--rail); }
 .prose pre {
   position: relative;
   background: var(--bg-2);
@@ -4448,6 +4514,10 @@ body.single .page-title {
   min-width: 0;
 }
 .widget__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.15rem 0.9rem;
   font-family: var(--font-mono);
   font-size: 0.68rem;
   letter-spacing: 0.06em;
@@ -4457,7 +4527,9 @@ body.single .page-title {
 }
 .widget__entry:hover .widget__meta,
 .widget__entry:focus-visible .widget__meta { color: var(--accent); }
-.widget__meta .sep { margin: 0 0.2rem; } /* the post rows' pipe, spaced the same */
+/* Each fact carries its icon: the single post's meta row at sidebar size. */
+.widget__meta-item { display: inline-flex; align-items: center; gap: 0.35rem; }
+.widget__meta-item svg { flex-shrink: 0; }
 /* The category count at the row's end: a contents page's figure, in the mono
    face at the meta size, flush right so the counts form a column. No leader
    between name and figure — a row already has a rule above and below it, and
