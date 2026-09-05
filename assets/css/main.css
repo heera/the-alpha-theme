@@ -3988,6 +3988,7 @@ body.single .page-title {
 .prose blockquote {
   border-left: 3px solid var(--accent);
   padding: 0.4rem 0 0.4rem 1.4rem;
+  margin: 2.25rem 0; /* ⭐ HIS CALL, 2026-09-06: a pull quote needs more air than a paragraph. Beats the 1.25rem from `.prose > * + *`; the bottom margin collapses with the next sibling's top, so the gap is symmetric. */
   color: var(--ink);
   font-style: italic;
   font-size: 1.1rem;
