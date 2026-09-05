@@ -58,6 +58,7 @@
   --surface-2: #2b3039;  /* was #262a32, same lift */
   --border: #2a323c;      /* ⭐ 2026-09-03: lifted with --bg (was #232a33) so hairlines keep ~1.2:1 on the raised ground */
   --border-soft: #20272f; /* was #1b2128, same lift */
+  --rule: #414a55;        /* ⭐ HIS CALL, 2026-09-06: the in-article separator (.prose hr) only. At --border (#2a323c) it was barely visible on the raised ground; hairlines elsewhere keep --border. */
   /* Softened off-white instead of near-pure white (#e8eaed): pure-white text
      on the near-black bg glares/halates (~16:1, well past WCAG AAA). #ccd1d8
      drops it to a comfortable ~12.7:1 while staying crisp for headings/strong. */
@@ -177,6 +178,7 @@
   --surface-2: #F1EDE6;
   --border: #DDD3C5;      /* warm, never grey */
   --border-soft: #E9E1D6;
+  --rule: var(--border);  /* in-article separator; light keeps the warm hairline */
   /* Charcoal rather than black: past ~14:1 more contrast stops reading as more
      authority and starts reading as harder. */
   --ink: #232323;
@@ -4105,7 +4107,7 @@ body.single .page-title {
 @media (hover: none) {
   .prose .code-wrap .copy-btn { opacity: 0.7; }
 }
-.prose hr { border: 0; border-top: 1px solid var(--border); margin: 2rem 0; }
+.prose hr { border: 0; border-top: 1px solid var(--rule, var(--border)); margin: 2rem 0; }
 .prose :is(h2, h3, h4):first-child { margin-top: 0; }
 
 /* ----- Subscribe page ---------------------------------------------------- */
