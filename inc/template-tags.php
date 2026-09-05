@@ -186,7 +186,15 @@ function the_alpha_social_links( $classname = 'socials' ) {
  * @return string e.g. "4 min read"
  */
 function the_alpha_reading_time() {
-	$words   = str_word_count( wp_strip_all_tags( get_the_content() ) );
+	// ⭐ HIS CALL, 2026-09-06: count prose only. Code blocks (ASCII diagrams,
+	// JSON, terminal output) are scanned, not read, and str_word_count() split
+	// identifiers like cache_read_input_tokens into four "words", so a code-heavy
+	// post read as 38 minutes when its prose was ~29. Drop <pre> blocks first,
+	// then count runs of letters/digits/underscores/apostrophes/hyphens as one
+	// word each. Everything else is unchanged: 200 wpm, rounded up, never < 1.
+	$content = preg_replace( '#<pre\b[^>]*>.*?</pre>#is', ' ', get_the_content() );
+	$text    = wp_strip_all_tags( $content );
+	$words   = preg_match_all( "/[\p{L}\p{N}_'’-]+/u", $text );
 	$minutes = max( 1, (int) ceil( $words / 200 ) );
 	/* translators: %d: number of minutes. */
 	return sprintf( _n( '%d min read', '%d min read', $minutes, 'the-alpha' ), $minutes );
