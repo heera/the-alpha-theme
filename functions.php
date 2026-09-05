@@ -442,6 +442,15 @@ function the_alpha_no_fouc() {
 <script>
 (function(){var d=document.documentElement;d.classList.add('js');try{var mq=window.matchMedia;var os=mq&&mq('(prefers-color-scheme: light)').matches?'light':'dark';var m=localStorage.getItem('the-alpha-theme');if(m!=='light'&&m!=='dark'&&m!=='system'){if(<?php echo $mobile_light ? 'true' : 'false'; ?>&&mq&&mq('(max-width: 760px)').matches){m='light';}else{var def=<?php echo wp_json_encode( $default_scheme ); ?>;m=(def==='auto')?'system':def;}}d.setAttribute('data-theme-mode',m);d.setAttribute('data-theme',m==='system'?os:m);}catch(e){d.setAttribute('data-theme-mode','dark');d.setAttribute('data-theme','dark');}})();
 </script>
+<script>
+/* Scrollbar probe. Adds html.classic-scrollbars when the platform draws an
+   always-visible scrollbar that takes layout space (Windows, Linux, a Mac set
+   to "always show"). Overlay bars (macOS default, Windows 11 overlay mode)
+   measure 0 and are left alone, so Mac keeps its auto-hiding bar. The CSS
+   scrollbar styling in main.css hangs off this class and nothing else. Runs
+   before first paint so the styled bar never flashes in late. */
+(function(){try{var d=document.documentElement,p=document.createElement('div');p.style.cssText='position:absolute;top:-9999px;left:-9999px;width:100px;height:100px;overflow:scroll;visibility:hidden';d.appendChild(p);if(p.offsetWidth-p.clientWidth>0){d.classList.add('classic-scrollbars');}d.removeChild(p);}catch(e){}})();
+</script>
 	<?php
 }
 add_action( 'wp_head', 'the_alpha_no_fouc', 1 );
