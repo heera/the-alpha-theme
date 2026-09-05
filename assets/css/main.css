@@ -4108,7 +4108,19 @@ body.single .page-title {
 @media (hover: none) {
   .prose .code-wrap .copy-btn { opacity: 0.7; }
 }
-.prose hr { border: 0; border-top: 1px solid var(--rule, var(--border)); margin: 2rem 0; }
+/* ⭐ HIS CALL, 2026-09-06: the separator is a section break, not a stub. Across the
+   site 71 of 76 separators sit right before a heading, so give it one deliberate
+   shape: a short centered rule with air on both sides, the print convention for a
+   pause. WordPress's own 100px left-aligned default read as a line that stopped.
+   The 3rem below collapses with the heading's 2.4rem top margin, so no double gap. */
+.prose hr {
+  border: 0;
+  border-top: 1px solid var(--rule, var(--border));
+  margin: 3rem auto;
+}
+/* Core's `.wp-block-separator:not(.is-style-wide):not(.is-style-dots)` pins width to
+   100px at (0,3,0); match its specificity so our width wins, and leave the wide style alone. */
+.prose hr:not(.is-style-wide):not(.is-style-dots) { width: 5rem; max-width: 100%; }
 .prose :is(h2, h3, h4):first-child { margin-top: 0; }
 
 /* ----- Subscribe page ---------------------------------------------------- */
