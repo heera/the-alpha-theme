@@ -3753,14 +3753,14 @@ body.single .page-title {
    .page-head .wrap + .content-grid (column capped as above, fixed sidebar at
    the right, maxw-wide). Only the prose fill differs: let it fill the
    article column (like the listing's cards) instead of its 68ch page cap. */
-@media (min-width: 1025px) {
-  /* Body text fills the full article column so it lines up with the featured
-     image and other media — no narrower reading cap. */
-  body.single .prose { max-width: none; margin-inline: 0; }
-  /* Divider spans the full reading width (article + sidebar): it bounds the
-     meta row (so "No Comments" no longer overruns it) and gives the sidebar a
-     top "roof" line, matching the article. */
-}
+/* Body text fills the full article column so it lines up with the featured
+   image and other media — no narrower reading cap. At every width: on a
+   portrait tablet (768–1024px) the 68ch cap left the text a centred 626px
+   block under a full-width cover (his call, 2026-09-17). */
+body.single .prose { max-width: none; margin-inline: 0; }
+/* Divider spans the full reading width (article + sidebar): it bounds the
+   meta row (so "No Comments" no longer overruns it) and gives the sidebar a
+   top "roof" line, matching the article. */
 
 /* ----- Distraction-free reading mode (single posts) ----------------------- */
 /* Only meaningful at >=1025px, where the sidebar sits BESIDE the content. On
