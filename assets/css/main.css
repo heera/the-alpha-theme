@@ -3721,10 +3721,10 @@ body.single .page-title {
   max-width: 820px;
 }
 
-/* Single posts use the exact same layout as the blog listing — the default
-   .page-head .wrap + .content-grid (article fills, fixed sidebar at the right,
-   maxw-wide, symmetric padding). Only the prose fill differs: let it fill the
-   article column (like the listing's cards) instead of its 68ch page cap. */
+/* Single posts start from the blog listing's layout — the default
+   .page-head .wrap + .content-grid (fixed sidebar at the right, maxw-wide) —
+   and differ in two ways: the prose fills the article column instead of its
+   68ch page cap, and the article itself caps at 760px (his pick, 2026-09-17). */
 @media (min-width: 1025px) {
   /* Body text fills the full article column so it lines up with the featured
      image and other media — no narrower reading cap. */
@@ -3732,6 +3732,29 @@ body.single .page-title {
   /* Divider spans the full reading width (article + sidebar): it bounds the
      meta row (so "No Comments" no longer overruns it) and gives the sidebar a
      top "roof" line, matching the article. */
+
+  /* Article cap. The article sits centred between the left nav and the
+     sidebar, so the space either side of it is always equal: the left padding
+     takes the article↔sidebar gap's value, and whatever the cap frees is split
+     by margin-inline:auto. Below ~1700px the column is already under 760px and
+     simply fills it. The title block can't see the article's margin, so it
+     recomputes the same offset from the width both boxes share
+     (min(100%, maxw-wide)) to keep the title starting where the article does.
+     The listing keeps the full column; focus mode has its own 720px layout. */
+  body.single {
+    --post-gap: clamp(2rem, 1rem + 3vw, 3.5rem); /* = .content-grid gap */
+    --post-pad: clamp(2rem, 1.2rem + 2vw, 4rem); /* = .content-grid side padding */
+    --post-maxw: 760px;
+  }
+  body.single:not(.reading-focus) .content-grid:has(> .blog-aside) { padding-left: var(--post-gap); }
+  body.single:not(.reading-focus) .content-grid:has(> .blog-aside) > .entry {
+    width: 100%;
+    max-width: var(--post-maxw);
+    margin-inline: auto;
+  }
+  body.single:not(.reading-focus):has(.content-grid > .blog-aside) .page-head .wrap {
+    padding-left: calc(var(--post-gap) + max(0px, (min(100%, var(--maxw-wide)) - 2 * var(--post-gap) - var(--post-pad) - var(--aside-w) - var(--post-maxw)) / 2));
+  }
 }
 
 /* ----- Distraction-free reading mode (single posts) ----------------------- */
