@@ -424,6 +424,11 @@ h1, h2, h3, h4 {
 
 .eyebrow {
   display: inline-block;
+  /* Top, not the default baseline. On the baseline a one-line eyebrow rides
+     the parent's taller strut (22.8px line against its own 18.4px) and drops
+     3px; one that wraps outgrows the strut and doesn't. So About's long
+     eyebrow, which wraps on phones, sat 3px higher than Blog's and Contact's. */
+  vertical-align: top;
   font-family: var(--font-mono);
   font-size: 0.74rem;
   letter-spacing: 0.28em;
@@ -2772,7 +2777,14 @@ h1, h2, h3, h4 {
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  /* ⭐ HIS CALL, 2026-09-22: every section eyebrow sits the same distance
+     below its seam — one section padding, on every screen. These were centred,
+     which only held while the content overflowed the 100dvh box. Blog's block
+     is ~740px, so on a 1728×1000 screen centring engaged and its eyebrow sat
+     157px down against 89px for the others; About's did the same on tall
+     screens (315px at 2560×1440). flex-start makes the gap structural, the same
+     fix #contact already had, and drops any leftover at the bottom. */
+  justify-content: flex-start;
 }
 /* Ambient atmospherics for the about section — originate from the
    bottom-left corner (slightly beyond, so the source feels off-canvas)
@@ -2785,7 +2797,7 @@ h1, h2, h3, h4 {
     /* The hero's fog continued past the fold. The photo above dissolves into
        --hero-fog, and #about's ground is --bg-2, which is 19 points cooler —
        so without this the letterpress seam doubles as a temperature edge. Short
-       enough (18%) to stay inside the empty band above the centred content.
+       (18%) so it stays a faint wash across the top padding and eyebrow.
        Inert in dark, where --hero-fog is transparent and .hero::after already
        lands the photo on --bg-2 itself. */
     /* Via --about-top-fog so the mobile block can switch this layer off. The
@@ -2797,15 +2809,14 @@ h1, h2, h3, h4 {
     /* Wall first = topmost. Horizontal only: smoke collects against a surface,
        it does not hang off it, and an offset would read as the panel floating. */
     linear-gradient(to right, var(--frag-wall) 0%, transparent 7%),
-    /* Seam pool. Both sections are min-height:100dvh with centred content, so a
-       short section spends its leftover half above and half below — and at this
-       join TWO half-leftovers meet, which is the empty band. Rather than shrink
-       it (that would cost the full-viewport rhythm each section is built on),
-       the atmosphere collects there: the theme already says smoke pools at a
-       join, mirroring across the blog/contact seam at 116% / -16%. This is the
-       same move for the seam above. Short (26% of height) so the stronger tone
-       stays inside the empty band and never reaches the centred text — the
-       first attempt was taller and weaker, and read as nothing at all. */
+    /* Seam pool. Both sections are min-height:100dvh with top-aligned content,
+       so a short section spends its leftover at the bottom — the empty band
+       above this join. Rather than shrink it (that would cost the full-viewport
+       rhythm each section is built on), the atmosphere collects there: the
+       theme already says smoke pools at a join, mirroring across the
+       blog/contact seam at 116% / -16%. This is the same move for the seam
+       above. Short (26% of height) so the stronger tone stays low — the first
+       attempt was taller and weaker, and read as nothing at all. */
     radial-gradient(ellipse 150% 26% at 50% 100%, var(--frag-seam) 0%, transparent 74%),
     /* Sits over the photograph's own corner (translateY(9%), right:-6%) so the
        two read as one source rather than a glow beside a picture. The photo now
@@ -2885,9 +2896,8 @@ h1, h2, h3, h4 {
   min-height: calc(100dvh - var(--footer-h, 14.5rem));
   display: flex;
   flex-direction: column;
-  /* Top-aligned, NOT centred like #about / #blog. Those two carry enough
-     content to overflow their min-height, so centring never engages and their
-     eyebrow sits exactly one section padding below the seam. Contact's block is
+  /* Top-aligned, like #about / #blog (see there), so all three eyebrows sit
+     exactly one section padding below the seam. Contact's block is
      ~200px shorter than its box, so centring split that leftover in two and
      pushed the eyebrow down by half of it — 31px lower than its siblings on a
      877px viewport, 59px on a 933px one, growing with the screen. flex-start
