@@ -21,7 +21,7 @@ const CSS = [
   "assets/css/main.css",
   "assets/css/editor.css",
 ];
-const JS = ["assets/js/theme.js"];
+const JS = ["assets/js/theme.js", "assets/js/neural-field.js"];
 
 const kb = (n) => (n / 1024).toFixed(1) + " KB";
 const pct = (from, to) => "-" + (((from - to) / from) * 100).toFixed(1) + "%";

@@ -184,6 +184,20 @@ function the_alpha_assets() {
 	);
 	wp_script_add_data( 'the-alpha', 'defer', true );
 
+	// The neural network behind the home page's Blog section — the only page
+	// that renders template-parts/section-blog.php.
+	if ( is_front_page() ) {
+		$neural = the_alpha_asset( 'assets/js/neural-field.js' );
+		wp_enqueue_script(
+			'the-alpha-neural-field',
+			THE_ALPHA_URI . '/' . $neural,
+			array(),
+			the_alpha_asset_ver( $neural ),
+			true
+		);
+		wp_script_add_data( 'the-alpha-neural-field', 'defer', true );
+	}
+
 	if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
 		wp_enqueue_script( 'comment-reply' );
 	}

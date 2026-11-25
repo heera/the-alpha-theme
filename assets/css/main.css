@@ -2383,6 +2383,34 @@ h1, h2, h3, h4 {
     aspect-ratio: auto;
   }
 }
+/* ⭐ HIS CALL, 2026-11-26: landing on the home Blog band shows "View all
+   posts" without scrolling. Three cards when the column holds three in one
+   row (wide screens — unchanged from before). Where the third would wrap to a
+   row of its own (the feature strip, which pushed the button 70-300px below
+   the fold on laptops and tablets), it is dropped and two sit side by side.
+   Stacked on phones. Thresholds are this grid's own: 3x280px + two 1.5rem
+   gaps = 888px, 2x280px + one gap = 584px. On short screens theme.js also
+   trims the card images (--card-media-h) so the band fits. The full blog page
+   and the related row are untouched. Picked on a live panel; a first cut that
+   forced two cards everywhere made them oversized on wide screens. */
+#blog .wrap { container: blog-column / inline-size; width: 100%; }
+@container blog-column (width < 888px) {
+  #blog .cards > .card:nth-child(n + 3) { display: none; }
+}
+@container blog-column (584px <= width < 888px) {
+  #blog .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@container blog-column (width >= 888px) {
+  #blog .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+/* (width:100% above matters: #blog is a flex column and .wrap's auto inline
+   margins shrink it to its content, which inline-size containment makes 0.) */
+/* !important: the heading block's 2.4rem gap is an inline style. */
+#blog.is-fitted .wrap > .reveal:first-child { margin-bottom: 1.6rem !important; }
+#blog.is-fitted .card__media {
+  aspect-ratio: auto;
+  height: var(--card-media-h);
+}
 .card {
   position: relative;          /* anchor for the stretched title link */
   display: flex;
@@ -2654,67 +2682,23 @@ h1, h2, h3, h4 {
     radial-gradient(ellipse 130% 110% at 18%  38%, var(--frag-haze)  0%, transparent 88%),
     var(--section-ground, var(--bg-2));   /* same base as #about; the seam below carries the boundary */
 }
-/* Binary-code texture — relocated here from the hero. The same developer
-   motif (glowing digits on black) now lives in the blog section. screen blend
-   drops the image's black field so only the digits register, masked to fade in
-   toward the right and kept clear of the left-aligned heading. Rides on
-   ::after since ::before is the letterpress seam; .wrap is lifted above both. */
-#blog::after {
-  content: "";
+/* ⭐ HIS CALL, 2026-11-26: the binary digits that sat here are gone; a drifting
+   neural network replaces them (assets/js/neural-field.js, ported from the
+   fluent-mcp-relay landing page). Dark mode draws it in the relay's
+   teal/cyan/blue/violet as glints; light mode draws it as bronze pencil
+   hairlines, because glowing colour on cream turns into ink that competes
+   with the text (see the polarity note above). Density 95, no travelling
+   sparks — his picks from the live panel; light mode runs at density 130 (2026-11-26), since its soft pencil lines needed more of them to read. The mask is the relay's own:
+   quieter in the middle where the words are, full toward the edges. */
+#blog .neural-field {
   position: absolute;
   inset: 0;
   z-index: 0;
-  /* 0.11 -> 0.065 (Heera, 2026-08-26): dark's digits read louder than light's,
-     and he wanted them to recede to the same degree. Re-measured with ONE
-     method for both themes so the two are actually comparable — the texture's
-     bright pixels average 116.3 luminance (21.9% of the image), pushed through
-     each theme's own route: dark screens them over --bg-2 #15181d and lands
-     +11.61, light luminance-masks --accent over #F2EEE8 and lands -6.85. So
-     dark sat ~1.7x more present, which is what he was seeing. 0.065 puts it at
-     +6.86 — parity. (The older figures in the light-mode note below, 15.1 and
-     10.2, came from a different sampling and are not comparable to these; the
-     +11.1 recorded there for dark does match this model's +11.61.) */
-  opacity: 0.065;
-  background-image: var(--binary);
-  background-size: 360px;
-  mix-blend-mode: screen;
-  mask-image: linear-gradient(90deg, transparent 35%, #000 100%);
+  width: 100%;
+  height: 100%;
   pointer-events: none;
-}
-/* Light mode: a screen blend can only lighten, so green-on-black digits vanish
-   on the cream paper (and any darkening blend would paint the image's black
-   field as a box). Switch techniques — use the binary art as a LUMINANCE mask
-   (bright digits punch through, black field dropped) over a solid --accent
-   fill, so digits render as on-brand teal marks. A second mask layer carries
-   the same right-fade; the two are intersected so both constraints apply.
-   ⚠️ The technique switch has a cost that is easy to miss: it also flips the
-   texture's SIGN. Dark mode screens the digits LIGHTER than the ground (+11.1
-   measured against the local ground) — glints, which recede and read as
-   atmosphere. This route paints them DARKER than the paper — ink, which is the
-   same signal as body text, so the eye starts to READ the ones and zeros
-   instead of feeling them, right where the section lede sits on top of them.
-   ⭐ HIS CALL, 2026-08-19: 0.22 → 0.11, which takes the ink depth from 15.1 to
-   10.2 and lands it beside dark's presence. Two other routes were built and
-   measured first, both dead ends worth not repeating: flipping the polarity to
-   a white watermark (cream is already at 224 luminance — only ~31 units of
-   headroom above it, so it vanished), and pushing the mask right to clear the
-   prose column at the same time (also vanished; it was two changes at once).
-   If the digits behind the paragraph ever need more room, the lever is the
-   second mask layer's 35% stop, NOT this opacity — move one at a time. */
-[data-theme="light"] #blog::after {
-  background-image: none;
-  background-color: var(--accent);
-  mix-blend-mode: normal;
-  opacity: 0.11;
-  -webkit-mask-image: var(--binary), linear-gradient(90deg, transparent 35%, #000 100%);
-          mask-image: var(--binary), linear-gradient(90deg, transparent 35%, #000 100%);
-  -webkit-mask-size: 360px, 100% 100%;
-          mask-size: 360px, 100% 100%;
-  -webkit-mask-repeat: repeat, no-repeat;
-          mask-repeat: repeat, no-repeat;
-  mask-mode: luminance, alpha;
-  -webkit-mask-composite: source-in;
-          mask-composite: intersect;
+  -webkit-mask-image: radial-gradient(ellipse 55% 50% at 50% 50%, rgb(0 0 0 / 0.3), #000 85%);
+          mask-image: radial-gradient(ellipse 55% 50% at 50% 50%, rgb(0 0 0 / 0.3), #000 85%);
 }
 #blog .wrap { position: relative; z-index: 1; }
 /* Letterpress seam — drawn at the TOP of each content section to mark the
@@ -5392,6 +5376,64 @@ body.drawer-open { overflow: hidden; }
        width — 3-up on wider tablets, dropping to 2-up when 3 would force the
        longest handle ("X (Twitter): /@heerasheikh") to wrap or overflow. */
     grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  }
+}
+
+/* ⭐ HIS CALL, 2026-11-26 — iPad landscape (1180) and anything else between the
+   tablet layout above and the 1200px desktop cover rule. This band fell through
+   both: the frame stretched to the text in a 0.6fr column (measured 200x526 at
+   1180) and `contain` left the square photo filling only 38% of its height,
+   with the readout and waveform floating in the empty bands. And two link
+   chips ("Stack Overflow: /the-alpha", "X (Twitter): /@heerasheikh") overflowed
+   their 2-up column.
+   Fix, picked on a live 1180x820 panel: the tablet's wider photo column and
+   full-width link rows, but the frame keeps STRETCHING to the bio (his ask —
+   the portrait aligns with the text) and the photo fills it (cover; ~278x420,
+   face and every HUD overlay stay in). The last paragraph drops its bottom
+   margin so the frame ends flush with the last line of text instead of 16px
+   below it. */
+@media (min-width: 1025px) and (max-width: 1199px) {
+  .about__grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+    align-items: start;
+    row-gap: 1rem;
+  }
+  .about__grid > div { display: contents; }
+  .portrait {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: stretch;
+  }
+  .portrait img { object-fit: cover; }
+  .bio { grid-column: 2; grid-row: 1; }
+  .bio > :last-child { margin-bottom: 0; }
+  .about__links-label {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    margin-top: 0;
+  }
+  .about__links {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    /* His follow-up, same day: on a 1180x758 window (iPad landscape with the
+       browser bar) the last row of links sat 59px below the fold. Three
+       columns where they fit, at a slightly smaller mono size, plus the
+       tighter row gap below, bring it back on screen without touching the
+       portrait he approved. 13.8rem is the measured floor: it never lets
+       "X (Twitter): /@heerasheikh" overflow, so it stays 2-up under ~1175px. */
+    grid-template-columns: repeat(auto-fit, minmax(13.8rem, 1fr));
+    column-gap: 0.7rem;
+    font-size: 0.76rem;
+  }
+}
+/* Just past that band the links return to the bio column, 2-up, and from
+   1200 to ~1215px "Stack Overflow: /the-alpha" and "X (Twitter): /@heerasheikh"
+   overflowed their chips (pre-existing, measured 2026-11-26). The same
+   slightly smaller mono size clears them; 1231 leaves margin for a font swap. */
+@media (min-width: 1200px) and (max-width: 1231px) {
+  .about__links {
+    column-gap: 0.7rem;
+    font-size: 0.76rem;
   }
 }
 

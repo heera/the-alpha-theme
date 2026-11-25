@@ -1,6 +1,6 @@
 <?php
 /**
- * Section: Latest blog posts (3 most recent).
+ * Section: Latest blog posts (3 most recent; a short row shows 2, see main.css #blog .cards).
  *
  * @package TheAlpha
  */
@@ -21,6 +21,7 @@ $ta_latest = new WP_Query( array(
 ) );
 ?>
 <section id="blog" class="section" aria-label="<?php esc_attr_e( 'Latest writing', 'the-alpha' ); ?>">
+	<canvas class="neural-field" aria-hidden="true"></canvas>
 	<div class="wrap">
 		<div class="reveal" style="margin-bottom:2.4rem;">
 			<p class="eyebrow"><?php esc_html_e( 'Read', 'the-alpha' ); ?></p>

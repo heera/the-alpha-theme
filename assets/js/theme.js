@@ -437,6 +437,47 @@
     onScanScroll();
   }
 
+  /* ---- Home Blog band: fit "View all posts" on short screens -----------
+     ⭐ HIS CALL, 2026-11-26: landing on the Blog section should show the
+     button without scrolling. When the two cards sit side by side and the
+     band would run past the bottom of the screen, trim the card images
+     (never below 110px) by exactly the overflow. Tall screens keep 16:10.
+     Phones (cards stacked) are left alone: no image height fits there. */
+  var blogBand = document.getElementById("blog");
+  var blogCards = blogBand && blogBand.querySelector(".cards");
+  var blogBtn = blogBand && blogBand.querySelector(".section__cta .btn");
+  if (blogCards && blogBtn) {
+    var fitBlog = function () {
+      blogBand.classList.remove("is-fitted");
+      var media = blogCards.querySelector(".card__media");
+      var twoUp = getComputedStyle(blogCards).gridTemplateColumns.split(" ").length > 1;
+      if (!media || !twoUp) return;
+      var bar = document.querySelector(".topbar");
+      var barH = bar && getComputedStyle(bar).display !== "none" ? bar.offsetHeight : 0;
+      var room = window.innerHeight - barH;
+      var overflow = function () {
+        // 24px breathing room under the button.
+        return blogBtn.getBoundingClientRect().bottom - blogBand.getBoundingClientRect().top + 24 - room;
+      };
+      if (overflow() <= 0) return;
+      // Fitted mode also tightens the heading gap (CSS); measure again with it
+      // on and the images still at full height, then trim by what is left.
+      var natural = media.offsetHeight;
+      blogBand.style.setProperty("--card-media-h", natural + "px");
+      blogBand.classList.add("is-fitted");
+      var over = overflow();
+      if (over <= 0) return;
+      blogBand.style.setProperty("--card-media-h", Math.max(110, Math.floor(natural - over - 1)) + "px");
+    };
+    var fitTimer = null;
+    window.addEventListener("resize", function () {
+      clearTimeout(fitTimer);
+      fitTimer = setTimeout(fitBlog, 120);
+    });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitBlog);
+    fitBlog();
+  }
+
   /* ---- Footer seal: first-view glow flourish ----------------------------
      The seal is always visible at its resting glow. The first time it's dwelt
      on — in view, mostly on screen, for ~1s of settled attention — its glow
