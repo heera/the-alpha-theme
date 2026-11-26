@@ -55,7 +55,7 @@
      ⭐ HIS CALL, 2026-11-26: the rail left that set — see --rail below. */
   --bg: #1e2229;   /* ⭐ HIS CALL, 2026-09-03: one more step up, from #191c22 — the value the sidebar rail had held */
   --bg-2: #15181d;
-  --rail: #131a1a;        /* ⭐ HIS CALL, 2026-11-26: dark's own --rail, shared by .sidebar and .site-footer only (code blocks keep #24292f). Picked by flipping in the page: a shade under the ground (1.11:1 against --bg, the same darkness as neutral #16191e) with a teal cast between #151a1a and #111b1a — cool like the ground, echoing the footer's accent hairline. Nav and footer now read as one frame, as they do in light. */
+  --rail: #172121;        /* ⭐ HIS CALL, 2026-11-26 (revised same day: #131a1a → #1b2525 → #172121): dark's own --rail, shared by .sidebar and .site-footer only (code blocks keep #24292f). Now just under the ground with a stronger teal cast — cool like the ground, echoing the footer's accent hairline. Nav and footer now read as one frame, as they do in light. */
   --surface: #1f232a;    /* was #191d23, lifted 2026-09-03 with --bg */
   --surface-2: #2b3039;  /* was #262a32, same lift */
   --border: #2a323c;      /* ⭐ 2026-09-03: lifted with --bg (was #232a33) so hairlines keep ~1.2:1 on the raised ground */
@@ -647,6 +647,14 @@ h1, h2, h3, h4 {
 /* ⭐ HIS CALL, 2026-11-26: the rail moves off #24292f onto dark's --rail, so it
    now sits UNDER the page and matches the footer, like light. */
 [data-theme="dark"] .sidebar { background: var(--rail); }
+/* 2026-11-26, trial: on the darker teal rail the nav's letterpress rules (tuned
+   for the old #24292f rail) read as heavy black grooves, and the blue-grey
+   right edge read as a seam between rail and page. Rules softened to about
+   half, edge hidden — the rail/page colour step marks the boundary alone. */
+[data-theme="dark"] .sidebar {
+  --rule-ink: rgba(0, 0, 0, 0.32);
+  border-right-color: transparent;
+}
 /* ⭐ HIS CALL, 2026-08-19, revalued 2026-09-04. Light's half of the same move,
    kept off --bg-2 for the same reason: that token also carries the hero fog and
    every #about/#blog ground, and only the sidebar and the footer were meant to
