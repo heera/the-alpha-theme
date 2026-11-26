@@ -298,6 +298,7 @@ function the_alpha_ar_llms_txt() {
 		array(
 			'post_type'        => 'post',
 			'post_status'      => 'publish',
+			'has_password'     => false,
 			'numberposts'      => 50,
 			'orderby'          => 'date',
 			'order'            => 'DESC',
@@ -374,6 +375,9 @@ function the_alpha_ar_llms_full_txt() {
 		if ( '' === trim( (string) $page->post_content ) ) {
 			continue; // Template-driven page (e.g. front page, subscribe) — no prose body.
 		}
+		if ( '' !== $page->post_password ) {
+			continue; // Password-protected — the body stays behind the password.
+		}
 		$out .= "\n---\n\n" . the_alpha_ar_post_markdown( $page->ID ) . "\n";
 	}
 
@@ -383,6 +387,7 @@ function the_alpha_ar_llms_full_txt() {
 		array(
 			'post_type'        => 'post',
 			'post_status'      => 'publish',
+			'has_password'     => false,
 			'numberposts'      => $count > 0 ? $count : 50,
 			'orderby'          => 'date',
 			'order'            => 'DESC',
@@ -546,7 +551,9 @@ add_action( 'delete_term', 'the_alpha_ar_flush_llms' );
  */
 function the_alpha_ar_post_markdown( $post_id ) {
 	$post = get_post( $post_id );
-	if ( ! $post || 'publish' !== $post->post_status ) {
+	// A password-protected body is never served here: raw post_content skips the
+	// password check that get_the_content() would apply.
+	if ( ! $post || 'publish' !== $post->post_status || post_password_required( $post ) ) {
 		return "# Not found\n";
 	}
 

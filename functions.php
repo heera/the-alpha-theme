@@ -784,7 +784,7 @@ function the_alpha_seo() {
 			'query-input' => 'required name=search_term_string',
 		),
 	);
-	echo '<script type="application/ld+json">' . wp_json_encode( $website_ld, JSON_UNESCAPED_SLASHES ) . "</script>\n";
+	echo '<script type="application/ld+json">' . wp_json_encode( $website_ld, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . "</script>\n";
 
 	// ---- JSON-LD: Person (entity home — ties name variants together) ---
 	// alternateName declares the spelling/transliteration variants (Heera /
@@ -828,7 +828,7 @@ function the_alpha_seo() {
 			$person_ld['knowsAbout'] = array_values( $knows_about );
 		}
 	}
-	echo '<script type="application/ld+json">' . wp_json_encode( $person_ld, JSON_UNESCAPED_SLASHES ) . "</script>\n";
+	echo '<script type="application/ld+json">' . wp_json_encode( $person_ld, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . "</script>\n";
 
 	// ---- JSON-LD: BlogPosting + BreadcrumbList (single posts) ----------
 	if ( is_singular( 'post' ) ) {
@@ -869,7 +869,7 @@ function the_alpha_seo() {
 		if ( $img ) {
 			$article_ld['image'] = $img;
 		}
-		echo '<script type="application/ld+json">' . wp_json_encode( $article_ld, JSON_UNESCAPED_SLASHES ) . "</script>\n";
+		echo '<script type="application/ld+json">' . wp_json_encode( $article_ld, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . "</script>\n";
 
 		$crumbs = array(
 			'@context'        => 'https://schema.org',
@@ -880,7 +880,7 @@ function the_alpha_seo() {
 				array( '@type' => 'ListItem', 'position' => 3, 'name' => $title_text, 'item' => $url ),
 			),
 		);
-		echo '<script type="application/ld+json">' . wp_json_encode( $crumbs, JSON_UNESCAPED_SLASHES ) . "</script>\n";
+		echo '<script type="application/ld+json">' . wp_json_encode( $crumbs, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . "</script>\n";
 	}
 }
 add_action( 'wp_head', 'the_alpha_seo', 5 );

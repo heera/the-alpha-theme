@@ -56,6 +56,11 @@ rsync -a \
   --exclude='*.map' \
   --exclude='.DS_Store' \
   --exclude='._*' \
+  --exclude='README.md' \
+  --exclude='*.log' \
+  --exclude='.env*' \
+  --exclude='.idea/' \
+  --exclude='.vscode/' \
   ./ "$STAGE/"
 
 # Zip from inside dist/ so paths are relative to the slug folder.
