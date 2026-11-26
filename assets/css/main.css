@@ -55,7 +55,7 @@
      ⭐ HIS CALL, 2026-11-26: the rail left that set — see --rail below. */
   --bg: #1e2229;   /* ⭐ HIS CALL, 2026-09-03: one more step up, from #191c22 — the value the sidebar rail had held */
   --bg-2: #15181d;
-  --rail: #172121;        /* ⭐ HIS CALL, 2026-11-26 (revised same day: #131a1a → #1b2525 → #172121): dark's own --rail, shared by .sidebar and .site-footer only (code blocks keep #24292f). Now just under the ground with a stronger teal cast — cool like the ground, echoing the footer's accent hairline. Nav and footer now read as one frame, as they do in light. */
+  --rail: #181c22;        /* ⭐ HIS CALL, 2026-11-26 (revised: #131a1a → #1b2525 → #172121 → #181c22, trial — any teal beside the blue-grey --bg made the content read coffee-brown; this is --bg's own hue, one step darker): dark's own --rail, shared by .sidebar and .site-footer only (code blocks keep #24292f). Same blue-grey as the ground, just darker, so neither surface shifts the other's colour. Nav and footer now read as one frame, as they do in light. */
   --surface: #1f232a;    /* was #191d23, lifted 2026-09-03 with --bg */
   --surface-2: #2b3039;  /* was #262a32, same lift */
   --border: #2a323c;      /* ⭐ 2026-09-03: lifted with --bg (was #232a33) so hairlines keep ~1.2:1 on the raised ground */
