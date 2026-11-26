@@ -485,9 +485,11 @@
      observer then disconnects so it plays just once this load (a refresh
      re-arms it). Purely additive: no fade-in, no hidden state — the seal sits
      at rest before and after, so it can never be left invisible. Skipped for
-     reduced-motion and no-JS (both just see the resting seal). */
+     reduced-motion and no-JS (both just see the resting seal).
+     ⭐ HIS CALL, 2026-11-26: landing page only (body.home). Every other page
+     shows the seal at rest; the hover spin below is unaffected. */
   var seal = document.querySelector(".site-footer__seal");
-  if (seal && !reduceMotion && "IntersectionObserver" in window) {
+  if (seal && !reduceMotion && document.body.classList.contains("home") && "IntersectionObserver" in window) {
     var sealDwell = null;
     var sealObs = new IntersectionObserver(
       function (entries) {

@@ -3210,8 +3210,10 @@ h1, h2, h3, h4 {
    ground over that 1px, so the line stops at the footer's top and the two join
    as one L-shaped frame. Desktop only: at ≤1024px the sidebar is a drawer over
    the page and the footer must stay under it. */
+/* 2026-11-26, later: light had the same crack (it has shared --rail since
+   2026-09-04), so the rule covers both themes. */
 @media (min-width: 1025px) {
-  [data-theme="dark"] .site-footer {
+  :is([data-theme="dark"], [data-theme="light"]) .site-footer {
     z-index: 101;
     box-shadow: -1px 0 0 0 var(--rail);
   }
@@ -3220,6 +3222,14 @@ h1, h2, h3, h4 {
    white lift entirely and let only a whisper of accent tint the top edge. */
 [data-theme="light"] .site-footer {
   background:
+    /* ⭐ HIS CALL, 2026-11-26 ("Sun", picked by flipping against the old
+       look): a glow can't read as light on cream — there's no brighter to go —
+       but WARMTH can. A soft amber wash spreads down from the node like a small
+       lamp on paper; it does the job dark mode's white bloom does. */
+    radial-gradient(380px 170px at 50% 0%,
+      rgba(236, 178, 84, 0.20) 0%,
+      rgba(236, 178, 84, 0.08) 40%,
+      transparent 75%),
     radial-gradient(130% 120% at 50% -8%,
       color-mix(in srgb, var(--accent) 7%, transparent) 0%,
       transparent 50%),
@@ -3227,12 +3237,27 @@ h1, h2, h3, h4 {
        These two meet at the bottom-left corner, so they move together. */
     var(--rail);
 }
+/* Same call: the hairline's centre turns gold and the node becomes a small
+   amber lamp, so the wash above has a source. The sides keep the bronze. */
+[data-theme="light"] .site-footer::before {
+  background: linear-gradient(to right,
+    transparent 0%,
+    color-mix(in srgb, var(--accent) 30%, transparent) 12%,
+    color-mix(in srgb, var(--accent) 60%, transparent) 30%,
+    #d9a24a 50%,
+    color-mix(in srgb, var(--accent) 60%, transparent) 70%,
+    color-mix(in srgb, var(--accent) 30%, transparent) 88%,
+    transparent 100%);
+}
 [data-theme="light"] .site-footer::after {
   width: 4px;
   height: 4px;
   margin-left: -2px;
   top: -2px;
-  box-shadow: 0 0 4px 1px color-mix(in srgb, var(--accent) 45%, transparent);
+  background: #e0a640;
+  box-shadow:
+    0 0 4px 1px rgba(230, 166, 64, 0.75),
+    0 0 12px 4px rgba(236, 178, 84, 0.35);
 }
 .site-footer a { color: inherit; transition: color var(--t-fast); }
 .site-footer a:hover { color: var(--accent); }
