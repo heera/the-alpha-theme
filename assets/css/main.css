@@ -51,9 +51,11 @@
      had to the old ground (cards still flat-by-a-point, inline code still
      ~1.2:1). --bg-2 alone stayed put: it was already below the page by design,
      and the ground moving away only deepens that recess. Dark now has one
-     RAISED surface, #24292f, shared by the rail, code blocks and .to-top. */
+     RAISED surface, #24292f, shared by the rail, code blocks and .to-top.
+     ⭐ HIS CALL, 2026-11-26: the rail left that set — see --rail below. */
   --bg: #1e2229;   /* ⭐ HIS CALL, 2026-09-03: one more step up, from #191c22 — the value the sidebar rail had held */
   --bg-2: #15181d;
+  --rail: #131a1a;        /* ⭐ HIS CALL, 2026-11-26: dark's own --rail, shared by .sidebar and .site-footer only (code blocks keep #24292f). Picked by flipping in the page: a shade under the ground (1.11:1 against --bg, the same darkness as neutral #16191e) with a teal cast between #151a1a and #111b1a — cool like the ground, echoing the footer's accent hairline. Nav and footer now read as one frame, as they do in light. */
   --surface: #1f232a;    /* was #191d23, lifted 2026-09-03 with --bg */
   --surface-2: #2b3039;  /* was #262a32, same lift */
   --border: #2a323c;      /* ⭐ 2026-09-03: lifted with --bg (was #232a33) so hairlines keep ~1.2:1 on the raised ground */
@@ -173,7 +175,7 @@
      as UI chrome, a warm one reads as printed. */
   --bg: #F8F5F0;
   --bg-2: #F2EEE8;        /* sidebar surface — a gentle step down from --bg; also the hero bottom-fog colour, so this value drives the fog brightness too (kept matched so the hero→About seam stays invisible) */
-  --rail: #f4efe6;        /* ⭐ HIS CALL, 2026-09-04: the sidebar's own paper, shared by exactly three consumers — .sidebar, .site-footer and the code blocks — so they stay one surface. NOT --bg-2, which has 23 consumers. Dark has no --rail: its sidebar and footer keep their literals and its code blocks stay wells. */
+  --rail: #f4efe6;        /* ⭐ HIS CALL, 2026-09-04: the sidebar's own paper, shared by exactly three consumers — .sidebar, .site-footer and the code blocks — so they stay one surface. NOT --bg-2, which has 23 consumers. Dark has its own --rail since 2026-11-26 (sidebar + footer only); its code blocks stay wells. */
   --surface: #FCFAF7;     /* card/sheet — the one surface allowed to sit above the page */
   --surface-2: #F1EDE6;
   --border: #DDD3C5;      /* warm, never grey */
@@ -642,7 +644,9 @@ h1, h2, h3, h4 {
    untouched. */
 /* ⭐ 2026-09-03: stepped up with the ground (--bg took the rail's old #1e2229),
    so the rail keeps sitting one step above the page. */
-[data-theme="dark"] .sidebar { background: #24292f; }
+/* ⭐ HIS CALL, 2026-11-26: the rail moves off #24292f onto dark's --rail, so it
+   now sits UNDER the page and matches the footer, like light. */
+[data-theme="dark"] .sidebar { background: var(--rail); }
 /* ⭐ HIS CALL, 2026-08-19, revalued 2026-09-04. Light's half of the same move,
    kept off --bg-2 for the same reason: that token also carries the hero fog and
    every #about/#blog ground, and only the sidebar and the footer were meant to
@@ -3197,7 +3201,21 @@ h1, h2, h3, h4 {
    footer alone — the token also carries the front-page section grounds and the
    hero fog, which were tuned as a set — puts the old step back. Only the base
    layer changes; the beam and node gradients above it are untouched. */
-[data-theme="dark"] .site-footer { --footer-ground: #1a1e24; }
+/* ⭐ HIS CALL, 2026-11-26: the footer now takes dark's --rail (was #1a1e24), the
+   same paper as the sidebar beside it. */
+[data-theme="dark"] .site-footer { --footer-ground: var(--rail); }
+/* ⭐ HIS CALL, 2026-11-26: with nav and footer one colour, the sidebar's edge
+   hairline running on down beside the footer read as a crack through a single
+   surface. The footer rises above the fixed sidebar (z 100) and paints its own
+   ground over that 1px, so the line stops at the footer's top and the two join
+   as one L-shaped frame. Desktop only: at ≤1024px the sidebar is a drawer over
+   the page and the footer must stay under it. */
+@media (min-width: 1025px) {
+  [data-theme="dark"] .site-footer {
+    z-index: 101;
+    box-shadow: -1px 0 0 0 var(--rail);
+  }
+}
 /* Light mode: the smoky bloom reads as a muddy stain on the cream, so drop the
    white lift entirely and let only a whisper of accent tint the top edge. */
 [data-theme="light"] .site-footer {
