@@ -791,7 +791,7 @@ function the_alpha_seo() {
 		'@type'         => 'Person',
 		'@id'           => $person_id,
 		'name'          => $person_name,
-		'alternateName' => apply_filters( 'the_alpha_person_alt_names', array( 'Heera', 'Hira', 'Sheikh Hira', 'Heera Sheikh' ) ),
+		'alternateName' => apply_filters( 'the_alpha_person_alt_names', array( 'Heera', 'Hira', 'Sheikh Hira', 'Heera Sheikh', 'শেখ হীরা' ) ),
 		'url'           => $site_url,
 		'jobTitle'      => apply_filters( 'the_alpha_person_job_title', 'CTO' ),
 	);
@@ -901,7 +901,7 @@ function the_alpha_enrich_agentimus_graph( $graph ) {
 		// node must never inherit the owner's name variants or employer.
 		if ( 'Person' === $node['@type'] && false !== strpos( (string) ( isset( $node['@id'] ) ? $node['@id'] : '' ), '#identity' ) ) {
 			if ( empty( $node['alternateName'] ) ) {
-				$graph[ $i ]['alternateName'] = apply_filters( 'the_alpha_person_alt_names', array( 'Heera', 'Hira', 'Sheikh Hira', 'Heera Sheikh' ) );
+				$graph[ $i ]['alternateName'] = apply_filters( 'the_alpha_person_alt_names', array( 'Heera', 'Hira', 'Sheikh Hira', 'Heera Sheikh', 'শেখ হীরা' ) );
 			}
 
 			$works_for = apply_filters( 'the_alpha_person_works_for', 'Authlab' );
