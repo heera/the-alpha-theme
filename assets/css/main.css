@@ -4592,6 +4592,18 @@ body.single .prose { max-width: none; margin-inline: 0; }
 }
 .widget a { color: var(--ink-soft); transition: color var(--t-fast); }
 .widget a:hover { color: var(--accent); }
+/* A category row is clickable end to end: the link's hit area is stretched
+   over the whole row (marker, gap, count), so the hover the row shows and
+   the pointer agree everywhere in it. Hovering the overlay counts as
+   hovering the link, so the :has(a:hover) rules above light the row. Skipped
+   for a row with a nested child list, where the overlay would swallow the
+   children's links. */
+.widget li.cat-item:not(:has(ul)) { position: relative; }
+.widget li.cat-item:not(:has(ul)) > a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
 /* A Recent Posts entry: the title, then a meta line in the post rows' own
    grammar — date, a pipe, reading time — in the mono voice they use, left
    under the title. The entry IS the link, both lines, so hovering either
@@ -4684,6 +4696,21 @@ body.single .prose { max-width: none; margin-inline: 0; }
 .widget_tag_cloud .tagcloud .tag-tone-3 { color: color-mix(in srgb, var(--ink-dim) 28%, var(--ink-head)); }
 .widget_tag_cloud .tagcloud .tag-tone-4 { color: var(--ink-head); }
 .widget_tag_cloud .tagcloud a:hover { color: var(--accent); }
+/* Hover also draws a thin accent underline under the word. In light mode the
+   tones and the bronze accent are all browns, so a colour change alone was
+   easy to miss (his catch). The line is always there in a transparent colour
+   and only fades in, so nothing moves or reflows in the justified rows. The
+   count is inline-block, which keeps the underline off it: the word is
+   underlined, the figure only takes the colour. */
+.widget_tag_cloud .tagcloud a {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.3em;
+  text-decoration-color: transparent;
+  transition: color var(--t-fast), text-decoration-color var(--t-fast);
+}
+.widget_tag_cloud .tagcloud a:hover,
+.widget_tag_cloud .tagcloud a:focus-visible { text-decoration-color: var(--accent); }
 .widget_tag_cloud .tag-link-count {
   font-family: var(--font-mono);
   font-size: 0.68rem;
@@ -4691,6 +4718,7 @@ body.single .prose { max-width: none; margin-inline: 0; }
   font-variant-numeric: tabular-nums;
   color: var(--ink-dim);
   margin-left: 0.3em;
+  display: inline-block;
   transition: color var(--t-fast);
 }
 .widget_tag_cloud a:hover .tag-link-count { color: var(--accent); }
@@ -4873,6 +4901,9 @@ body.single .prose { max-width: none; margin-inline: 0; }
   color: #06120f;
   border-color: transparent;
 }
+/* Light mode: the bronze disc is dark, so the number takes the paper colour
+   (cream) instead of near-black (his catch). */
+[data-theme="light"] .pagination .page-numbers.current { color: var(--bg); }
 .pagination a.page-numbers:hover { border-color: var(--accent); color: var(--accent); }
 .pagination .page-numbers.dots { border-color: transparent; }
 .pagination .prev,
