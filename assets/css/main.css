@@ -2737,24 +2737,10 @@ h1, h2, h3, h4 {
     radial-gradient(ellipse 130% 110% at 18%  38%, var(--frag-haze)  0%, transparent 88%),
     var(--section-ground, var(--bg-2));   /* same base as #about; the seam below carries the boundary */
 }
-/* ⭐ HIS CALL, 2026-11-26: the binary digits that sat here are gone; a drifting
-   neural network replaces them (assets/js/neural-field.js, ported from the
-   fluent-mcp-relay landing page). Dark mode draws it in the relay's
-   teal/cyan/blue/violet as glints; light mode draws it as bronze pencil
-   hairlines, because glowing colour on cream turns into ink that competes
-   with the text (see the polarity note above). Density 95, no travelling
-   sparks — his picks from the live panel; light mode runs at density 130 (2026-11-26), since its soft pencil lines needed more of them to read. The mask is the relay's own:
-   quieter in the middle where the words are, full toward the edges. */
-#blog .neural-field {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  -webkit-mask-image: radial-gradient(ellipse 55% 50% at 50% 50%, rgb(0 0 0 / 0.3), #000 85%);
-          mask-image: radial-gradient(ellipse 55% 50% at 50% 50%, rgb(0 0 0 / 0.3), #000 85%);
-}
+/* ⭐ HIS CALL, 2026-11-28: the Blog band has NO background artwork. The
+   drifting neural network (2026-11-26, which had replaced the binary digits)
+   was removed: the three illustrated post covers are this section's visual,
+   and a second layer behind them only competed. Don't add one back. */
 #blog .wrap { position: relative; z-index: 1; }
 /* Letterpress seam — drawn at the TOP of each content section to mark the
    boundary with the section above. Two stacked 1px gradients (recessed
