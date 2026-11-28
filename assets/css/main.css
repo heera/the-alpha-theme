@@ -2740,8 +2740,9 @@ h1, h2, h3, h4 {
 /* ⭐ HIS CALL, 2026-11-28: the Blog band has NO background artwork. The
    drifting neural network (2026-11-26, which had replaced the binary digits)
    was removed: the three illustrated post covers are this section's visual,
-   and a second layer behind them only competed. Don't add one back. */
-#blog .wrap { position: relative; z-index: 1; }
+   and a second layer behind them only competed. Don't add one back.
+   (Its `#blog .wrap` z-index lift went with it: nothing sits behind the
+   content any more, and #contact's seam works without one.) */
 /* Letterpress seam — drawn at the TOP of each content section to mark the
    boundary with the section above. Two stacked 1px gradients (recessed
    --rule-ink line + light --rule-lip lip beneath) give a pressed-fold edge
