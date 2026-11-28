@@ -87,7 +87,6 @@ function the_alpha_lost_icon( $key ) {
 		</ul>
 		<blockquote class="lost__quote">
 			<p><?php esc_html_e( 'In the woods of code and scent, some paths are better unseen.', 'the-alpha' ); ?></p>
-			<cite>&mdash; <?php echo esc_html( get_bloginfo( 'name' ) ); ?></cite>
 		</blockquote>
 	</div>
 </section>

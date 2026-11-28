@@ -3330,12 +3330,11 @@ h1, h2, h3, h4 {
 /* The left/right arrows only appear on hover, flanking the message. */
 .site-footer__seal-arrows--sides { opacity: 0; }
 /* Easter-egg link wrapping the seal (footer.php). The seal sits still at its
-   steady glow; pointing at or focusing the link spins the whole emblem (theme.js
-   spins it up, then coasts it to a stop on leave). The ::before extends the hit
-   area ~20px beyond the rings so hover registers reliably even when aiming at the
-   outer ring; the focus ring keeps it keyboard-reachable. The first-view bloom
-   (--lit, below) is independent — it animates the glow (filter) while the spin
-   animates rotation (transform), so the two layer without conflict. */
+   steady glow; pointing at or focusing the link fades the rim words to the
+   hover set (theme.js) — no spin. The ::before extends the hit area ~20px
+   beyond the rings so hover registers reliably even when aiming at the outer
+   ring; the focus ring keeps it keyboard-reachable. The first-view blink
+   (--lit, below) is independent. */
 .site-footer__seal-link {
   grid-column: 2;
   align-self: center;
@@ -3379,6 +3378,12 @@ h1, h2, h3, h4 {
      ring. Without this, top text grows outward (CODE crowds the border) while
      bottom text grows inward (EAT sits inset) — same radius, opposite offset. */
   dominant-baseline: central;
+  /* Hover word swap: fade out, swap while hidden, fade back in (theme.js). */
+  transition: opacity 0.15s var(--ease);
+}
+.site-footer__seal.is-swapping .site-footer__seal-text { opacity: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .site-footer__seal-text { transition: none; }
 }
 /* Light mode: terracotta at full strength (~6.2:1 on cream) — the toned-down
    opacity reads as washed-out on the light surface, so take it to 1. */
@@ -3421,82 +3426,51 @@ h1, h2, h3, h4 {
 [data-theme="light"] .site-footer__seal-ring[stroke-opacity="0.6"]  { stroke-opacity: 0.72; }
 [data-theme="light"] .site-footer__seal g[stroke-opacity="0.2"]     { stroke-opacity: 0.32; }
 [data-theme="light"] .site-footer__seal-arrows                      { stroke-opacity: 0.55; }
-/* First-view flourish (JS adds --lit once per page load, after a dwell on the
-   footer). The seal is always visible at its resting glow — no fade, no hidden
-   state. The glow rises smoothly from rest to a bright sci-fi bloom around the
-   midpoint, then eases back down to its real resting glow. Animation is
-   one-shot and reverts to the CSS base afterwards (no fill-forwards); since the
-   keyframes both start and end on the resting glow, there is no snap either way.
-   ease-in-out keeps the rise and fall smooth. Reduced motion / no-JS never add
-   --lit, so they simply see the resting seal. */
+/* First-view blink (JS adds --lit once per page load, after a dwell on the
+   footer, home page only). One small, quiet blink: the glow lifts a little
+   brighter (same glow size, so the seal never looks bigger) and settles in
+   ~1.2s. No wide halo — his call
+   2026-11-28: the old 3.6s bloom read harsh. Keyframes start and end on the
+   resting glow, so the one-shot animation never snaps. Reduced motion / no-JS
+   never add --lit. */
 @media (prefers-reduced-motion: no-preference) {
   .site-footer__seal--lit {
-    animation: sealIgnite 3.6s ease-in-out;
+    animation: sealBlink 1.2s ease-in-out;
   }
   .site-footer__seal--lit .site-footer__seal-core {
-    animation: sealCoreFlare 3.6s ease-in-out;
+    animation: sealCoreBlink 1.2s ease-in-out;
   }
-  /* The concentric rings brighten with the bloom too — their stroke flares up
-     then settles. No 0%/100% keyframes, so each ring rises from and returns to
-     its OWN resting stroke-opacity (the inline attr, or the light-mode override
-     of it above), keeping the layered depth and avoiding any snap when the
-     one-shot animation reverts. */
+  /* Rings brighten a touch with it (no 0%/100%, so each returns to its own
+     resting stroke-opacity). */
   .site-footer__seal--lit .site-footer__seal-ring {
-    animation: sealRingFlare 3.6s ease-in-out;
+    animation: sealRingBlink 1.2s ease-in-out;
   }
-  @keyframes sealRingFlare {
-    45%, 60% { stroke-opacity: 0.95; }
+  @keyframes sealRingBlink {
+    40% { stroke-opacity: 0.65; }
   }
-  /* One continuous gesture: swell from the resting glow up to a bright sci-fi
-     bloom, hold the peak just long enough for the eye to catch it (45–60%),
-     then ease back down to the real resting glow. Opacity stays put — the seal
-     is always visible. */
-  @keyframes sealIgnite {
-    0% {
+  @keyframes sealBlink {
+    0%, 100% {
       filter:
         drop-shadow(0 0 4px color-mix(in srgb, var(--accent) 28%, transparent))
         drop-shadow(0 0 12px color-mix(in srgb, var(--accent) 13%, transparent));
     }
-    45%, 60% {
+    40% {
       filter:
-        drop-shadow(0 0 26px color-mix(in srgb, var(--accent) 100%, transparent))
-        drop-shadow(0 0 70px color-mix(in srgb, var(--accent) 64%, transparent))
-        drop-shadow(0 0 120px color-mix(in srgb, var(--accent) 34%, transparent));
-    }
-    100% {
-      filter:
-        drop-shadow(0 0 4px color-mix(in srgb, var(--accent) 28%, transparent))
-        drop-shadow(0 0 12px color-mix(in srgb, var(--accent) 13%, transparent));
+        drop-shadow(0 0 4px color-mix(in srgb, var(--accent) 80%, transparent))
+        drop-shadow(0 0 12px color-mix(in srgb, var(--accent) 38%, transparent));
     }
   }
-  /* The core ◉ brightens in step, holds at the bloom's peak, then settles. */
-  @keyframes sealCoreFlare {
-    0% { filter: drop-shadow(0 0 2px color-mix(in srgb, var(--accent) 85%, transparent)); }
-    45%, 60% {
-      filter:
-        drop-shadow(0 0 14px var(--accent))
-        drop-shadow(0 0 34px color-mix(in srgb, var(--accent) 78%, transparent));
-    }
-    100% { filter: drop-shadow(0 0 2px color-mix(in srgb, var(--accent) 85%, transparent)); }
+  @keyframes sealCoreBlink {
+    0%, 100% { filter: drop-shadow(0 0 2px color-mix(in srgb, var(--accent) 85%, transparent)); }
+    40% { filter: drop-shadow(0 0 2px var(--accent)) drop-shadow(0 0 2px var(--accent)); }
   }
-  /* Light mode resting glow is far softer — swell and settle there so the seal
-     doesn't land in a heavier shadow on the cream surface. */
+  /* Light mode rests far softer — blink from and back to that. */
   [data-theme="light"] .site-footer__seal--lit {
-    animation-name: sealIgniteLight;
+    animation-name: sealBlinkLight;
   }
-  @keyframes sealIgniteLight {
-    0% {
-      filter: drop-shadow(0 0 2px color-mix(in srgb, var(--accent) 16%, transparent));
-    }
-    45%, 60% {
-      filter:
-        drop-shadow(0 0 16px color-mix(in srgb, var(--accent) 80%, transparent))
-        drop-shadow(0 0 44px color-mix(in srgb, var(--accent) 44%, transparent))
-        drop-shadow(0 0 80px color-mix(in srgb, var(--accent) 22%, transparent));
-    }
-    100% {
-      filter: drop-shadow(0 0 2px color-mix(in srgb, var(--accent) 16%, transparent));
-    }
+  @keyframes sealBlinkLight {
+    0%, 100% { filter: drop-shadow(0 0 2px color-mix(in srgb, var(--accent) 16%, transparent)); }
+    40% { filter: drop-shadow(0 0 2px color-mix(in srgb, var(--accent) 60%, transparent)); }
   }
 }
 
@@ -5933,7 +5907,7 @@ body.drawer-open { overflow: hidden; }
 }
 /* The foot sits over the photo, so give the text a halo (light in light mode,
    dark in dark mode) and strengthen the dividers so both read on any patch. */
-[data-theme="light"] :is(.lost-link__title, .lost-link__desc, .lost__foot-label, .lost__quote p, .lost__quote cite) {
+[data-theme="light"] :is(.lost-link__title, .lost-link__desc, .lost__foot-label, .lost__quote p) {
   text-shadow: 0 1px 1px rgba(255, 252, 246, 0.5);
 }
 /* The secondary description text (--ink-soft) is too light over the bright fog —
@@ -5943,11 +5917,11 @@ body.drawer-open { overflow: hidden; }
    fog — deepen them for easy reading, with a light halo to lift them over any
    darker patch. Walked toward the ink rather than set to a fixed brick, so the
    deepening survives a change of accent. */
-[data-theme="light"] :is(.lost__eyebrow, .lost__foot-label, .lost__quote cite) {
+[data-theme="light"] :is(.lost__eyebrow, .lost__foot-label) {
   color: color-mix(in srgb, var(--accent) 75%, var(--ink));
   text-shadow: 0 1px 1px rgba(255, 250, 240, 0.5);
 }
-[data-theme="dark"] :is(.lost-link__title, .lost-link__desc, .lost__foot-label, .lost__quote p, .lost__quote cite) {
+[data-theme="dark"] :is(.lost-link__title, .lost-link__desc, .lost__foot-label, .lost__quote p) {
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
 }
 .lost-link:hover .lost-link__title,
@@ -5971,20 +5945,12 @@ body.drawer-open { overflow: hidden; }
   margin-bottom: 0.2rem;
 }
 .lost__quote p {
-  margin: 0 0 0.7rem;
+  margin: 0;
   font-family: var(--font-brand), serif;
   font-style: italic;
   font-size: clamp(1.05rem, 0.95rem + 0.6vw, 1.35rem);
   line-height: 1.5;
   color: var(--ink);
-}
-.lost__quote cite {
-  font-style: normal;
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: var(--accent);
 }
 
 /* ----- 404 as a fixed single screen -------------------------------------- */
@@ -6090,8 +6056,6 @@ body.error404 .layout { min-height: 0; }
     transform: translateY(0.18em);
   }
   .lost__quote p { font-size: clamp(0.58rem, 2.7vw, 1rem); white-space: nowrap; margin: 0; }
-  /* Keep the attribution on its own line, centred under the quote. */
-  .lost__quote cite { flex-basis: 100%; margin-top: 0.6rem; }
 }
 
 /* Short phones (iPhone SE, small Androids): the link cards are the tallest part
@@ -6105,7 +6069,6 @@ body.error404 .layout { min-height: 0; }
   .lost__links { padding: 0.45rem 0; }
   .lost__links li:nth-child(n+3) { padding-top: 0.35rem; }
   .lost__foot-label { margin-bottom: 0.5rem; }
-  .lost__quote cite { margin-top: 0.35rem; }
 }
 /* Very short phones — also fold the decorative eyebrow so the essentials clear. */
 @media (max-width: 720px) and (max-height: 670px) {

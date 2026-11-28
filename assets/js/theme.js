@@ -478,6 +478,51 @@
     fitBlog();
   }
 
+  /* ---- Footer seal: first-view blink ------------------------------------
+     The seal is always visible at its resting glow. The first time it's dwelt
+     on — in view, mostly on screen, for ~1s — it gives one small, quiet blink
+     (CSS: sealBlink) and the observer disconnects, so it plays once per load.
+     Skipped for reduced-motion and no-JS (both just see the resting seal).
+     ⭐ HIS CALL, 2026-11-26: landing on the Blog section should show the
+     button without scrolling. When the two cards sit side by side and the
+     band would run past the bottom of the screen, trim the card images
+     (never below 110px) by exactly the overflow. Tall screens keep 16:10.
+     Phones (cards stacked) are left alone: no image height fits there. */
+  var blogBand = document.getElementById("blog");
+  var blogCards = blogBand && blogBand.querySelector(".cards");
+  var blogBtn = blogBand && blogBand.querySelector(".section__cta .btn");
+  if (blogCards && blogBtn) {
+    var fitBlog = function () {
+      blogBand.classList.remove("is-fitted");
+      var media = blogCards.querySelector(".card__media");
+      var twoUp = getComputedStyle(blogCards).gridTemplateColumns.split(" ").length > 1;
+      if (!media || !twoUp) return;
+      var bar = document.querySelector(".topbar");
+      var barH = bar && getComputedStyle(bar).display !== "none" ? bar.offsetHeight : 0;
+      var room = window.innerHeight - barH;
+      var overflow = function () {
+        // 24px breathing room under the button.
+        return blogBtn.getBoundingClientRect().bottom - blogBand.getBoundingClientRect().top + 24 - room;
+      };
+      if (overflow() <= 0) return;
+      // Fitted mode also tightens the heading gap (CSS); measure again with it
+      // on and the images still at full height, then trim by what is left.
+      var natural = media.offsetHeight;
+      blogBand.style.setProperty("--card-media-h", natural + "px");
+      blogBand.classList.add("is-fitted");
+      var over = overflow();
+      if (over <= 0) return;
+      blogBand.style.setProperty("--card-media-h", Math.max(110, Math.floor(natural - over - 1)) + "px");
+    };
+    var fitTimer = null;
+    window.addEventListener("resize", function () {
+      clearTimeout(fitTimer);
+      fitTimer = setTimeout(fitBlog, 120);
+    });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitBlog);
+    fitBlog();
+  }
+
   /* ---- Footer seal: first-view glow flourish ----------------------------
      The seal is always visible at its resting glow. The first time it's dwelt
      on — in view, mostly on screen, for ~1s of settled attention — its glow
@@ -487,7 +532,7 @@
      at rest before and after, so it can never be left invisible. Skipped for
      reduced-motion and no-JS (both just see the resting seal).
      ⭐ HIS CALL, 2026-11-26: landing page only (body.home). Every other page
-     shows the seal at rest; the hover spin below is unaffected. */
+     shows the seal at rest; the hover word swap below is unaffected. */
   var seal = document.querySelector(".site-footer__seal");
   if (seal && !reduceMotion && document.body.classList.contains("home") && "IntersectionObserver" in window) {
     var sealDwell = null;
@@ -516,11 +561,9 @@
 
   /* ---- Footer seal: hover reveal -----------------------------------------
      At rest the seal shows its real engraving (CODE / SNIFF / EAT / SLEEP),
-     sitting square. Pointing at or focusing it swaps the four words to the hover
-     set and turns the WHOLE seal 45°, so the pairs settle together — WRONG TURN
-     across the top, DON'T CLICK across the bottom. Leaving turns it back and
-     restores the words. The swap works for everyone; the turn is skipped under
-     reduced-motion. Independent of the first-view bloom (which animates glow). */
+     sitting square. Pointing at or focusing it fades the words over to WRONG
+     TURN across the top and DON'T CLICK across the bottom. Leaving fades them
+     back. Independent of the first-view bloom (which animates glow). */
   var sealLink = seal && document.querySelector(".site-footer__seal-link");
   if (seal && sealLink) {
     var sealWords = seal.querySelectorAll(".site-footer__seal-text textPath"); // N, E, S, W
@@ -528,53 +571,50 @@
     var arrowsSides = seal.querySelector(".site-footer__seal-arrows--sides");   // two side arrows (hover)
     var restWords = ["CODE", "SNIFF", "EAT", "SLEEP"];
     // On hover the two phrases ride the top and bottom arcs (sides cleared), so
-    // they read upright and in order. A rigid partial turn would flip whichever
-    // words land in the lower half, so the motion is a full 360° flourish that
-    // lands the seal square again — spin AND readable.
+    // they read upright and in order.
     var hoverWords = ["WRONG TURN", "", "DON’T CLICK", ""];
     var setSealWords = function (words) {
       for (var i = 0; i < sealWords.length; i++) {
         if (words[i] !== undefined) sealWords[i].textContent = words[i];
       }
     };
-
-    var canSpin = !reduceMotion && seal.animate;
-    var spin = null;
-    var SPIN_MS = 850;
-    var spinOnce = function () {
-      if (spin) spin.cancel();
-      spin = seal.animate(
-        [{ transform: "rotate(0deg)" }, { transform: "rotate(360deg)" }],
-        { duration: SPIN_MS, easing: "cubic-bezier(0.22, 1, 0.36, 1)" }
-      );
-      spin.onfinish = function () {
-        seal.style.transform = ""; // settle upright
-        if (spin) {
-          spin.cancel();
-          spin = null;
-        }
-      };
-    };
-    var resetSpin = function () {
-      if (spin) {
-        spin.cancel();
-        spin = null;
+    // Fade the words out, swap them while hidden, fade back in (CSS does the
+    // 0.15s fades). A quick in-out only keeps the latest target. Reduced
+    // motion swaps instantly.
+    var SWAP_MS = 150;
+    var swapTimer = null;
+    var swapSealWords = function (words) {
+      if (reduceMotion) {
+        setSealWords(words);
+        return;
       }
-      seal.style.transform = "";
+      clearTimeout(swapTimer);
+      seal.classList.add("is-swapping");
+      swapTimer = setTimeout(function () {
+        setSealWords(words);
+        seal.classList.remove("is-swapping");
+      }, SWAP_MS);
     };
 
-    var enter = function () {
-      setSealWords(hoverWords);
+    var sealActive = false; // pointer over it or keyboard focus inside
+    var showHover = function () {
+      swapSealWords(hoverWords);
       // Corner arrows out (they'd cross the long phrases), side arrows in.
       if (arrowsCorners) arrowsCorners.style.opacity = "0";
       if (arrowsSides) arrowsSides.style.opacity = "1";
-      if (canSpin) spinOnce();
     };
-    var leave = function () {
-      setSealWords(restWords);
+    var showRest = function () {
+      swapSealWords(restWords);
       if (arrowsCorners) arrowsCorners.style.opacity = "";
       if (arrowsSides) arrowsSides.style.opacity = "";
-      resetSpin();
+    };
+    var enter = function () {
+      sealActive = true;
+      showHover();
+    };
+    var leave = function () {
+      sealActive = false;
+      showRest();
     };
     sealLink.addEventListener("pointerenter", enter);
     sealLink.addEventListener("focusin", enter);
