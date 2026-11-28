@@ -130,6 +130,13 @@ function the_alpha_socials() {
 			'url'   => 'https://www.pinterest.com/sheikhheera/',
 			'icon'  => 'M12 2a10 10 0 0 0-3.65 19.31c-.09-.78-.17-1.98.03-2.83.19-.81 1.2-5.13 1.2-5.13s-.31-.61-.31-1.52c0-1.42.83-2.48 1.86-2.48.88 0 1.3.66 1.3 1.45 0 .88-.56 2.2-.85 3.42-.24 1.02.51 1.85 1.52 1.85 1.82 0 3.22-1.92 3.22-4.7 0-2.46-1.77-4.18-4.29-4.18-2.92 0-4.64 2.19-4.64 4.46 0 .88.34 1.83.76 2.34a.3.3 0 0 1 .07.29c-.08.32-.25 1.02-.29 1.16-.04.19-.15.23-.35.14-1.3-.61-2.11-2.5-2.11-4.02 0-3.28 2.38-6.29 6.86-6.29 3.6 0 6.4 2.57 6.4 6 0 3.58-2.26 6.46-5.39 6.46-1.05 0-2.04-.55-2.38-1.19l-.65 2.47c-.23.91-.86 2.04-1.29 2.74A10 10 0 1 0 12 2z',
 		),
+		'wordpress'     => array(
+			'label'  => 'WordPress.org',
+			'url'    => 'https://profiles.wordpress.org/heera/',
+			// sameAs only: a strong developer profile (Agentimus is published
+			// under it), hidden from the visible icon row.
+			'hidden' => true,
+		),
 		'fragrantica'   => array(
 			'label' => 'Fragrantica',
 			'url'   => 'https://www.fragrantica.com/member/1374163',

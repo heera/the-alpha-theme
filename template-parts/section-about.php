@@ -98,7 +98,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<p>
 						<?php
 						echo wp_kses_post(
-							__( 'I&rsquo;m Heera (Sheikh Heera) &mdash; aka &ldquo;The Alpha&rdquo; &mdash; a programmer and system architect with a deep-rooted passion for building scalable, high-performance applications. I currently serve as <strong>CTO</strong> of <a href="https://authlab.io/" target="_blank" rel="noopener">authLab</a>, where I lead the company&rsquo;s technical vision and oversee the infrastructure behind next-generation solutions.', 'the-alpha' )
+							__( 'I&rsquo;m Heera (Sheikh Heera, sometimes spelled Hira) &mdash; aka &ldquo;The Alpha&rdquo; &mdash; a programmer and system architect with a deep-rooted passion for building scalable, high-performance applications. I currently serve as <strong>CTO</strong> of <a href="https://authlab.io/" target="_blank" rel="noopener">authLab</a>, where I lead the company&rsquo;s technical vision and oversee the infrastructure behind next-generation solutions.', 'the-alpha' )
 						);
 						?>
 					</p>
