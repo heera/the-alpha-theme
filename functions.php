@@ -1023,7 +1023,7 @@ add_action( 'enqueue_block_editor_assets', 'the_alpha_editor_assets' );
 function the_alpha_excerpt_length() {
 	// Auto-excerpt word count. Listing rows (post-row.php) cap to a matching
 	// length; cards trim shorter (22) on their own.
-	return 45;
+	return 60;
 }
 add_filter( 'excerpt_length', 'the_alpha_excerpt_length' );
 

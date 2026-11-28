@@ -3785,7 +3785,7 @@ body.single .page-title {
   :root {
     --col-gap: clamp(2rem, 1rem + 3vw, 3.5rem); /* = .content-grid gap */
     --col-pad: clamp(2rem, 1.2rem + 2vw, 4rem); /* = .content-grid side padding */
-    --col-maxw: 760px;
+    --col-maxw: 720px; /* his call 2026-11-28, with 16px text: was 760 */
   }
   body:not(.reading-focus) .content-grid:has(> .blog-aside) { padding-left: var(--col-gap); }
   body:not(.reading-focus) .content-grid:has(> .blog-aside) > :not(.blog-aside) {
@@ -3954,7 +3954,7 @@ body.single .prose { max-width: none; margin-inline: 0; }
      column on normal screens; the generous 90ch cap only engages on very wide
      screens so excerpt lines never stretch to extreme lengths. Left-aligned, so
      it stays flush with the title/meta above. */
-  font-size: 0.92rem;
+  font-size: 1rem;
   line-height: 1.8;
   max-width: 90ch;
 }
@@ -4008,19 +4008,15 @@ body.single .prose { max-width: none; margin-inline: 0; }
    long-form text stays comfortable; 68ch ≈ 66–70 characters/line. margin-inline
    centers it so the leftover space is split evenly on both sides. TWEAK HERE:
    ~60ch = tighter, ~75ch = wider; remove the line to go back to full width. */
-.prose { color: var(--ink-soft); font-size: 0.92rem; line-height: 1.8; max-width: 68ch; margin-inline: auto; }
+.prose { color: var(--ink-soft); font-size: 1rem; /* 16px, his call 2026-11-28: was 0.92rem (14.7px), smaller than the sidebar links */ line-height: 1.8; max-width: 68ch; margin-inline: auto; }
 .prose > * + * { margin-top: 1.25rem; }
-/* Justified body paragraphs. text-align: justify alone stretches word spacing
-   into ugly gaps/"rivers"; hyphens: auto lets the browser break long words at
-   line ends so it has far less empty space to redistribute. Needs <html lang>
-   (output by language_attributes() in header.php). hyphenate-limit-chars keeps
-   it tasteful: only hyphenate words >= 6 chars, leaving >= 3 on each line. */
+/* Body paragraphs are set ragged-right with whole words: no justify and no
+   hyphen breaks at line ends (his call, 2026-11-28; focus mode already read
+   this way). Even word spacing on every line, no stretched gaps. */
 .prose p {
-  text-align: justify;
-  text-justify: inter-word;
-  hyphens: auto;
-  -webkit-hyphens: auto;
-  hyphenate-limit-chars: 6 3 3;
+  text-align: left;
+  hyphens: manual;
+  -webkit-hyphens: manual;
 }
 .prose h2, .prose h3, .prose h4 { color: var(--ink-head); margin-top: 2.4rem; }
 .prose h2 { font-size: 1.5rem; }
